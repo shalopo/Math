@@ -11,27 +11,25 @@ namespace MathUtil
 {
     class Program
     {
-        static ExactConstMathExpr _(long value) => new ExactConstMathExpr(value);
+        static ExactConstMathExpr _(double value) => new ExactConstMathExpr(value);
 
         static void Main(string[] args)
         {
             var x = new VariableMathExpr(new MathVariable("x"));
 
-            var f = SIN(x);
-
+            var f = E.Pow(x.Pow(4) * 2);
 
             Console.WriteLine($"f    = {f}");
             Console.WriteLine($"f(0) = {Eval(f, (x, 0))}");
 
-            //var f_reduced = f.Reduce();
+            f = f.Reduce();
+            Console.WriteLine($"f*  = {f}");
+            Console.WriteLine();
 
-            //Console.WriteLine($"f*  = {f_reduced}");
-            //Console.WriteLine();
+            var f_derived = f.Derive(x);
 
-            //var f_derived = f_reduced.Derive(x);
-
-            //Console.WriteLine($"f'  = {f_derived}");
-            //Console.WriteLine($"f'* = {f_derived.Reduce()}");
+            Console.WriteLine($"f'  = {f_derived}");
+            Console.WriteLine($"f'* = {f_derived.Reduce()}");
 
             Console.ReadLine();
         }

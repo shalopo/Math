@@ -44,24 +44,21 @@ namespace MathUtil
                                  select expr_reduced is MultMathExpr mult_expr ? mult_expr.Exprs : new MathExpr[] { expr_reduced }
                 ).SelectMany(exprs => exprs).ToList();
 
-            var exact_factor = reduced_exprs.OfType<ExactConstMathExpr>().Aggregate(1L, (agg, expr) => agg * expr.Value);
-            var double_factor = reduced_exprs.OfType<DoubleConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value);
-            double combined_factor = exact_factor * double_factor;
+            var factor = reduced_exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value);
 
-            var other_exprs = reduced_exprs.Where(expr => !(expr is ExactConstMathExpr) && !(expr is DoubleConstMathExpr));
+            var other_exprs = reduced_exprs.Where(expr => !(expr is ExactConstMathExpr));
 
-            if (combined_factor == 0.0)
+            if (factor == 0.0)
             {
                 return ExactConstMathExpr.ZERO;
             }
 
-            if (combined_factor == 1.0)
+            if (factor == 1.0)
             {
                 return other_exprs.Any() ? Create(other_exprs) : ExactConstMathExpr.ONE;
             }
 
-            return Create(other_exprs.Prepend(
-                double_factor == 1.0 ? (MathExpr)new ExactConstMathExpr(exact_factor) : (MathExpr)new DoubleConstMathExpr(combined_factor)));
+            return Create(other_exprs.Prepend(new ExactConstMathExpr(factor)));
         }
 
         public override MathExpr Transform(IMathExprTransformer transformer) => Create(Exprs.Select(expr => expr.Transform(transformer)));

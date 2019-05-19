@@ -35,18 +35,16 @@ namespace MathUtil
                                  select expr_reduced is AddMathExpr add_expr ? add_expr.Exprs : new MathExpr[] { expr_reduced }
                 ).SelectMany(exprs => exprs).ToList();
 
-            var exact_add = reduced_exprs.OfType<ExactConstMathExpr>().Aggregate(0L, (agg, expr) => agg + expr.Value);
-            var double_add = reduced_exprs.OfType<DoubleConstMathExpr>().Aggregate(0.0, (agg, expr) => agg + expr.Value);
+            var @const = reduced_exprs.OfType<ExactConstMathExpr>().Aggregate(0.0, (agg, expr) => agg + expr.Value);
 
-            var other_exprs = reduced_exprs.Where(expr => !(expr is ExactConstMathExpr) && !(expr is DoubleConstMathExpr));
+            var other_exprs = reduced_exprs.Where(expr => !(expr is ExactConstMathExpr));
 
-            if (exact_add + double_add == 0.0)
+            if (@const == 0.0)
             {
                 return other_exprs.Any() ? Create(other_exprs) : ExactConstMathExpr.ZERO;
             }
 
-            return Create(other_exprs.Append(
-                double_add == 0 ? (MathExpr)new ExactConstMathExpr(exact_add) : (MathExpr)new DoubleConstMathExpr(exact_add + double_add)));
+            return Create(other_exprs.Append(new ExactConstMathExpr(@const)));
         }
 
 
