@@ -22,7 +22,8 @@ namespace MathUtil
             }
         }
 
-        public override bool RequiresScopingAsExponentBase => true;
+        public override bool RequiresMultScoping => true;
+        public override bool RequiresPowScoping => true;
 
         public override string ToString()
         {

@@ -19,7 +19,7 @@ namespace MathTest
             var x = new VariableMathExpr(new MathVariable("x"));
 
             MathExpr f = 
-               SIN(x)/COS(x)
+               E.Pow(x)*(x.Pow(2) / 3)
             ;
 
             Console.WriteLine($"f    = {f}");

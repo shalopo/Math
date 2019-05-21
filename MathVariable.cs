@@ -23,7 +23,7 @@ namespace MathUtil
 
         public static implicit operator MathVariable(VariableMathExpr expr) => expr.Variable;
 
-        public override bool RequiresScopingAsExponentBase => false;
+        public override bool RequiresPowScoping => false;
 
         public override string ToString() => Variable.ToString();
 

@@ -14,11 +14,11 @@ namespace MathUtil
 
         public MathExpr Expr { get; }
 
-        public override bool RequiresScopingAsExponentBase => true;
+        public override bool RequiresPowScoping => true;
 
         public override MathExpr Derive(MathVariable v) => -Expr.Derive(v);
 
-        public override string ToString() => $"-{Expr}";
+        public override string ToString() => $"-{Expr.ToMultScopedString()}";
 
         public override MathExpr Visit(IMathExprTransformer transformer) => -Expr.Visit(transformer);
 

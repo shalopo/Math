@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace MathUtil
 {
@@ -23,9 +24,28 @@ namespace MathUtil
             }
         }
 
-        public override bool RequiresScopingAsExponentBase => true;
+        public override bool RequiresPowScoping => true;
 
-        public override string ToString() => string.Join("*", Exprs.Select(expr => expr is AddMathExpr ? $"({expr.ToString()})" : expr.ToString()));
+        public override string ToString()
+        {
+            var sb = new StringBuilder(Exprs[0].ToMultScopedString());
+
+            foreach (var expr in Exprs.Skip(1))
+            {
+                if (expr is ReciprocalMathExpr reciprocal)
+                {
+                    sb.Append("/");
+                    sb.Append(reciprocal.Expr.ToMultScopedString());
+                }
+                else
+                {
+                    sb.Append("*");
+                    sb.Append(expr.ToMultScopedString());
+                }
+            }
+
+            return sb.ToString();
+        }
 
         public override MathExpr Derive(MathVariable v) => AddMathExpr.Create(
             from expr_to_derive_index in Enumerable.Range(0, Exprs.Count)

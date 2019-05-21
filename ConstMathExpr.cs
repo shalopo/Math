@@ -17,7 +17,7 @@ namespace MathUtil
 
         public double Value { get; }
 
-        public override bool RequiresScopingAsExponentBase => false;
+        public override bool RequiresPowScoping => false;
 
         public override string ToString() => Value.ToString();
 
@@ -33,7 +33,7 @@ namespace MathUtil
         public string Name { get; }
         public double Value { get; }
 
-        public override bool RequiresScopingAsExponentBase => false;
+        public override bool RequiresPowScoping => false;
 
         public override string ToString() => Name;
 

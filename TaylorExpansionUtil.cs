@@ -23,7 +23,7 @@ namespace MathUtil
                 exprs.Add(MultMathExpr.Create(
                     MathEvalUtil.Eval(sub, (v, base_input)),
                     v.Pow(term),
-                    new ExactConstMathExpr(factor).Pow(-1)));
+                    ReciprocalMathExpr.Create(new ExactConstMathExpr(factor))));
             }
 
             return AddMathExpr.Create(exprs).Reduce();

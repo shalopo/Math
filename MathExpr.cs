@@ -6,7 +6,11 @@ namespace MathUtil
 {
     abstract class MathExpr
     {
-        public abstract bool RequiresScopingAsExponentBase { get; }
+        public virtual bool RequiresMultScoping => false;
+        public virtual bool RequiresPowScoping => false;
+
+        public string ToMultScopedString() => RequiresMultScoping ? $"({this})" : ToString();
+        public string ToPowScopedString() => RequiresPowScoping ? $"({this})" : ToString();
 
         public abstract override string ToString();
 
@@ -21,7 +25,7 @@ namespace MathUtil
         public static MathExpr operator -(MathExpr a) => NegateMathExpr.Create(a);
         public static MathExpr operator -(MathExpr a, MathExpr b) => AddMathExpr.Create(a, -b);
         public static MathExpr operator *(MathExpr a, MathExpr b) => MultMathExpr.Create(a, b);
-        public static MathExpr operator /(MathExpr a, MathExpr b) => a * b.Pow(-1);
+        public static MathExpr operator /(MathExpr a, MathExpr b) => a * ReciprocalMathExpr.Create(b);
         public MathExpr Pow(MathExpr exponent) => PowerMathExpr.Create(this,exponent);
 
         public static readonly MathExpr[] EMPTY_ARRAY = new MathExpr[0];

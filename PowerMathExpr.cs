@@ -33,13 +33,12 @@ namespace MathUtil
             (IsOne(const_exponent) ? @base : new PolynomPowerMathExpr(@base, const_exponent)) :
             new GeneralPowerMathExpr(@base, exponent);
 
-        public override bool RequiresScopingAsExponentBase => true;
+        public override bool RequiresPowScoping => true;
 
         protected abstract MathExpr GetBase();
         protected abstract MathExpr GetExponent();
 
-        public override string ToString() => (GetBase().RequiresScopingAsExponentBase ? $"({GetBase()})" : GetBase().ToString()) + "^" +
-            ((GetExponent() is ConstMathExpr || GetExponent() is VariableMathExpr) ? GetExponent().ToString() : $"({GetExponent()})");
+        public override string ToString() => $"{GetBase().ToPowScopedString()}^{GetExponent().ToPowScopedString()}";
 
         public override MathExpr Visit(IMathExprTransformer transformer) => PowerMathExpr.Create(
             GetBase().Visit(transformer), 

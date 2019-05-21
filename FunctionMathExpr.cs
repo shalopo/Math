@@ -58,7 +58,7 @@ namespace MathUtil
         public MathFunctionDef Func { get; }
         public MathExpr Input { get; }
 
-        public override bool RequiresScopingAsExponentBase => false;
+        public override bool RequiresPowScoping => false;
 
         public override MathExpr Derive(MathVariable v)
         {

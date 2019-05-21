@@ -56,6 +56,7 @@
     <Compile Include="MultMathExpr.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReciprocalMathExpr.cs" />
     <Compile Include="TaylorExpansionUtil.cs" />
     <Compile Include="TrigFunctionDefs.cs" />
     <Compile Include="MathVariable.cs" />
