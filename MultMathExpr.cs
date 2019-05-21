@@ -35,7 +35,7 @@ namespace MathUtil
                 if (expr is ReciprocalMathExpr reciprocal)
                 {
                     sb.Append("/");
-                    sb.Append(reciprocal.Expr.ToMultScopedString());
+                    sb.Append(reciprocal.Expr.ToPowScopedString());
                 }
                 else
                 {
@@ -71,7 +71,9 @@ namespace MathUtil
                 return ExactConstMathExpr.ZERO;
             }
 
-            var other_exprs = reduced_exprs.Where(expr => !(expr is ExactConstMathExpr));
+            var reciprocal = MultMathExpr.Create(reduced_exprs.OfType<ReciprocalMathExpr>().Select(r => r.Expr)).Reduce();
+
+            var other_exprs = reduced_exprs.Where(expr => !(expr is ExactConstMathExpr) && !(expr is ReciprocalMathExpr));
 
             if (other_exprs.OfType<NegateMathExpr>().Count() % 2 != 0)
             {
@@ -80,6 +82,11 @@ namespace MathUtil
 
             other_exprs = (from expr in other_exprs
                            select expr is NegateMathExpr negate ? negate.Expr : expr);
+
+            if (!MathEvalUtil.IsOne(reciprocal))
+            {
+                other_exprs = other_exprs.Append(ReciprocalMathExpr.Create(reciprocal));
+            }
 
             if (factor == 1.0)
             {

@@ -13,13 +13,19 @@ namespace MathTest
     class Program
     {
         static ExactConstMathExpr _(double value) => new ExactConstMathExpr(value);
+        static ExactConstMathExpr _0 = _(0);
+        static ExactConstMathExpr _1 = _(1);
+        static ExactConstMathExpr _2 = _(2);
+        static ExactConstMathExpr _3 = _(3);
+        static ExactConstMathExpr _4 = _(4);
+        static ExactConstMathExpr _5 = _(5);
 
         static void Main(string[] args)
         {
             var x = new VariableMathExpr(new MathVariable("x"));
 
             MathExpr f = 
-               E.Pow(x)*(x.Pow(2) / 3)
+               (_3/(_5/_3))
             ;
 
             Console.WriteLine($"f    = {f}");

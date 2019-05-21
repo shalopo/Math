@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="AddMathExpr.cs" />
     <Compile Include="DerivativeUtil.cs" />
+    <Compile Include="FractionUtil.cs" />
     <Compile Include="MathEvalUtil.cs" />
     <Compile Include="FunctionMathExpr.cs" />
     <Compile Include="GlobalFunctionDefs.cs" />
