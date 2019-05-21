@@ -44,16 +44,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddMathExpr.cs" />
+    <Compile Include="DerivativeUtil.cs" />
     <Compile Include="MathEvalUtil.cs" />
     <Compile Include="FunctionMathExpr.cs" />
     <Compile Include="GlobalFunctionDefs.cs" />
     <Compile Include="IMathExprListener.cs" />
+    <Compile Include="NegateMathExpr.cs" />
     <Compile Include="PowerMathExpr.cs" />
     <Compile Include="ConstMathExpr.cs" />
     <Compile Include="MathExpr.cs" />
     <Compile Include="MultMathExpr.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaylorExpansionUtil.cs" />
     <Compile Include="TrigFunctionDefs.cs" />
     <Compile Include="MathVariable.cs" />
     <Compile Include="VariablesTransformation.cs" />

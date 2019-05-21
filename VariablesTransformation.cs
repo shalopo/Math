@@ -8,6 +8,11 @@ namespace MathUtil
 {
     class VariablesTransformation : IMathExprTransformer
     {
+        public VariablesTransformation(params (MathVariable v, MathExpr transformed)[] transformation) :
+            this(transformation.ToDictionary(t => t.v, t => t.transformed))
+        {
+        }
+
         public VariablesTransformation(IReadOnlyDictionary<MathVariable, MathExpr> transformation) => Transformation = transformation;
 
         public MathExpr Transform(VariableMathExpr v) => Transformation.TryGetValue(v, out MathExpr expr) ? expr : v;

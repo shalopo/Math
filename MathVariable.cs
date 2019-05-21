@@ -27,7 +27,7 @@ namespace MathUtil
 
         public override string ToString() => Variable.ToString();
 
-        public override MathExpr Transform(IMathExprTransformer transformer) => transformer.Transform(this);
+        public override MathExpr Visit(IMathExprTransformer transformer) => transformer.Transform(this);
 
         public override MathExpr Derive(MathVariable v) => v == Variable ? ExactConstMathExpr.ONE : ExactConstMathExpr.ZERO;
     }

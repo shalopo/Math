@@ -8,7 +8,7 @@ namespace MathUtil
     {
         public override MathExpr Derive(MathVariable v) => ExactConstMathExpr.ZERO;
 
-        public override MathExpr Transform(IMathExprTransformer transformer) => transformer.Transform(this);
+        public override MathExpr Visit(IMathExprTransformer transformer) => transformer.Transform(this);
     }
 
     class ExactConstMathExpr : ConstMathExpr

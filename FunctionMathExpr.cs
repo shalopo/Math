@@ -8,34 +8,47 @@ namespace MathUtil
 {
     abstract class MathFunctionDef
     {
-
-
-
         public abstract string Name { get; }
 
         public abstract MathExpr Derive(MathVariable v);
 
         public FunctionCallMathExpr Call(MathExpr input) => new FunctionCallMathExpr(this, input);
 
-        public virtual MathExpr TryReduce(MathExpr input) => null;
+        public abstract MathExpr TryReduce(MathExpr input);
 
         public Func<MathExpr, MathExpr> GetFunctor() => Call;
 
         public static VariableMathExpr x1 = new VariableMathExpr(new MathVariable("@1"));
     }
 
-    abstract class SingleArgMathFunctionDef : MathFunctionDef
+    abstract class SimpleMathFunctionDef : MathFunctionDef
     {
         public override sealed MathExpr Derive(MathVariable v) => (v == x1.Variable) ? DeriveSingle() : ExactConstMathExpr.ZERO;
+
+        public override sealed MathExpr TryReduce(MathExpr input) => TryReduceImpl(input);
+
+        protected virtual MathExpr TryReduceImpl(MathExpr input) => null;
 
         protected abstract MathExpr DeriveSingle();
     }
 
-    abstract class ExpandableMathFunctionDef : MathFunctionDef
+    class ExpandableMathFunctionDef : MathFunctionDef
     {
-        public abstract MathExpr Definition { get; }
+        public ExpandableMathFunctionDef(string name, MathExpr definition) => (m_name, Definition) = (name, definition);
+
+        protected string m_name;
+
+        public override string Name => m_name;
+
+        public MathExpr Definition { get; }
 
         public override MathExpr Derive(MathVariable v) => Definition.Derive(v);
+
+        public override sealed MathExpr TryReduce(MathExpr input) => 
+            TryReduceImpl(input) ?? 
+            Definition.Visit(new VariablesTransformation((x1, input))).Reduce();
+
+        protected virtual MathExpr TryReduceImpl(MathExpr input) => null;
     }
 
     class FunctionCallMathExpr : MathExpr
@@ -47,15 +60,26 @@ namespace MathUtil
 
         public override bool RequiresScopingAsExponentBase => false;
 
-        public override MathExpr Derive(MathVariable v) =>
-            Input.Derive(v) * 
-            (Func.Derive(MathFunctionDef.x1)
-                .Transform(new VariablesTransformation(new Dictionary<MathVariable, MathExpr>() { { MathFunctionDef.x1, Input } })));
+        public override MathExpr Derive(MathVariable v)
+        {
+            var input_derived = Input.Derive(v);
+            if (MathEvalUtil.IsZero(input_derived))
+            {
+                return ExactConstMathExpr.ZERO;
+            }
 
-        public override MathExpr Reduce() => Func.TryReduce(Input) ?? this;
+            return input_derived * 
+                Func.Derive(MathFunctionDef.x1).Visit(new VariablesTransformation((MathFunctionDef.x1, Input)));
+        }
+
+        public override MathExpr Reduce()
+        {
+            var input_reduced = Input.Reduce();
+            return Func.TryReduce(input_reduced) ?? new FunctionCallMathExpr(Func, input_reduced);
+        }
 
         public override string ToString() => $"{Func.Name}({Input})";
 
-        public override MathExpr Transform(IMathExprTransformer transformer) => new FunctionCallMathExpr(Func, Input.Transform(transformer));
+        public override MathExpr Visit(IMathExprTransformer transformer) => new FunctionCallMathExpr(Func, Input.Visit(transformer));
     }
 }

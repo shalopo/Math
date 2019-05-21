@@ -13,10 +13,11 @@ namespace MathUtil
         public static bool IsZero(MathExpr expr) => IsExact(expr, 0);
         public static bool IsOne(MathExpr expr) => IsExact(expr, 1);
 
-        public static MathExpr Eval(MathExpr expr, params (MathVariable v, double value)[] values)
+        public static bool IsWholeNumber(double value) => Math.Abs(value % 1) <= (double.Epsilon * 100);
+
+        public static MathExpr Eval(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
-            var transformed = expr.Transform(new VariablesTransformation(
-                values.ToDictionary(t => t.v, t => (MathExpr)new ExactConstMathExpr(t.value))));
+            var transformed = expr.Visit(new VariablesTransformation(values));
             var reduced = transformed.Reduce();
             return reduced;
         }

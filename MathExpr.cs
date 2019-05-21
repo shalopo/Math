@@ -13,14 +13,12 @@ namespace MathUtil
         public abstract MathExpr Derive(MathVariable v);
         public virtual MathExpr Reduce() => this;
 
-        public virtual MathExpr Eval() => this;
-
-        public abstract MathExpr Transform(IMathExprTransformer transformer);
+        public abstract MathExpr Visit(IMathExprTransformer transformer);
 
         public static implicit operator MathExpr(double value) => new ExactConstMathExpr(value);
 
         public static MathExpr operator +(MathExpr a, MathExpr b) => AddMathExpr.Create(a, b);
-        public static MathExpr operator -(MathExpr a) => MultMathExpr.Create(ExactConstMathExpr.MINUS_ONE, a);
+        public static MathExpr operator -(MathExpr a) => NegateMathExpr.Create(a);
         public static MathExpr operator -(MathExpr a, MathExpr b) => AddMathExpr.Create(a, -b);
         public static MathExpr operator *(MathExpr a, MathExpr b) => MultMathExpr.Create(a, b);
         public static MathExpr operator /(MathExpr a, MathExpr b) => a * b.Pow(-1);

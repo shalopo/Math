@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MathUtil;
 using static MathUtil.GlobalFunctionDefs;
 using static MathUtil.KnownConstMathExpr;
 using static MathUtil.MathEvalUtil;
 
-namespace MathUtil
+namespace MathTest
 {
     class Program
     {
@@ -17,19 +18,27 @@ namespace MathUtil
         {
             var x = new VariableMathExpr(new MathVariable("x"));
 
-            var f = E.Pow(x.Pow(4) * 2);
+            MathExpr f = 
+               SIN(x)/COS(x)
+            ;
 
             Console.WriteLine($"f    = {f}");
-            Console.WriteLine($"f(0) = {Eval(f, (x, 0))}");
+            //Console.WriteLine($"f(0) = {Eval(f, (x, 0))}");
 
             f = f.Reduce();
+
             Console.WriteLine($"f*  = {f}");
             Console.WriteLine();
 
-            var f_derived = f.Derive(x);
-
+            var f_derived = DerivativeUtil.Derive(f, x);
             Console.WriteLine($"f'  = {f_derived}");
-            Console.WriteLine($"f'* = {f_derived.Reduce()}");
+
+            var f_derived2 = DerivativeUtil.Derive(f_derived, x);
+            Console.WriteLine($"f''  = {f_derived2}");
+            Console.WriteLine($"f''(1) = {Eval(f_derived2, (x, 0))}");
+
+            var taylor = TaylorExpansionUtil.Expand(f, x, 0, 6);
+            Console.WriteLine($"taylor  = {taylor}");
 
             Console.ReadLine();
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace MathUtil
 {
@@ -23,7 +24,26 @@ namespace MathUtil
 
         public override bool RequiresScopingAsExponentBase => true;
 
-        public override string ToString() => string.Join(" + ", Exprs.Select(expr => expr.ToString()));
+        public override string ToString()
+        {
+            var sb = new StringBuilder(Exprs[0].ToString());
+
+            foreach (var expr in Exprs.Skip(1))
+            {
+                if (expr is NegateMathExpr negate)
+                {
+                    sb.Append(" - ");
+                    sb.Append(negate.Expr.ToString());
+                }
+                else
+                {
+                    sb.Append(" + ");
+                    sb.Append(expr.ToString());
+                }
+            }
+
+            return sb.ToString();
+        }
 
         public override MathExpr Derive(MathVariable v) => Create(Exprs.Select(expr => expr.Derive(v)));
 
@@ -48,7 +68,7 @@ namespace MathUtil
         }
 
 
-        public override MathExpr Transform(IMathExprTransformer transformer) => AddMathExpr.Create(Exprs.Select(expr => expr.Transform(transformer)));
+        public override MathExpr Visit(IMathExprTransformer transformer) => AddMathExpr.Create(Exprs.Select(expr => expr.Visit(transformer)));
     }
 
 }

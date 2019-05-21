@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using static MathUtil.GlobalFunctionDefs;
 using static MathUtil.MathEvalUtil;
 
 namespace MathUtil
 {
-    class LnFunctionDef : SingleArgMathFunctionDef
+    class LnFunctionDef : SimpleMathFunctionDef
     {
         public override string Name => "ln";
 
         protected override MathExpr DeriveSingle() => 1 / x1;
 
-        public override MathExpr TryReduce(MathExpr input)
+        protected override MathExpr TryReduceImpl(MathExpr input)
         {
             if (input == KnownConstMathExpr.E)
             {
@@ -29,8 +30,8 @@ namespace MathUtil
     abstract class PowerMathExpr : MathExpr
     {
         public static MathExpr Create(MathExpr @base, MathExpr exponent) => exponent is ConstMathExpr const_exponent ?
-            (IsOne(const_exponent) ? @base : (MathExpr)new PolynomPowerMathExpr(@base, const_exponent)) :
-            (MathExpr)new GeneralPowerMathExpr(@base, exponent);
+            (IsOne(const_exponent) ? @base : new PolynomPowerMathExpr(@base, const_exponent)) :
+            new GeneralPowerMathExpr(@base, exponent);
 
         public override bool RequiresScopingAsExponentBase => true;
 
@@ -40,13 +41,16 @@ namespace MathUtil
         public override string ToString() => (GetBase().RequiresScopingAsExponentBase ? $"({GetBase()})" : GetBase().ToString()) + "^" +
             ((GetExponent() is ConstMathExpr || GetExponent() is VariableMathExpr) ? GetExponent().ToString() : $"({GetExponent()})");
 
-        public override MathExpr Transform(IMathExprTransformer transformer) => PowerMathExpr.Create(GetBase().Transform(transformer), GetExponent());
+        public override MathExpr Visit(IMathExprTransformer transformer) => PowerMathExpr.Create(
+            GetBase().Visit(transformer), 
+            GetExponent().Visit(transformer));
 
         public override MathExpr Reduce()
         {
             var base_reduced = GetBase().Reduce();
             var exponent_reduced = GetExponent().Reduce();
 
+            //TODO: bug with 0^0
             if (IsZero(exponent_reduced) || IsOne(base_reduced))
             {
                 return ExactConstMathExpr.ONE;
@@ -62,6 +66,11 @@ namespace MathUtil
             {
                 return ExactConstMathExpr.ZERO;
             }
+
+            //if (base_reduced is ExactConstMathExpr base_exact && exponent_reduced is ExactConstMathExpr exponent_exact)
+            //{
+            //    return Math.Pow(base_exact.Value, exponent_exact.Value);
+            //}
 
             return Create(base_reduced, exponent_reduced);
         }

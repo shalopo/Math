@@ -46,22 +46,38 @@ namespace MathUtil
 
             var factor = reduced_exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value);
 
-            var other_exprs = reduced_exprs.Where(expr => !(expr is ExactConstMathExpr));
-
             if (factor == 0.0)
             {
                 return ExactConstMathExpr.ZERO;
             }
+
+            var other_exprs = reduced_exprs.Where(expr => !(expr is ExactConstMathExpr));
+
+            if (other_exprs.OfType<NegateMathExpr>().Count() % 2 != 0)
+            {
+                factor = -factor;
+            }
+
+            other_exprs = (from expr in other_exprs
+                           select expr is NegateMathExpr negate ? negate.Expr : expr);
 
             if (factor == 1.0)
             {
                 return other_exprs.Any() ? Create(other_exprs) : ExactConstMathExpr.ONE;
             }
 
-            return Create(other_exprs.Prepend(new ExactConstMathExpr(factor)));
+            if (factor > 0)
+            {
+                return Create(other_exprs.Prepend(new ExactConstMathExpr(factor)));
+            }
+            else
+            {
+                return -Create(other_exprs.Prepend(new ExactConstMathExpr(-factor)));
+            }
+
         }
 
-        public override MathExpr Transform(IMathExprTransformer transformer) => Create(Exprs.Select(expr => expr.Transform(transformer)));
+        public override MathExpr Visit(IMathExprTransformer transformer) => Create(Exprs.Select(expr => expr.Visit(transformer)));
     }
 
 }

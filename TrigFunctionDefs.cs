@@ -8,14 +8,19 @@ using static MathUtil.MathEvalUtil;
 
 namespace MathUtil
 {
-    class SinFunctionDef : SingleArgMathFunctionDef
+    class SinFunctionDef : SimpleMathFunctionDef
     {
         public override string Name => "sin";
         protected override MathExpr DeriveSingle() => COS(x1);
 
-        public override MathExpr TryReduce(MathExpr input)
+        protected override MathExpr TryReduceImpl(MathExpr input)
         {
             if (IsZero(input))
+            {
+                return ExactConstMathExpr.ZERO;
+            }
+
+            if (input == KnownConstMathExpr.PI)
             {
                 return ExactConstMathExpr.ZERO;
             }
@@ -24,16 +29,21 @@ namespace MathUtil
         }
     }
 
-    class CosFunctionDef : SingleArgMathFunctionDef
+    class CosFunctionDef : SimpleMathFunctionDef
     {
         public override string Name => "cos";
         protected override MathExpr DeriveSingle() => -SIN(x1);
 
-        public override MathExpr TryReduce(MathExpr input)
+        protected override MathExpr TryReduceImpl(MathExpr input)
         {
             if (IsZero(input))
             {
                 return ExactConstMathExpr.ONE;
+            }
+
+            if (input == KnownConstMathExpr.PI)
+            {
+                return ExactConstMathExpr.MINUS_ONE;
             }
 
             return null;
@@ -42,8 +52,10 @@ namespace MathUtil
 
     class TanFunctionDef : ExpandableMathFunctionDef
     {
-        public override string Name => "tan";
-        public override MathExpr Definition => SIN(x1) / COS(x1);
+        public TanFunctionDef() : base("tan", SIN(x1) / COS(x1))
+        {
+        }
     }
+    
 
 }
