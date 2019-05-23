@@ -31,15 +31,26 @@ namespace MathUtil
 
             foreach (var expr in Exprs.Skip(1))
             {
-                if (expr is NegateMathExpr negate)
+                switch (expr)
                 {
-                    sb.Append(" - ");
-                    sb.Append(negate.Expr.ToString());
-                }
-                else
-                {
-                    sb.Append(" + ");
-                    sb.Append(expr.ToString());
+                    case NegateMathExpr negate:
+                    {
+                        sb.Append(" - ");
+                        sb.Append(negate.Expr.ToMultScopedString());
+                        break;
+                    }
+                    case ExactConstMathExpr exact when exact.Value < 0:
+                    {
+                        sb.Append(" - ");
+                        sb.Append(-exact.Value);
+                        break;
+                    }
+                    default:
+                    {
+                        sb.Append(" + ");
+                        sb.Append(expr);
+                        break;
+                    }
                 }
             }
 

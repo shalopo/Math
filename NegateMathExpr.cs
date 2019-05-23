@@ -14,6 +14,7 @@ namespace MathUtil
 
         public MathExpr Expr { get; }
 
+        public override bool RequiresMultScoping => true;
         public override bool RequiresPowScoping => true;
 
         public override MathExpr Derive(MathVariable v) => -Expr.Derive(v);
@@ -29,6 +30,7 @@ namespace MathUtil
             switch (expr_reduced)
             {
                 case NegateMathExpr negate: return negate.Expr;
+                case AddMathExpr add: return AddMathExpr.Create(add.Exprs.Select(NegateMathExpr.Create)).Reduce();
             }
 
             return -expr_reduced;

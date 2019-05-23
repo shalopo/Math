@@ -3,27 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static MathUtil.MathEvalUtil;
 
 namespace MathUtil
 {
     public static class FractionUtil
     {
-        private static long GCD(long a, long b)
+        public static long GCD(long a, long b)
         {
+            (a, b) = (Math.Abs(a), Math.Abs(b));
+
             while (a != 0 && b != 0)
             {
                 if (a > b)
+                {
                     a %= b;
+                }
                 else
+                {
                     b %= a;
+                }
             }
 
             return a == 0 ? b : a;
         }
 
-        private static long MultiGCD(params long [] arr)
+        public static (double, double) ReduceFraction(double a, double b)
         {
-            return arr.Aggregate(GCD);
+            if (IsWholeNumber(a) && IsWholeNumber(b))
+            {
+                var gcd = GCD((long)Math.Round(a), (long)Math.Round(b));
+                return (a / gcd, b / gcd);
+            }
+
+            return (a / b, 1);
         }
     }
 }

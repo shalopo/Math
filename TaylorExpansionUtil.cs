@@ -10,23 +10,22 @@ namespace MathUtil
     {
         public static MathExpr Expand(MathExpr f, VariableMathExpr v, MathExpr base_input, int num_derivatives)
         {
-            var exprs = new List<MathExpr>() { MathEvalUtil.Eval(f, (v, base_input)) };
-
+            var var_with_input = new[] { (v.Variable, base_input) };
             MathExpr sub = f;
             double factor = 1;
+
+            var exprs = new List<MathExpr>() { MathEvalUtil.Eval(f, var_with_input) };
 
             for (int term = 1; term <= num_derivatives && !MathEvalUtil.IsZero(sub); term++)
             {
                 factor *= term;
                 sub = DerivativeUtil.Derive(sub, v);
-
-                exprs.Add(MultMathExpr.Create(
-                    MathEvalUtil.Eval(sub, (v, base_input)),
-                    v.Pow(term),
-                    ReciprocalMathExpr.Create(new ExactConstMathExpr(factor))));
+                exprs.Add(MathEvalUtil.Eval(sub, var_with_input) * (v - base_input).Pow(term) * ReciprocalMathExpr.Create(factor));
             }
 
-            return AddMathExpr.Create(exprs).Reduce();
+            var taylor = AddMathExpr.Create(exprs).Reduce();
+            var taylor_reduced = taylor.Reduce();
+            return taylor_reduced;
         }
     }
 }

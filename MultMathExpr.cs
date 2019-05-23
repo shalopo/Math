@@ -14,13 +14,11 @@ namespace MathUtil
 
         public static MathExpr Create(IEnumerable<MathExpr> exprs)
         {
-            var filtered_exprs = exprs.Where(expr => !MathEvalUtil.IsOne(expr));
-
-            switch (filtered_exprs.Count())
+            switch (exprs.Count())
             {
                 case 0: return ExactConstMathExpr.ONE;
-                case 1: return filtered_exprs.First();
-                default: return new MultMathExpr(filtered_exprs);
+                case 1: return exprs.First();
+                default: return new MultMathExpr(exprs);
             }
         }
 
@@ -59,19 +57,23 @@ namespace MathUtil
 
         public override MathExpr Reduce()
         {
-            var reduced_exprs = (from expr in Exprs
-                                 let expr_reduced = expr.Reduce()
-                                 select expr_reduced is MultMathExpr mult_expr ? mult_expr.Exprs : new MathExpr[] { expr_reduced }
+            var reduced_exprs = (from expr in Exprs select expr.Reduce());
+
+            var negative_factor = (reduced_exprs.OfType<NegateMathExpr>().Count() % 2 == 0) ? 1 : -1;
+
+            reduced_exprs = (from expr in reduced_exprs
+                             select expr is MultMathExpr mult_expr ? mult_expr.Exprs :
+                                    expr is NegateMathExpr negate ? new MathExpr[] { negate.Expr } : 
+                                    new MathExpr[] { expr }
                 ).SelectMany(exprs => exprs).ToList();
 
             var factor = reduced_exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value);
+            factor *= negative_factor;
 
             if (factor == 0.0)
             {
                 return ExactConstMathExpr.ZERO;
             }
-
-            var reciprocal = MultMathExpr.Create(reduced_exprs.OfType<ReciprocalMathExpr>().Select(r => r.Expr)).Reduce();
 
             var other_exprs = reduced_exprs.Where(expr => !(expr is ExactConstMathExpr) && !(expr is ReciprocalMathExpr));
 
@@ -80,7 +82,16 @@ namespace MathUtil
                 factor = -factor;
             }
 
+            var reciprocal = MultMathExpr.Create(reduced_exprs.OfType<ReciprocalMathExpr>().Select(r => r.Expr)).Reduce();
+
+            //TODO: find the const in a mult reciprocal
+            if (reciprocal is ExactConstMathExpr exact_reciprocal)
+            {
+                (factor, reciprocal) = FractionUtil.ReduceFraction(factor, exact_reciprocal.Value);
+            }
+
             other_exprs = (from expr in other_exprs
+                           where !(expr is ReciprocalMathExpr)
                            select expr is NegateMathExpr negate ? negate.Expr : expr);
 
             if (!MathEvalUtil.IsOne(reciprocal))
