@@ -8,16 +8,13 @@ namespace MathUtil
 {
     static class DerivativeUtil
     {
-        public static MathExpr Derive(MathExpr expr, MathVariable v) => expr.Derive(v).Reduce();
-
-        public static MathExpr Derive(MathExpr expr, MathVariable v, int num_derivatives)
+        public static MathExpr Derive(MathExpr expr, MathVariable v, int num_derivatives = 1)
         {
             var sub = expr;
 
             for (int i = 0; i < num_derivatives; i++)
             {
-                var derivative = sub.Derive(v);
-                sub = derivative.Reduce();
+                sub = sub.Derive(v).Reduce();
             }
 
             return sub;

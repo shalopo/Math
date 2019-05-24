@@ -34,5 +34,16 @@ namespace MathUtil
         public override string ToString() => $"1/{Expr.ToPowScopedString()}";
 
         public override MathExpr Visit(IMathExprTransformer transformer) => Create(Expr.Visit(transformer));
+
+        public override bool Equals(object obj)
+        {
+            return obj is ReciprocalMathExpr expr &&
+                   EqualityComparer<MathExpr>.Default.Equals(Expr, expr.Expr);
+        }
+
+        public override int GetHashCode()
+        {
+            return 601397246 + EqualityComparer<MathExpr>.Default.GetHashCode(Expr);
+        }
     }
 }

@@ -24,8 +24,10 @@ namespace MathTest
         {
             var x = new VariableMathExpr(new MathVariable("x"));
 
-            MathExpr f = 
-               x*SIN(E.Pow(x))
+            MathExpr f =
+               x * SIN(E.Pow(x))
+               //x + x + x +x + 4*x
+            //COS(1) + COS(1)
             ;
 
             Console.WriteLine($"f    = {f}");
@@ -36,10 +38,10 @@ namespace MathTest
             Console.WriteLine($"f*  = {f}");
             Console.WriteLine();
 
-            int derivative_number = 5;
-            //var derived = DerivativeUtil.Derive(f, x, derivative_number);
-            //Console.WriteLine($"d^{derivative_number} f / dx^{derivative_number}  = {derived}");
-            //Console.WriteLine($"derived(0) = {MathEvalUtil.Eval(derived, (x, 0))}");
+            int derivative_number = 8;
+            var derived = DerivativeUtil.Derive(f, x, derivative_number);
+            Console.WriteLine($"d^{derivative_number} f / dx^{derivative_number}  = {derived}");
+            Console.WriteLine($"derived(0) = {MathEvalUtil.Eval(derived, (x, 0))}");
 
             var taylor = TaylorExpansionUtil.Expand(f, x, 0, derivative_number);
             Console.WriteLine($"taylor  = {taylor}");

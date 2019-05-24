@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MathTerm.cs" />
     <Compile Include="AddMathExpr.cs" />
     <Compile Include="DerivativeUtil.cs" />
     <Compile Include="FractionUtil.cs" />

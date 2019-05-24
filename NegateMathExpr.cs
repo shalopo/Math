@@ -35,5 +35,18 @@ namespace MathUtil
 
             return -expr_reduced;
         }
+
+        public override MathTerm AsTerm() => Expr.AsTerm() * (-1);
+
+        public override bool Equals(object obj)
+        {
+            return obj is NegateMathExpr expr &&
+                   EqualityComparer<MathExpr>.Default.Equals(Expr, expr.Expr);
+        }
+
+        public override int GetHashCode()
+        {
+            return 601397246 + EqualityComparer<MathExpr>.Default.GetHashCode(Expr);
+        }
     }
 }

@@ -17,9 +17,22 @@ namespace MathUtil
 
         public double Value { get; }
 
-        public override bool RequiresPowScoping => false;
+        public override bool RequiresPowScoping => (Value < 0);
 
         public override string ToString() => Value.ToString();
+
+        public override MathTerm AsTerm() => new MathTerm(1, Value);
+
+        public override bool Equals(object obj)
+        {
+            return obj is ExactConstMathExpr expr &&
+                   Value == expr.Value;
+        }
+
+        public override int GetHashCode()
+        {
+            return -1937169414 + Value.GetHashCode();
+        }
 
         public static readonly ExactConstMathExpr ZERO = new ExactConstMathExpr(0);
         public static readonly ExactConstMathExpr ONE = new ExactConstMathExpr(1);

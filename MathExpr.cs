@@ -17,6 +17,8 @@ namespace MathUtil
         public abstract MathExpr Derive(MathVariable v);
         public virtual MathExpr Reduce() => this;
 
+        public virtual MathTerm AsTerm() => new MathTerm(this, 1);
+
         public abstract MathExpr Visit(IMathExprTransformer transformer);
 
         public static implicit operator MathExpr(double value) => new ExactConstMathExpr(value);

@@ -72,6 +72,21 @@ namespace MathUtil
                 Func.Derive(MathFunctionDef.x1).Visit(new VariablesTransformation((MathFunctionDef.x1, Input)));
         }
 
+        public override bool Equals(object obj)
+        {
+            return obj is FunctionCallMathExpr expr &&
+                   EqualityComparer<MathFunctionDef>.Default.Equals(Func, expr.Func) &&
+                   EqualityComparer<MathExpr>.Default.Equals(Input, expr.Input);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 1879674458;
+            hashCode = hashCode * -1521134295 + EqualityComparer<MathFunctionDef>.Default.GetHashCode(Func);
+            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpr>.Default.GetHashCode(Input);
+            return hashCode;
+        }
+
         public override MathExpr Reduce()
         {
             var input_reduced = Input.Reduce();
@@ -81,5 +96,7 @@ namespace MathUtil
         public override string ToString() => $"{Func.Name}({Input})";
 
         public override MathExpr Visit(IMathExprTransformer transformer) => new FunctionCallMathExpr(Func, Input.Visit(transformer));
+
+
     }
 }

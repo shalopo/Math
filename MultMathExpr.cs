@@ -59,7 +59,7 @@ namespace MathUtil
         {
             var reduced_exprs = (from expr in Exprs select expr.Reduce());
 
-            var negative_factor = (reduced_exprs.OfType<NegateMathExpr>().Count() % 2 == 0) ? 1 : -1;
+            var negative_coefficient = (reduced_exprs.OfType<NegateMathExpr>().Count() % 2 == 0) ? 1 : -1;
 
             reduced_exprs = (from expr in reduced_exprs
                              select expr is MultMathExpr mult_expr ? mult_expr.Exprs :
@@ -67,10 +67,10 @@ namespace MathUtil
                                     new MathExpr[] { expr }
                 ).SelectMany(exprs => exprs).ToList();
 
-            var factor = reduced_exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value);
-            factor *= negative_factor;
+            var coefficient = reduced_exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value);
+            coefficient *= negative_coefficient;
 
-            if (factor == 0.0)
+            if (coefficient == 0.0)
             {
                 return ExactConstMathExpr.ZERO;
             }
@@ -79,7 +79,7 @@ namespace MathUtil
 
             if (other_exprs.OfType<NegateMathExpr>().Count() % 2 != 0)
             {
-                factor = -factor;
+                coefficient = -coefficient;
             }
 
             var reciprocal = MultMathExpr.Create(reduced_exprs.OfType<ReciprocalMathExpr>().Select(r => r.Expr)).Reduce();
@@ -87,7 +87,7 @@ namespace MathUtil
             //TODO: find the const in a mult reciprocal
             if (reciprocal is ExactConstMathExpr exact_reciprocal)
             {
-                (factor, reciprocal) = FractionUtil.ReduceFraction(factor, exact_reciprocal.Value);
+                (coefficient, reciprocal) = FractionUtil.ReduceFraction(coefficient, exact_reciprocal.Value);
             }
 
             other_exprs = (from expr in other_exprs
@@ -99,23 +99,21 @@ namespace MathUtil
                 other_exprs = other_exprs.Append(ReciprocalMathExpr.Create(reciprocal));
             }
 
-            if (factor == 1.0)
+            if (coefficient == 1.0)
             {
                 return other_exprs.Any() ? Create(other_exprs) : ExactConstMathExpr.ONE;
             }
 
-            if (factor > 0)
-            {
-                return Create(other_exprs.Prepend(new ExactConstMathExpr(factor)));
-            }
-            else
-            {
-                return -Create(other_exprs.Prepend(new ExactConstMathExpr(-factor)));
-            }
-
+            return Create(other_exprs.Prepend(new ExactConstMathExpr(coefficient)));
         }
 
         public override MathExpr Visit(IMathExprTransformer transformer) => Create(Exprs.Select(expr => expr.Visit(transformer)));
+
+        public override MathTerm AsTerm()
+        {
+            return new MathTerm(Create(Exprs.Where(expr => !(expr is ExactConstMathExpr))),
+                Exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value));
+        }
     }
 
 }

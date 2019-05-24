@@ -35,19 +35,20 @@ namespace MathUtil
 
         public override bool RequiresPowScoping => true;
 
-        protected abstract MathExpr GetBase();
-        protected abstract MathExpr GetExponent();
+        protected abstract MathExpr GeneralizedBase { get; }
 
-        public override string ToString() => $"{GetBase().ToPowScopedString()}^{GetExponent().ToPowScopedString()}";
+        protected abstract MathExpr GeneralizedExponent { get; }
+
+        public override string ToString() => $"{GeneralizedBase.ToPowScopedString()}^{GeneralizedExponent.ToPowScopedString()}";
 
         public override MathExpr Visit(IMathExprTransformer transformer) => PowerMathExpr.Create(
-            GetBase().Visit(transformer), 
-            GetExponent().Visit(transformer));
+            GeneralizedBase.Visit(transformer), 
+            GeneralizedExponent.Visit(transformer));
 
         public override MathExpr Reduce()
         {
-            var base_reduced = GetBase().Reduce();
-            var exponent_reduced = GetExponent().Reduce();
+            var base_reduced = GeneralizedBase.Reduce();
+            var exponent_reduced = GeneralizedExponent.Reduce();
 
             //TODO: bug with 0^0
             if (IsZero(exponent_reduced) || IsOne(base_reduced))
@@ -73,6 +74,21 @@ namespace MathUtil
 
             return Create(base_reduced, exponent_reduced);
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is PowerMathExpr expr &&
+                   EqualityComparer<MathExpr>.Default.Equals(GeneralizedBase, expr.GeneralizedBase) &&
+                   EqualityComparer<MathExpr>.Default.Equals(GeneralizedExponent, expr.GeneralizedExponent);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 252740318;
+            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpr>.Default.GetHashCode(GeneralizedBase);
+            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpr>.Default.GetHashCode(GeneralizedExponent);
+            return hashCode;
+        }
     }
 
     internal class GeneralPowerMathExpr : PowerMathExpr
@@ -82,8 +98,8 @@ namespace MathUtil
         public MathExpr Base { get; }
         public MathExpr Exponent { get; }
 
-        protected override MathExpr GetBase() => Base;
-        protected override MathExpr GetExponent() => Exponent;
+        protected override MathExpr GeneralizedBase => Base;
+        protected override MathExpr GeneralizedExponent => Exponent;
 
         public override MathExpr Derive(MathVariable v)
         {
@@ -94,12 +110,12 @@ namespace MathUtil
 
             if (!IsZero(exponent_derived))
             {
-                addition_exprs.Add(MultMathExpr.Create(exponent_derived, LN(Base)));
+                addition_exprs.Add(exponent_derived * LN(Base));
             }
 
             if (!IsZero(base_derived))
             {
-                addition_exprs.Add(MultMathExpr.Create(Exponent, base_derived, Base.Pow(-1)));
+                addition_exprs.Add(Exponent * base_derived / Base);
             }
 
             return MultMathExpr.Create(AddMathExpr.Create(addition_exprs), this);
@@ -113,8 +129,8 @@ namespace MathUtil
         public MathExpr Base { get; }
         public ConstMathExpr Exponent { get; }
 
-        protected override MathExpr GetBase() => Base;
-        protected override MathExpr GetExponent() => Exponent;
+        protected override MathExpr GeneralizedBase => Base;
+        protected override MathExpr GeneralizedExponent => Exponent;
 
         public override MathExpr Derive(MathVariable v) => MultMathExpr.Create(new MathExpr[] {
             Exponent,

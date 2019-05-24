@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -31,27 +32,11 @@ namespace MathUtil
 
             foreach (var expr in Exprs.Skip(1))
             {
-                switch (expr)
-                {
-                    case NegateMathExpr negate:
-                    {
-                        sb.Append(" - ");
-                        sb.Append(negate.Expr.ToMultScopedString());
-                        break;
-                    }
-                    case ExactConstMathExpr exact when exact.Value < 0:
-                    {
-                        sb.Append(" - ");
-                        sb.Append(-exact.Value);
-                        break;
-                    }
-                    default:
-                    {
-                        sb.Append(" + ");
-                        sb.Append(expr);
-                        break;
-                    }
-                }
+                var term = expr.AsTerm();
+                var sign = (term.Coefficient >= 0) ? "+" : "-";
+                var multiplier = (Math.Abs(term.Coefficient) == 1) ? "" : $"{Math.Abs(term.Coefficient)}*";
+
+                sb.Append($" {sign} {multiplier}{term.Expr}");
             }
 
             return sb.ToString();
@@ -67,16 +52,23 @@ namespace MathUtil
                                  select expr_reduced is AddMathExpr add_expr ? add_expr.Exprs : new MathExpr[] { expr_reduced }
                 ).SelectMany(exprs => exprs).ToList();
 
-            var @const = reduced_exprs.OfType<ExactConstMathExpr>().Aggregate(0.0, (agg, expr) => agg + expr.Value);
+            var dict = new Dictionary<MathExpr, double>();
 
-            var other_exprs = reduced_exprs.Where(expr => !(expr is ExactConstMathExpr));
-
-            if (@const == 0.0)
+            foreach (var expr in reduced_exprs)
             {
-                return other_exprs.Any() ? Create(other_exprs) : ExactConstMathExpr.ZERO;
+                var term = expr.AsTerm();
+
+                if (dict.ContainsKey(term.Expr))
+                {
+                    dict[term.Expr] += term.Coefficient;
+                }
+                else
+                {
+                    dict.Add(term.Expr, term.Coefficient);
+                }
             }
 
-            return Create(other_exprs.Append(new ExactConstMathExpr(@const)));
+            return Create(dict.Select(item => (item.Key * item.Value).Reduce()));
         }
 
 
