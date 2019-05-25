@@ -21,7 +21,7 @@ namespace MathUtil
 
         public override string ToString() => Value.ToString();
 
-        public override MathTerm AsTerm() => new MathTerm(1, Value);
+        public override MathTerm AsAddTerm() => new MathTerm(1, Value);
 
         public override bool Equals(object obj)
         {

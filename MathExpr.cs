@@ -17,7 +17,8 @@ namespace MathUtil
         public abstract MathExpr Derive(MathVariable v);
         public virtual MathExpr Reduce() => this;
 
-        public virtual MathTerm AsTerm() => new MathTerm(this, 1);
+        public virtual MathTerm AsAddTerm() => new MathTerm(this, 1);
+        public virtual MathTerm AsMultTerm() => new MathTerm(this, 1);
 
         public abstract MathExpr Visit(IMathExprTransformer transformer);
 

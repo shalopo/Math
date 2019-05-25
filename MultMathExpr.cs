@@ -55,19 +55,64 @@ namespace MathUtil
                  select Exprs[other_expr_index]).Prepend(derived_expr)
             ));
 
+        private static (IEnumerable<MathExpr>, int coefficient) ReduceNegatives(IEnumerable<MathExpr> exprs)
+        {
+            var result = new List<MathExpr>();
+            int coefficient = 1;
+
+            foreach (var expr in exprs)
+            {
+                if (expr is NegateMathExpr negate)
+                {
+                    coefficient = -coefficient;
+                    result.Add(negate.Expr);
+                }
+                else
+                {
+                    result.Add(expr);
+                }
+            }
+
+            return (result, coefficient);
+        }
+
         public override MathExpr Reduce()
         {
-            var reduced_exprs = (from expr in Exprs select expr.Reduce());
+            var exprs = (from expr in Exprs select expr.Reduce());
 
-            var negative_coefficient = (reduced_exprs.OfType<NegateMathExpr>().Count() % 2 == 0) ? 1 : -1;
+            int negative_coefficient;
+            (exprs, negative_coefficient) = ReduceNegatives(exprs);
 
-            reduced_exprs = (from expr in reduced_exprs
-                             select expr is MultMathExpr mult_expr ? mult_expr.Exprs :
-                                    expr is NegateMathExpr negate ? new MathExpr[] { negate.Expr } : 
-                                    new MathExpr[] { expr }
-                ).SelectMany(exprs => exprs).ToList();
+            exprs = (from expr in exprs
+                     select (expr is ReciprocalMathExpr reciprocal_ && reciprocal_.Expr is MultMathExpr mult) ?
+                     mult.Exprs.Select(mexpr => ReciprocalMathExpr.Create(mexpr)).AsEnumerable<MathExpr>() :
+                     new MathExpr[] { expr }).SelectMany(s => s);
 
-            var coefficient = reduced_exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value);
+            int negative_coefficient2;
+            (exprs, negative_coefficient2) = ReduceNegatives(exprs);
+            negative_coefficient *= negative_coefficient2;
+
+            exprs = (from expr in exprs
+                     select expr is MultMathExpr mult_expr ? mult_expr.Exprs : new MathExpr[] { expr }
+                ).SelectMany(s => s).ToList();
+
+            var dict = new Dictionary<MathExpr, MathExpr>();
+            foreach (var expr in exprs)
+            {
+                var term = expr.AsMultTerm();
+                if (dict.ContainsKey(term.Expr))
+                {
+                    dict[term.Expr] += term.Coefficient;
+                }
+                else
+                {
+                    dict.Add(term.Expr, term.Coefficient);
+                }
+            }
+
+            exprs = dict.Select(item => PowerMathExpr.Create(item.Key, item.Value).Reduce());
+
+            var coefficient = exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value);
             coefficient *= negative_coefficient;
 
             if (coefficient == 0.0)
@@ -75,14 +120,14 @@ namespace MathUtil
                 return ExactConstMathExpr.ZERO;
             }
 
-            var other_exprs = reduced_exprs.Where(expr => !(expr is ExactConstMathExpr) && !(expr is ReciprocalMathExpr));
+            var other_exprs = exprs.Where(expr => !(expr is ExactConstMathExpr) && !(expr is ReciprocalMathExpr));
 
             if (other_exprs.OfType<NegateMathExpr>().Count() % 2 != 0)
             {
                 coefficient = -coefficient;
             }
 
-            var reciprocal = MultMathExpr.Create(reduced_exprs.OfType<ReciprocalMathExpr>().Select(r => r.Expr)).Reduce();
+            var reciprocal = MultMathExpr.Create(exprs.OfType<ReciprocalMathExpr>().Select(r => r.Expr)).Reduce();
 
             //TODO: find the const in a mult reciprocal
             if (reciprocal is ExactConstMathExpr exact_reciprocal)
@@ -111,7 +156,7 @@ namespace MathUtil
 
         public override MathExpr Visit(IMathExprTransformer transformer) => Create(Exprs.Select(expr => expr.Visit(transformer)));
 
-        public override MathTerm AsTerm()
+        public override MathTerm AsAddTerm()
         {
             return new MathTerm(Create(Exprs.Where(expr => !(expr is ExactConstMathExpr))),
                 Exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value));

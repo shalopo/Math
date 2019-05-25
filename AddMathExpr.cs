@@ -32,11 +32,37 @@ namespace MathUtil
 
             foreach (var expr in Exprs.Skip(1))
             {
-                var term = expr.AsTerm();
-                var sign = (term.Coefficient >= 0) ? "+" : "-";
-                var multiplier = (Math.Abs(term.Coefficient) == 1) ? "" : $"{Math.Abs(term.Coefficient)}*";
+                var term = expr.AsAddTerm();
 
-                sb.Append($" {sign} {multiplier}{term.Expr}");
+                switch (term.Coefficient)
+                {
+                    case ExactConstMathExpr exact:
+                    {
+                        if (exact.Value == 1)
+                        {
+                            sb.Append($" + {term.Expr}");
+                        }
+                        else if (exact.Value == -1)
+                        {
+                            sb.Append($" - {term.Expr.ToMultScopedString()}");
+                        }
+                        else if (exact.Value >= 0)
+                        {
+                            sb.Append($" + {exact.Value}*{term.Expr.ToMultScopedString()}");
+                        }
+                        else
+                        {
+                            sb.Append($" - {-exact.Value}*{term.Expr.ToMultScopedString()}");
+                        }
+
+                        break;
+                    }
+                    default:
+                    {
+                        sb.Append($" + {term.Coefficient.ToMultScopedString()}*{term.Expr.ToMultScopedString()}");
+                        break;
+                    }
+                }
             }
 
             return sb.ToString();
@@ -46,29 +72,38 @@ namespace MathUtil
 
         public override MathExpr Reduce()
         {
-            var reduced_exprs = (from expr in Exprs
-                                 let expr_reduced = expr.Reduce()
-                                 where !MathEvalUtil.IsZero(expr_reduced)
-                                 select expr_reduced is AddMathExpr add_expr ? add_expr.Exprs : new MathExpr[] { expr_reduced }
-                ).SelectMany(exprs => exprs).ToList();
+            var exprs = (from expr in Exprs
+                         let expr_reduced = expr.Reduce()
+                         where !MathEvalUtil.IsZero(expr_reduced)
+                         select expr_reduced is AddMathExpr add_expr ? add_expr.Exprs : new MathExpr[] { expr_reduced }
+                ).SelectMany(s => s);
 
-            var dict = new Dictionary<MathExpr, double>();
+            var dict = new Dictionary<MathExpr, MathExpr>();
 
-            foreach (var expr in reduced_exprs)
+            foreach (var expr in exprs)
             {
-                var term = expr.AsTerm();
+                if (!(expr is ExactConstMathExpr))
+                {
+                    var term = expr.AsAddTerm();
 
-                if (dict.ContainsKey(term.Expr))
-                {
-                    dict[term.Expr] += term.Coefficient;
-                }
-                else
-                {
-                    dict.Add(term.Expr, term.Coefficient);
+                    if (dict.ContainsKey(term.Expr))
+                    {
+                        dict[term.Expr] += term.Coefficient;
+                    }
+                    else
+                    {
+                        dict.Add(term.Expr, term.Coefficient);
+                    }
                 }
             }
 
-            return Create(dict.Select(item => (item.Key * item.Value).Reduce()));
+            var @const = exprs.OfType<ExactConstMathExpr>().Aggregate(0.0, (agg, expr) => agg + expr.Value);
+
+            exprs = dict.Select(item => MathEvalUtil.IsOne(item.Key) ? item.Value : (item.Key * item.Value).Reduce()).Concat(
+                @const == 0 ? MathExpr.EMPTY_ARRAY : new MathExpr[] { @const }
+            );
+
+            return Create(exprs);
         }
 
 

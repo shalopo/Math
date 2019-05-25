@@ -115,5 +115,10 @@ namespace MathUtil
 
             return MultMathExpr.Create(AddMathExpr.Create(addition_exprs), this);
         }
+
+        public override MathTerm AsMultTerm()
+        {
+            return new MathTerm(Base, Exponent);
+        }
     }
 }

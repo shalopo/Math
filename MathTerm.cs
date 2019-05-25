@@ -8,10 +8,10 @@ namespace MathUtil
 {
     struct MathTerm
     {
-        public MathTerm(MathExpr expr, double coefficient) => (Expr, Coefficient) = (expr, coefficient);
+        public MathTerm(MathExpr expr, MathExpr coefficient) => (Expr, Coefficient) = (expr, coefficient);
 
         public MathExpr Expr { get; }
-        public double Coefficient { get; }
+        public MathExpr Coefficient { get; }
 
         public static MathTerm operator *(MathTerm term, double mult_coefficient) => 
             new MathTerm(term.Expr, term.Coefficient * mult_coefficient);

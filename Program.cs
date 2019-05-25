@@ -25,14 +25,18 @@ namespace MathTest
             var x = new VariableMathExpr(new MathVariable("x"));
 
             MathExpr f =
-               //x * SIN(E.Pow(x))
-            //x.Pow(x).Pow(x)
-            //x* x*x + x * x + x * x
-            //x.Pow(2) + x.Pow(3) + _2.Pow(2) + _2.Pow(x) + x.Pow(x) + x/x + x.Pow(1) + _1.Pow(x)
+             x * SIN(E.Pow(x))
+             //E.Pow(x)
+             //_1 - _1
+             //x.Pow(2)
+             //x.Pow(x).Pow(x)
+             //1 / (x * x)
+             //x* x*x + x * x + x * x
+             //x.Pow(2) + x.Pow(3) + _2.Pow(2) + _2.Pow(x) + x.Pow(x) + x/x + x.Pow(1) + _1.Pow(x)
              //COS(1) + COS(1)
              ;
 
-            var base_input = 1;
+            var base_input = 0;
 
             Console.WriteLine($"f    = {f}");
             //Console.WriteLine($"f(0) = {Eval(f, (x, 0))}");
@@ -42,7 +46,7 @@ namespace MathTest
             Console.WriteLine($"f*  = {f}");
             Console.WriteLine();
 
-            int derivative_number = 1;
+            int derivative_number = 5;
             var derived = DerivativeUtil.Derive(f, x, derivative_number);
             Console.WriteLine($"d^{derivative_number} f / dx^{derivative_number}  = {derived}");
             Console.WriteLine($"derived(0) = {MathEvalUtil.Eval(derived, (x, base_input))}");
