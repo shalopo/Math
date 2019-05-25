@@ -26,6 +26,7 @@ namespace MathUtil
                 case ReciprocalMathExpr reciprocal: return reciprocal.Expr;
                 case ExactConstMathExpr exact when Math.Abs(exact.Value) == 1: return exact.Value;
                 case MultMathExpr mult: return MultMathExpr.Create(mult.Exprs.Select(ReciprocalMathExpr.Create)).Reduce();
+                case PowerMathExpr power: return PowerMathExpr.Create(power.Base, (-power.Exponent).Reduce());
             }
 
             return Create(expr_reduced);

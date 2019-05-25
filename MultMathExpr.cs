@@ -94,6 +94,8 @@ namespace MathUtil
                            where !(expr is ReciprocalMathExpr)
                            select expr is NegateMathExpr negate ? negate.Expr : expr);
 
+            //TODO: collect terms - with power
+
             if (!MathEvalUtil.IsOne(reciprocal))
             {
                 other_exprs = other_exprs.Append(ReciprocalMathExpr.Create(reciprocal));
@@ -113,6 +115,22 @@ namespace MathUtil
         {
             return new MathTerm(Create(Exprs.Where(expr => !(expr is ExactConstMathExpr))),
                 Exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value));
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is MultMathExpr mult))
+            {
+                return false;
+            }
+
+            //TODO: mult equality
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return 407977119 + EqualityComparer<IReadOnlyList<MathExpr>>.Default.GetHashCode(Exprs);
         }
     }
 

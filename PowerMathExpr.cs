@@ -35,20 +35,21 @@ namespace MathUtil
 
         public override bool RequiresPowScoping => true;
 
-        protected abstract MathExpr GeneralizedBase { get; }
+        public MathExpr Base { get; }
+        public MathExpr Exponent { get; }
 
-        protected abstract MathExpr GeneralizedExponent { get; }
+        protected PowerMathExpr(MathExpr @base, MathExpr exponent) => (Base, Exponent) = (@base, exponent);
 
-        public override string ToString() => $"{GeneralizedBase.ToPowScopedString()}^{GeneralizedExponent.ToPowScopedString()}";
+        public override string ToString() => $"{Base.ToPowScopedString()}^{Exponent.ToPowScopedString()}";
 
         public override MathExpr Visit(IMathExprTransformer transformer) => PowerMathExpr.Create(
-            GeneralizedBase.Visit(transformer), 
-            GeneralizedExponent.Visit(transformer));
+            Base.Visit(transformer), 
+            Exponent.Visit(transformer));
 
         public override MathExpr Reduce()
         {
-            var base_reduced = GeneralizedBase.Reduce();
-            var exponent_reduced = GeneralizedExponent.Reduce();
+            var base_reduced = Base.Reduce();
+            var exponent_reduced = Exponent.Reduce();
 
             //TODO: bug with 0^0
             if (IsZero(exponent_reduced) || IsOne(base_reduced))
@@ -72,34 +73,35 @@ namespace MathUtil
             //    return Math.Pow(base_exact.Value, exponent_exact.Value);
             //}
 
+            if (base_reduced is PowerMathExpr base_power)
+            {
+                return Create(base_power.Base, (base_power.Exponent * exponent_reduced).Reduce());
+            }
+
             return Create(base_reduced, exponent_reduced);
         }
 
         public override bool Equals(object obj)
         {
             return obj is PowerMathExpr expr &&
-                   EqualityComparer<MathExpr>.Default.Equals(GeneralizedBase, expr.GeneralizedBase) &&
-                   EqualityComparer<MathExpr>.Default.Equals(GeneralizedExponent, expr.GeneralizedExponent);
+                   EqualityComparer<MathExpr>.Default.Equals(Base, expr.Base) &&
+                   EqualityComparer<MathExpr>.Default.Equals(Exponent, expr.Exponent);
         }
 
         public override int GetHashCode()
         {
             var hashCode = 252740318;
-            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpr>.Default.GetHashCode(GeneralizedBase);
-            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpr>.Default.GetHashCode(GeneralizedExponent);
+            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpr>.Default.GetHashCode(Base);
+            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpr>.Default.GetHashCode(Exponent);
             return hashCode;
         }
     }
 
     internal class GeneralPowerMathExpr : PowerMathExpr
     {
-        public GeneralPowerMathExpr(MathExpr @base, MathExpr exponent) => (Base, Exponent) = (@base, exponent);
-
-        public MathExpr Base { get; }
-        public MathExpr Exponent { get; }
-
-        protected override MathExpr GeneralizedBase => Base;
-        protected override MathExpr GeneralizedExponent => Exponent;
+        public GeneralPowerMathExpr(MathExpr @base, MathExpr exponent) : base(@base, exponent)
+        {
+        }
 
         public override MathExpr Derive(MathVariable v)
         {
@@ -124,13 +126,9 @@ namespace MathUtil
 
     internal class PolynomPowerMathExpr : PowerMathExpr
     {
-        public PolynomPowerMathExpr(MathExpr @base, ConstMathExpr exponent) => (Base, Exponent) = (@base, exponent);
-
-        public MathExpr Base { get; }
-        public ConstMathExpr Exponent { get; }
-
-        protected override MathExpr GeneralizedBase => Base;
-        protected override MathExpr GeneralizedExponent => Exponent;
+        public PolynomPowerMathExpr(MathExpr @base, ConstMathExpr exponent) : base(@base, exponent)
+        {
+        }
 
         public override MathExpr Derive(MathVariable v) => MultMathExpr.Create(new MathExpr[] {
             Exponent,
