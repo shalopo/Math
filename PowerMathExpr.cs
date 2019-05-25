@@ -27,11 +27,9 @@ namespace MathUtil
         }
     }
 
-    abstract class PowerMathExpr : MathExpr
+    class PowerMathExpr : MathExpr
     {
-        public static MathExpr Create(MathExpr @base, MathExpr exponent) => exponent is ConstMathExpr const_exponent ?
-            (IsOne(const_exponent) ? @base : new PolynomPowerMathExpr(@base, const_exponent)) :
-            new GeneralPowerMathExpr(@base, exponent);
+        public static MathExpr Create(MathExpr @base, MathExpr exponent) => IsOne(exponent) ? @base : new PowerMathExpr(@base, exponent);
 
         public override bool RequiresPowScoping => true;
 
@@ -95,13 +93,6 @@ namespace MathUtil
             hashCode = hashCode * -1521134295 + EqualityComparer<MathExpr>.Default.GetHashCode(Exponent);
             return hashCode;
         }
-    }
-
-    internal class GeneralPowerMathExpr : PowerMathExpr
-    {
-        public GeneralPowerMathExpr(MathExpr @base, MathExpr exponent) : base(@base, exponent)
-        {
-        }
 
         public override MathExpr Derive(MathVariable v)
         {
@@ -110,10 +101,12 @@ namespace MathUtil
 
             var addition_exprs = new List<MathExpr>();
 
-            if (!IsZero(exponent_derived))
+            if (IsZero(exponent_derived))
             {
-                addition_exprs.Add(exponent_derived * LN(Base));
+                return Exponent * base_derived * Create(Base, (Exponent - 1).Reduce());
             }
+
+            addition_exprs.Add(exponent_derived * LN(Base));
 
             if (!IsZero(base_derived))
             {
@@ -122,17 +115,5 @@ namespace MathUtil
 
             return MultMathExpr.Create(AddMathExpr.Create(addition_exprs), this);
         }
-    }
-
-    internal class PolynomPowerMathExpr : PowerMathExpr
-    {
-        public PolynomPowerMathExpr(MathExpr @base, ConstMathExpr exponent) : base(@base, exponent)
-        {
-        }
-
-        public override MathExpr Derive(MathVariable v) => MultMathExpr.Create(new MathExpr[] {
-            Exponent,
-            Base.Derive(v),
-            Create(Base, (Exponent - 1).Reduce())});
     }
 }
