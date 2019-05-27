@@ -22,7 +22,7 @@ namespace MathUtil
             }
         }
 
-        public override bool RequiresPowScoping => true;
+        internal override bool RequiresPowScoping => true;
 
         public override string ToString()
         {
@@ -45,7 +45,7 @@ namespace MathUtil
             return sb.ToString();
         }
 
-        public override MathExpr Derive(MathVariable v) => AddMathExpr.Create(
+        internal override MathExpr Derive(MathVariable v) => AddMathExpr.Create(
             from expr_to_derive_index in Enumerable.Range(0, Exprs.Count)
             let derived_expr = Exprs[expr_to_derive_index].Derive(v)
             where !MathEvalUtil.IsZero(derived_expr)
@@ -76,7 +76,7 @@ namespace MathUtil
             return (result, coefficient);
         }
 
-        public override MathExpr Reduce()
+        internal override MathExpr Reduce()
         {
             var exprs = (from expr in Exprs select expr.Reduce());
 
@@ -99,7 +99,7 @@ namespace MathUtil
             var dict = new Dictionary<MathExpr, MathExpr>();
             foreach (var expr in exprs)
             {
-                var term = expr.AsMultTerm();
+                var term = expr.AsPowerTerm();
                 if (dict.ContainsKey(term.Expr))
                 {
                     dict[term.Expr] += term.Coefficient;
@@ -154,9 +154,9 @@ namespace MathUtil
             return Create(other_exprs.Prepend(new ExactConstMathExpr(coefficient)));
         }
 
-        public override MathExpr Visit(IMathExprTransformer transformer) => Create(Exprs.Select(expr => expr.Visit(transformer)));
+        internal override MathExpr Visit(IMathExprTransformer transformer) => Create(Exprs.Select(expr => expr.Visit(transformer)));
 
-        public override MathTerm AsAddTerm()
+        internal override MathTerm AsMultTerm()
         {
             return new MathTerm(Create(Exprs.Where(expr => !(expr is ExactConstMathExpr))),
                 Exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value));

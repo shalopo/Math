@@ -31,7 +31,7 @@ namespace MathUtil
     {
         public static MathExpr Create(MathExpr @base, MathExpr exponent) => IsOne(exponent) ? @base : new PowerMathExpr(@base, exponent);
 
-        public override bool RequiresPowScoping => true;
+        internal override bool RequiresPowScoping => true;
 
         public MathExpr Base { get; }
         public MathExpr Exponent { get; }
@@ -40,11 +40,11 @@ namespace MathUtil
 
         public override string ToString() => $"{Base.ToPowScopedString()}^{Exponent.ToPowScopedString()}";
 
-        public override MathExpr Visit(IMathExprTransformer transformer) => PowerMathExpr.Create(
+        internal override MathExpr Visit(IMathExprTransformer transformer) => PowerMathExpr.Create(
             Base.Visit(transformer), 
             Exponent.Visit(transformer));
 
-        public override MathExpr Reduce()
+        internal override MathExpr Reduce()
         {
             var base_reduced = Base.Reduce();
             var exponent_reduced = Exponent.Reduce();
@@ -60,11 +60,36 @@ namespace MathUtil
                 return base_reduced;
             }
 
-            if (IsZero(base_reduced) && 
-                exponent_reduced is ExactConstMathExpr exact_exponent && exact_exponent.Value != 0) // make sure it cannot be 0^0
+            if (IsZero(base_reduced) && exponent_reduced is ExactConstMathExpr exact_exponent)
             {
-                return ExactConstMathExpr.ZERO;
+                if (exact_exponent.Value > 0)
+                {
+                    return ExactConstMathExpr.ZERO;
+                }
+                else
+                {
+                    throw new UndefinedMathBehavior($"Divide by zero, exponent:{exact_exponent.Value}");
+                }
             }
+
+            if (exponent_reduced is ExactConstMathExpr exponent_exact)
+            {
+                var term = base_reduced.AsMultTerm();
+
+                if (term.Coefficient is ExactConstMathExpr exact && exact.Value < 0)
+                {
+                    if (MathEvalUtil.IsEven(exponent_exact.Value))
+                    {
+                        return Create((-base_reduced).Reduce(), exponent_reduced);
+                    }
+                    else if (MathEvalUtil.IsOdd(exponent_exact.Value))
+                    {
+                        return -Create((-base_reduced).Reduce(), exponent_reduced);
+                    }
+                }
+            }
+
+            //TODO: reduce with exact consts
 
             //if (base_reduced is ExactConstMathExpr base_exact && exponent_reduced is ExactConstMathExpr exponent_exact)
             //{
@@ -94,7 +119,7 @@ namespace MathUtil
             return hashCode;
         }
 
-        public override MathExpr Derive(MathVariable v)
+        internal override MathExpr Derive(MathVariable v)
         {
             var base_derived = Base.Derive(v);
             var exponent_derived = Exponent.Derive(v);
@@ -116,7 +141,7 @@ namespace MathUtil
             return MultMathExpr.Create(AddMathExpr.Create(addition_exprs), this);
         }
 
-        public override MathTerm AsMultTerm()
+        internal override MathTerm AsPowerTerm()
         {
             return new MathTerm(Base, Exponent);
         }

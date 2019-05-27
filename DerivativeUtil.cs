@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MathUtil
 {
-    static class DerivativeUtil
+    public static class DerivativeUtil
     {
         public static MathExpr Derive(MathExpr expr, MathVariable v, int num_derivatives = 1)
         {

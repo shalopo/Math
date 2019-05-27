@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MathUtil
 {
-    static class GlobalFunctionDefs
+    public static class GlobalFunctionDefs
     {
         public static Func<MathExpr, MathExpr> SIN = new SinFunctionDef().GetFunctor();
         public static Func<MathExpr, MathExpr> COS = new CosFunctionDef().GetFunctor();

@@ -23,8 +23,8 @@ namespace MathUtil
             }
         }
 
-        public override bool RequiresMultScoping => true;
-        public override bool RequiresPowScoping => true;
+        internal override bool RequiresMultScoping => true;
+        internal override bool RequiresPowScoping => true;
 
         public override string ToString()
         {
@@ -32,7 +32,7 @@ namespace MathUtil
 
             foreach (var expr in Exprs.Skip(1))
             {
-                var term = expr.AsAddTerm();
+                var term = expr.AsMultTerm();
 
                 switch (term.Coefficient)
                 {
@@ -68,9 +68,9 @@ namespace MathUtil
             return sb.ToString();
         }
 
-        public override MathExpr Derive(MathVariable v) => Create(Exprs.Select(expr => expr.Derive(v)));
+        internal override MathExpr Derive(MathVariable v) => Create(Exprs.Select(expr => expr.Derive(v)));
 
-        public override MathExpr Reduce()
+        internal override MathExpr Reduce()
         {
             var exprs = (from expr in Exprs
                          let expr_reduced = expr.Reduce()
@@ -84,7 +84,7 @@ namespace MathUtil
             {
                 if (!(expr is ExactConstMathExpr))
                 {
-                    var term = expr.AsAddTerm();
+                    var term = expr.AsMultTerm();
 
                     if (dict.ContainsKey(term.Expr))
                     {
@@ -107,7 +107,7 @@ namespace MathUtil
         }
 
 
-        public override MathExpr Visit(IMathExprTransformer transformer) => AddMathExpr.Create(Exprs.Select(expr => expr.Visit(transformer)));
+        internal override MathExpr Visit(IMathExprTransformer transformer) => AddMathExpr.Create(Exprs.Select(expr => expr.Visit(transformer)));
     }
 
 }

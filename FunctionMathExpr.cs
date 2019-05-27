@@ -58,9 +58,9 @@ namespace MathUtil
         public MathFunctionDef Func { get; }
         public MathExpr Input { get; }
 
-        public override bool RequiresPowScoping => false;
+        internal override bool RequiresPowScoping => false;
 
-        public override MathExpr Derive(MathVariable v)
+        internal override MathExpr Derive(MathVariable v)
         {
             var input_derived = Input.Derive(v);
             if (MathEvalUtil.IsZero(input_derived))
@@ -87,7 +87,7 @@ namespace MathUtil
             return hashCode;
         }
 
-        public override MathExpr Reduce()
+        internal override MathExpr Reduce()
         {
             var input_reduced = Input.Reduce();
             return Func.TryReduce(input_reduced) ?? new FunctionCallMathExpr(Func, input_reduced);
@@ -95,7 +95,7 @@ namespace MathUtil
 
         public override string ToString() => $"{Func.Name}({Input})";
 
-        public override MathExpr Visit(IMathExprTransformer transformer) => new FunctionCallMathExpr(Func, Input.Visit(transformer));
+        internal override MathExpr Visit(IMathExprTransformer transformer) => new FunctionCallMathExpr(Func, Input.Visit(transformer));
 
 
     }

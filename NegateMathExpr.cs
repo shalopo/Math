@@ -14,16 +14,16 @@ namespace MathUtil
 
         public MathExpr Expr { get; }
 
-        public override bool RequiresMultScoping => true;
-        public override bool RequiresPowScoping => true;
+        internal override bool RequiresMultScoping => true;
+        internal override bool RequiresPowScoping => true;
 
-        public override MathExpr Derive(MathVariable v) => -Expr.Derive(v);
+        internal override MathExpr Derive(MathVariable v) => -Expr.Derive(v);
 
         public override string ToString() => $"-{Expr.ToMultScopedString()}";
 
-        public override MathExpr Visit(IMathExprTransformer transformer) => -Expr.Visit(transformer);
+        internal override MathExpr Visit(IMathExprTransformer transformer) => -Expr.Visit(transformer);
 
-        public override MathExpr Reduce()
+        internal override MathExpr Reduce()
         {
             var expr_reduced = Expr.Reduce();
 
@@ -31,12 +31,13 @@ namespace MathUtil
             {
                 case NegateMathExpr negate: return negate.Expr;
                 case AddMathExpr add: return AddMathExpr.Create(add.Exprs.Select(NegateMathExpr.Create)).Reduce();
+                case MultMathExpr mult: return MultMathExpr.Create(mult.Exprs.Prepend(-1)).Reduce();
             }
 
             return -expr_reduced;
         }
 
-        public override MathTerm AsAddTerm() => Expr.AsAddTerm() * (-1);
+        internal override MathTerm AsMultTerm() => Expr.AsMultTerm() * (-1);
 
         public override bool Equals(object obj)
         {

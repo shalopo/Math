@@ -4,23 +4,23 @@ using System.Threading.Tasks;
 
 namespace MathUtil
 {
-    abstract class MathExpr
+    public abstract class MathExpr
     {
-        public virtual bool RequiresMultScoping => false;
-        public virtual bool RequiresPowScoping => false;
+        internal virtual bool RequiresMultScoping => false;
+        internal virtual bool RequiresPowScoping => false;
 
-        public string ToMultScopedString() => RequiresMultScoping ? $"({this})" : ToString();
-        public string ToPowScopedString() => RequiresPowScoping ? $"({this})" : ToString();
+        internal string ToMultScopedString() => RequiresMultScoping ? $"({this})" : ToString();
+        internal string ToPowScopedString() => RequiresPowScoping ? $"({this})" : ToString();
 
         public abstract override string ToString();
 
-        public abstract MathExpr Derive(MathVariable v);
-        public virtual MathExpr Reduce() => this;
+        internal abstract MathExpr Derive(MathVariable v);
+        internal virtual MathExpr Reduce() => this;
 
-        public virtual MathTerm AsAddTerm() => new MathTerm(this, 1);
-        public virtual MathTerm AsMultTerm() => new MathTerm(this, 1);
+        internal virtual MathTerm AsMultTerm() => new MathTerm(this, 1);
+        internal virtual MathTerm AsPowerTerm() => new MathTerm(this, 1);
 
-        public abstract MathExpr Visit(IMathExprTransformer transformer);
+        internal abstract MathExpr Visit(IMathExprTransformer transformer);
 
         public static implicit operator MathExpr(double value) => new ExactConstMathExpr(value);
 
@@ -31,7 +31,7 @@ namespace MathUtil
         public static MathExpr operator /(MathExpr a, MathExpr b) => a * ReciprocalMathExpr.Create(b);
         public MathExpr Pow(MathExpr exponent) => PowerMathExpr.Create(this,exponent);
 
-        public static readonly MathExpr[] EMPTY_ARRAY = new MathExpr[0];
+        internal static readonly MathExpr[] EMPTY_ARRAY = new MathExpr[0];
     }
 
 }

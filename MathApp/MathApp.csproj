@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E00CA738-AA97-44DC-B068-FCB60FF9A806}</ProjectGuid>
+    <ProjectGuid>{DF9F92C3-034D-4B16-AC1C-F960240306A0}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>MathUtil</RootNamespace>
-    <AssemblyName>MathUtil</AssemblyName>
+    <RootNamespace>MathApp</RootNamespace>
+    <AssemblyName>MathApp</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -43,29 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MathTerm.cs" />
-    <Compile Include="AddMathExpr.cs" />
-    <Compile Include="DerivativeUtil.cs" />
-    <Compile Include="FractionUtil.cs" />
-    <Compile Include="MathEvalUtil.cs" />
-    <Compile Include="FunctionMathExpr.cs" />
-    <Compile Include="GlobalFunctionDefs.cs" />
-    <Compile Include="IMathExprListener.cs" />
-    <Compile Include="NegateMathExpr.cs" />
-    <Compile Include="PowerMathExpr.cs" />
-    <Compile Include="ConstMathExpr.cs" />
-    <Compile Include="MathExpr.cs" />
-    <Compile Include="MultMathExpr.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReciprocalMathExpr.cs" />
-    <Compile Include="TaylorExpansionUtil.cs" />
-    <Compile Include="TrigFunctionDefs.cs" />
-    <Compile Include="MathVariable.cs" />
-    <Compile Include="VariablesTransformation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MathUtil.csproj">
+      <Project>{e00ca738-aa97-44dc-b068-fcb60ff9a806}</Project>
+      <Name>MathUtil</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

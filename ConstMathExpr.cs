@@ -4,24 +4,24 @@ using System;
 namespace MathUtil
 {
 
-    abstract class ConstMathExpr : MathExpr
+    public abstract class ConstMathExpr : MathExpr
     {
-        public override MathExpr Derive(MathVariable v) => ExactConstMathExpr.ZERO;
+        internal override MathExpr Derive(MathVariable v) => ExactConstMathExpr.ZERO;
 
-        public override MathExpr Visit(IMathExprTransformer transformer) => transformer.Transform(this);
+        internal override MathExpr Visit(IMathExprTransformer transformer) => transformer.Transform(this);
     }
 
-    class ExactConstMathExpr : ConstMathExpr
+    public class ExactConstMathExpr : ConstMathExpr
     {
         public ExactConstMathExpr(double value) => Value = value;
 
         public double Value { get; }
 
-        public override bool RequiresPowScoping => (Value < 0);
+        internal override bool RequiresPowScoping => (Value < 0);
 
         public override string ToString() => Value.ToString();
 
-        public override MathTerm AsAddTerm() => new MathTerm(1, Value);
+        internal override MathTerm AsMultTerm() => new MathTerm(1, Value);
 
         public override bool Equals(object obj)
         {
@@ -39,14 +39,14 @@ namespace MathUtil
         public static readonly ExactConstMathExpr MINUS_ONE = new ExactConstMathExpr(-1);
     }
 
-    class KnownConstMathExpr : ConstMathExpr
+    public class KnownConstMathExpr : ConstMathExpr
     {
         public KnownConstMathExpr(string name, double value) => (Name, Value) = (name, value);
 
         public string Name { get; }
         public double Value { get; }
 
-        public override bool RequiresPowScoping => false;
+        internal override bool RequiresPowScoping => false;
 
         public override string ToString() => Name;
 

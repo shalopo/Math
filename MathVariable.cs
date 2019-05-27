@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MathUtil
 {
-    class MathVariable
+    public class MathVariable
     {
         public MathVariable(string name) => Name = name;
 
@@ -15,7 +15,7 @@ namespace MathUtil
         public override string ToString() => Name;
     }
 
-    class VariableMathExpr : MathExpr
+    public class VariableMathExpr : MathExpr
     {
         public VariableMathExpr(MathVariable v) => Variable = v;
 
@@ -23,12 +23,12 @@ namespace MathUtil
 
         public static implicit operator MathVariable(VariableMathExpr expr) => expr.Variable;
 
-        public override bool RequiresPowScoping => false;
+        internal override bool RequiresPowScoping => false;
 
         public override string ToString() => Variable.ToString();
 
-        public override MathExpr Visit(IMathExprTransformer transformer) => transformer.Transform(this);
+        internal override MathExpr Visit(IMathExprTransformer transformer) => transformer.Transform(this);
 
-        public override MathExpr Derive(MathVariable v) => v == Variable ? ExactConstMathExpr.ONE : ExactConstMathExpr.ZERO;
+        internal override MathExpr Derive(MathVariable v) => v == Variable ? ExactConstMathExpr.ONE : ExactConstMathExpr.ZERO;
     }
 }

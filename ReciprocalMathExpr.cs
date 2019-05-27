@@ -13,11 +13,11 @@ namespace MathUtil
 
         public MathExpr Expr { get; }
 
-        public override bool RequiresPowScoping => true;
+        internal override bool RequiresPowScoping => true;
 
-        public override MathExpr Derive(MathVariable v) => -Expr.Derive(v) * Expr.Pow(-2);
+        internal override MathExpr Derive(MathVariable v) => -Expr.Derive(v) * Expr.Pow(-2);
 
-        public override MathExpr Reduce()
+        internal override MathExpr Reduce()
         {
             var expr_reduced = Expr.Reduce();
 
@@ -33,11 +33,11 @@ namespace MathUtil
             return Create(expr_reduced);
         }
 
-        public override MathTerm AsMultTerm() => Expr.AsMultTerm() * (-1);
+        internal override MathTerm AsPowerTerm() => Expr.AsPowerTerm() * (-1);
 
         public override string ToString() => $"1/{Expr.ToPowScopedString()}";
 
-        public override MathExpr Visit(IMathExprTransformer transformer) => Create(Expr.Visit(transformer));
+        internal override MathExpr Visit(IMathExprTransformer transformer) => Create(Expr.Visit(transformer));
 
         public override bool Equals(object obj)
         {

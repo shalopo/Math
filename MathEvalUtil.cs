@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MathUtil
 {
-    static class MathEvalUtil
+    public static class MathEvalUtil
     {
         public static bool IsExact(MathExpr expr, double value) => expr is ExactConstMathExpr exact_const ? exact_const.Value == value : false;
 
@@ -15,10 +15,47 @@ namespace MathUtil
 
         public static bool IsWholeNumber(double value) => Math.Abs(value % 1) <= (double.Epsilon * 100);
 
-        public static MathExpr Eval(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
+        public static bool IsEven(double value)
         {
-            var transformed = expr.Visit(new VariablesTransformation(values));
-            var reduced = transformed.Reduce();
+            if (!IsWholeNumber(value))
+            {
+                return false;
+            }
+
+            return ((long)Math.Abs(value)) % 2 == 0;
+        }
+
+        public static bool IsOdd(double value)
+        {
+            if (!IsWholeNumber(value))
+            {
+                return false;
+            }
+
+            return ((long)Math.Abs(value)) % 2 != 0;
+        }
+
+        public static MathExpr Reduce(MathExpr expr)
+        {
+            try
+            {
+                return expr.Reduce();
+            }
+            catch (UndefinedMathBehavior)
+            {
+                return UndefinedMathExpr.Instance;
+            }
+        }
+
+        internal static MathExpr Eval(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
+        {
+            return expr.Visit(new VariablesTransformation(values)); 
+        }
+
+        public static MathExpr EvalReduce(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
+        {
+            var evaled = Eval(expr, values);
+            var reduced = Reduce(evaled);
             return reduced;
         }
     }
