@@ -26,23 +26,23 @@ namespace MathTest
 
             MathExpr f =
              E.Pow(SIN(x))
-             //PI * PI * PI.Pow(4) - PI.Pow(5)
+             //SQR(SIN(E.Pow(x) - 1))
              ;
-
-            f = Reduce(f);
-            Console.WriteLine($"f*  = {f}");
-            Console.WriteLine();
 
             var base_input = 0;
 
             Console.WriteLine($"f    = {f}");
+
+            f = Reduce(f);
+            Console.WriteLine($"f*  = {f}");
+            Console.WriteLine();
             Console.WriteLine($"f(0) = {MathEvalUtil.EvalReduce(f, (x, base_input))}");
 
             Console.WriteLine();
 
             if (!(f is UndefinedMathExpr))
             {
-                int derivative_number = 20;
+                int derivative_number = 25;
                 //var derived = DerivativeUtil.Derive(f, x, derivative_number);
                 //Console.WriteLine($"d^{derivative_number} f / dx^{derivative_number}  = {derived}");
                 //Console.WriteLine();

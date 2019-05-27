@@ -8,7 +8,12 @@ namespace MathUtil
 {
     abstract class MathFunctionDef
     {
-        public abstract string Name { get; }
+        protected MathFunctionDef(string name)
+        {
+            Name = name;
+        }
+
+        public string Name { get; }
 
         public abstract MathExpr Derive(MathVariable v);
 
@@ -16,13 +21,15 @@ namespace MathUtil
 
         public abstract MathExpr TryReduce(MathExpr input);
 
-        public Func<MathExpr, MathExpr> GetFunctor() => Call;
+        public static implicit operator Func<MathExpr, MathExpr>(MathFunctionDef func) => func.Call;
 
         public static VariableMathExpr x1 = new VariableMathExpr(new MathVariable("@1"));
     }
 
     abstract class SimpleMathFunctionDef : MathFunctionDef
     {
+        public SimpleMathFunctionDef(string name) : base(name) { }
+
         public override sealed MathExpr Derive(MathVariable v) => (v == x1.Variable) ? DeriveSingle() : ExactConstMathExpr.ZERO;
 
         public override sealed MathExpr TryReduce(MathExpr input) => TryReduceImpl(input);
@@ -34,11 +41,7 @@ namespace MathUtil
 
     class ExpandableMathFunctionDef : MathFunctionDef
     {
-        public ExpandableMathFunctionDef(string name, MathExpr definition) => (m_name, Definition) = (name, definition);
-
-        protected string m_name;
-
-        public override string Name => m_name;
+        public ExpandableMathFunctionDef(string name, MathExpr definition) : base(name) => Definition = definition;
 
         public MathExpr Definition { get; }
 

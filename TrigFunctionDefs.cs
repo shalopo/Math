@@ -10,7 +10,8 @@ namespace MathUtil
 {
     class SinFunctionDef : SimpleMathFunctionDef
     {
-        public override string Name => "sin";
+        public SinFunctionDef() : base("sin") { }
+
         protected override MathExpr DeriveSingle() => COS(x1);
 
         protected override MathExpr TryReduceImpl(MathExpr input)
@@ -31,7 +32,8 @@ namespace MathUtil
 
     class CosFunctionDef : SimpleMathFunctionDef
     {
-        public override string Name => "cos";
+        public CosFunctionDef() : base("cos") { }
+        
         protected override MathExpr DeriveSingle() => -SIN(x1);
 
         protected override MathExpr TryReduceImpl(MathExpr input)

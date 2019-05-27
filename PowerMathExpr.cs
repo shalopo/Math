@@ -7,7 +7,7 @@ namespace MathUtil
 {
     class LnFunctionDef : SimpleMathFunctionDef
     {
-        public override string Name => "ln";
+        public LnFunctionDef() : base("ln") { }
 
         protected override MathExpr DeriveSingle() => 1 / x1;
 
@@ -25,6 +25,11 @@ namespace MathUtil
 
             return null;
         }
+    }
+
+    class SqrFunctionDef : ExpandableMathFunctionDef
+    {
+        public SqrFunctionDef() : base("sqr", x1.Pow(2)) { }
     }
 
     class PowerMathExpr : MathExpr
@@ -74,6 +79,23 @@ namespace MathUtil
 
             if (exponent_reduced is ExactConstMathExpr exponent_exact)
             {
+                if (base_reduced is ExactConstMathExpr base_exact && 
+                    IsWholeNumber(base_exact.Value) && Math.Abs(base_exact.Value) <= 1024 &&
+                    IsWholeNumber(exponent_exact.Value) && Math.Abs(exponent_exact.Value) <= 20)
+                {
+                    try
+                    {
+                        double pow = Math.Pow(base_exact.Value, exponent_exact.Value);
+                        if (IsWholeNumber(pow) && pow <= 1024 * 1024)
+                        {
+                            return Convert.ToInt64(pow);
+                        }
+                    }
+                    catch (OverflowException)
+                    {
+                    }
+                }
+
                 var term = base_reduced.AsMultTerm();
 
                 if (term.Coefficient is ExactConstMathExpr exact && exact.Value < 0)
@@ -88,13 +110,6 @@ namespace MathUtil
                     }
                 }
             }
-
-            //TODO: reduce with exact consts
-
-            //if (base_reduced is ExactConstMathExpr base_exact && exponent_reduced is ExactConstMathExpr exponent_exact)
-            //{
-            //    return Math.Pow(base_exact.Value, exponent_exact.Value);
-            //}
 
             if (base_reduced is PowerMathExpr base_power)
             {

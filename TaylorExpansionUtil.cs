@@ -16,7 +16,13 @@ namespace MathUtil
                 MathExpr sub = f;
                 double factor = 1;
 
-                var exprs = new List<MathExpr>() { MathEvalUtil.EvalReduce(f, var_with_input) };
+                var exprs = new List<MathExpr>();
+
+                var @const = MathEvalUtil.EvalReduce(f, var_with_input);
+                if (!MathEvalUtil.IsZero(@const))
+                {
+                    exprs.Add(@const);
+                }
 
                 for (int term = 1; term <= num_derivatives && !MathEvalUtil.IsZero(sub); term++)
                 {
@@ -30,6 +36,8 @@ namespace MathUtil
                         exprs.Add(reduced_expr);
                     }
                 }
+
+                // Avoiding reduction of the whole add expression in order to prevent undesired reordering
 
                 var taylor = AddMathExpr.Create(exprs);
                 return taylor;

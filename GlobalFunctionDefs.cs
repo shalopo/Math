@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 
 namespace MathUtil
 {
+    using MathFuncCaller = Func<MathExpr, MathExpr>;
+
     public static class GlobalFunctionDefs
     {
-        public static Func<MathExpr, MathExpr> SIN = new SinFunctionDef().GetFunctor();
-        public static Func<MathExpr, MathExpr> COS = new CosFunctionDef().GetFunctor();
-        public static Func<MathExpr, MathExpr> TAN = new TanFunctionDef().GetFunctor();
-        public static Func<MathExpr, MathExpr> LN = new LnFunctionDef().GetFunctor();
+        public static MathFuncCaller SIN = new SinFunctionDef();
+        public static MathFuncCaller COS = new CosFunctionDef();
+        public static MathFuncCaller TAN = new TanFunctionDef();
+        public static MathFuncCaller LN = new LnFunctionDef();
+        public static MathFuncCaller SQR = new SqrFunctionDef();
     }
 }
