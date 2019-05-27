@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EqualityUtil.cs" />
     <Compile Include="MathTerm.cs" />
     <Compile Include="AddMathExpr.cs" />
     <Compile Include="DerivativeUtil.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="TaylorExpansionUtil.cs" />
     <Compile Include="TrigFunctionDefs.cs" />
     <Compile Include="MathVariable.cs" />
+    <Compile Include="UnreducedMathExprException.cs" />
     <Compile Include="VariablesTransformation.cs" />
   </ItemGroup>
   <ItemGroup>

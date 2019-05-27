@@ -108,6 +108,8 @@ namespace MathUtil
 
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => AddMathExpr.Create(Exprs.Select(expr => expr.Visit(transformer)));
-    }
 
+        public override bool Equals(object other) => (other is AddMathExpr other_add) && EqualityUtil.Equals(Exprs, other_add.Exprs);
+        public override int GetHashCode() => EqualityUtil.GetHashCode(Exprs, 982734678);
+    }
 }

@@ -47,7 +47,7 @@ namespace MathUtil
 
         public override int GetHashCode()
         {
-            return 601397246 + EqualityComparer<MathExpr>.Default.GetHashCode(Expr);
+            return 601397246 + Expr.GetHashCode();
         }
     }
 }

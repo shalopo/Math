@@ -22,7 +22,7 @@ namespace MathUtil
                 {
                     factor *= term;
                     sub = DerivativeUtil.Derive(sub, v);
-                    exprs.Add(MathEvalUtil.Eval(sub, var_with_input) * (v - base_input).Pow(term) * ReciprocalMathExpr.Create(factor));
+                    exprs.Add(MathEvalUtil.Eval(sub, var_with_input) * (v - base_input).Pow(term) / factor);
                 }
 
                 var taylor = AddMathExpr.Create(exprs).Reduce();

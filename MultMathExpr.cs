@@ -129,6 +129,7 @@ namespace MathUtil
 
             var reciprocal = MultMathExpr.Create(exprs.OfType<ReciprocalMathExpr>().Select(r => r.Expr)).Reduce();
 
+            //TODO: doesn't work anymore - reciprocals are transformed into pow(-1)
             //TODO: find the const in a mult reciprocal
             if (reciprocal is ExactConstMathExpr exact_reciprocal)
             {
@@ -162,21 +163,8 @@ namespace MathUtil
                 Exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value));
         }
 
-        public override bool Equals(object obj)
-        {
-            if (!(obj is MultMathExpr mult))
-            {
-                return false;
-            }
-
-            //TODO: mult equality
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return 407977119 + EqualityComparer<IReadOnlyList<MathExpr>>.Default.GetHashCode(Exprs);
-        }
+        public override bool Equals(object other) => (other is MultMathExpr other_mult) && EqualityUtil.Equals(Exprs, other_mult.Exprs);
+        public override int GetHashCode() => EqualityUtil.GetHashCode(Exprs, 407977119);
     }
 
 }

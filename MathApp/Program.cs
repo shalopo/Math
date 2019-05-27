@@ -28,7 +28,7 @@ namespace MathTest
              x * SIN(E.Pow(x))
              //PI * PI * PI.Pow(4)
              //(-2 * PI * x).Pow(-4)
-             //_2*SIN(_1/_0)
+             //x * (E.Pow(x) + SIN(1)) * 2 + (SIN(1) + E.Pow(x)) * (2*x)
              //x.Pow(2) + x.Pow(3) + _2.Pow(2) + _2.Pow(x) + x.Pow(x) + x/x + x.Pow(1) + _1.Pow(x)
              ;
 

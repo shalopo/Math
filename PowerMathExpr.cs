@@ -114,8 +114,8 @@ namespace MathUtil
         public override int GetHashCode()
         {
             var hashCode = 252740318;
-            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpr>.Default.GetHashCode(Base);
-            hashCode = hashCode * -1521134295 + EqualityComparer<MathExpr>.Default.GetHashCode(Exponent);
+            hashCode = hashCode * -1521134295 + Base.GetHashCode();
+            hashCode = hashCode * -1521134295 + Exponent.GetHashCode();
             return hashCode;
         }
 
