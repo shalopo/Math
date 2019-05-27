@@ -70,7 +70,7 @@ namespace MathUtil
 
         internal override MathExpr Derive(MathVariable v) => Create(Exprs.Select(expr => expr.Derive(v)));
 
-        internal override MathExpr Reduce()
+        protected override MathExpr ReduceImpl()
         {
             var exprs = (from expr in Exprs
                          let expr_reduced = expr.Reduce()

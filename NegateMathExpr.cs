@@ -23,7 +23,7 @@ namespace MathUtil
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => -Expr.Visit(transformer);
 
-        internal override MathExpr Reduce()
+        protected override MathExpr ReduceImpl()
         {
             var expr_reduced = Expr.Reduce();
 

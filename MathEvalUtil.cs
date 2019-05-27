@@ -22,7 +22,14 @@ namespace MathUtil
                 return false;
             }
 
-            return ((long)Math.Abs(value)) % 2 == 0;
+            try
+            {
+                return Convert.ToInt64(Math.Abs(value)) % 2 == 0;
+            }
+            catch (OverflowException)
+            {
+                return false;
+            }
         }
 
         public static bool IsOdd(double value)
@@ -32,7 +39,14 @@ namespace MathUtil
                 return false;
             }
 
-            return ((long)Math.Abs(value)) % 2 != 0;
+            try
+            {
+                return Convert.ToInt64(Math.Abs(value)) % 2 != 0;
+            }
+            catch (OverflowException)
+            {
+                return false;
+            }
         }
 
         public static MathExpr Reduce(MathExpr expr)

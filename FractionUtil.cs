@@ -32,8 +32,15 @@ namespace MathUtil
         {
             if (IsWholeNumber(a) && IsWholeNumber(b))
             {
-                var gcd = GCD((long)Math.Round(a), (long)Math.Round(b));
-                return (a / gcd, b / gcd);
+                try
+                {
+                    var gcd = GCD(Convert.ToInt64(Math.Round(a)), Convert.ToInt64(Math.Round(b)));
+                    return (a / gcd, b / gcd);
+                }
+                catch (OverflowException)
+                {
+                    return (a, b);
+                }
             }
 
             return (a / b, 1);

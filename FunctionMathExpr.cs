@@ -87,7 +87,7 @@ namespace MathUtil
             return hashCode;
         }
 
-        internal override MathExpr Reduce()
+        protected override MathExpr ReduceImpl()
         {
             var input_reduced = Input.Reduce();
             return Func.TryReduce(input_reduced) ?? new FunctionCallMathExpr(Func, input_reduced);

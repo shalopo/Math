@@ -17,7 +17,7 @@ namespace MathUtil
 
         internal override MathExpr Derive(MathVariable v) => -Expr.Derive(v) * Expr.Pow(-2);
 
-        internal override MathExpr Reduce()
+        protected override MathExpr ReduceImpl()
         {
             var expr_reduced = Expr.Reduce();
 

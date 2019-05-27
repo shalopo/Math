@@ -25,28 +25,29 @@ namespace MathTest
             var x = new VariableMathExpr(new MathVariable("x"));
 
             MathExpr f =
-             x * SIN(E.Pow(x))
-             //PI * PI * PI.Pow(4)
-             //(-2 * PI * x).Pow(-4)
-             //x * (E.Pow(x) + SIN(1)) * 2 + (SIN(1) + E.Pow(x)) * (2*x)
-             //x.Pow(2) + x.Pow(3) + _2.Pow(2) + _2.Pow(x) + x.Pow(x) + x/x + x.Pow(1) + _1.Pow(x)
+             E.Pow(SIN(x))
+             //PI * PI * PI.Pow(4) - PI.Pow(5)
              ;
-
-            var base_input = 0;
-
-            Console.WriteLine($"f    = {f}");
-            //Console.WriteLine($"f(0) = {Eval(f, (x, 0))}");
 
             f = Reduce(f);
             Console.WriteLine($"f*  = {f}");
             Console.WriteLine();
 
+            var base_input = 0;
+
+            Console.WriteLine($"f    = {f}");
+            Console.WriteLine($"f(0) = {MathEvalUtil.EvalReduce(f, (x, base_input))}");
+
+            Console.WriteLine();
+
             if (!(f is UndefinedMathExpr))
             {
-                int derivative_number = 5;
-                var derived = DerivativeUtil.Derive(f, x, derivative_number);
-                Console.WriteLine($"d^{derivative_number} f / dx^{derivative_number}  = {derived}");
-                Console.WriteLine($"derived(0) = {MathEvalUtil.EvalReduce(derived, (x, base_input))}");
+                int derivative_number = 20;
+                //var derived = DerivativeUtil.Derive(f, x, derivative_number);
+                //Console.WriteLine($"d^{derivative_number} f / dx^{derivative_number}  = {derived}");
+                //Console.WriteLine();
+                //Console.WriteLine($"derived(0) = {MathEvalUtil.EvalReduce(derived, (x, base_input))}");
+                //Console.WriteLine();
 
                 var taylor = TaylorExpansionUtil.Expand(f, x, base_input, derivative_number);
                 Console.WriteLine($"taylor  = {taylor}");

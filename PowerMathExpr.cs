@@ -44,7 +44,7 @@ namespace MathUtil
             Base.Visit(transformer), 
             Exponent.Visit(transformer));
 
-        internal override MathExpr Reduce()
+        protected override MathExpr ReduceImpl()
         {
             var base_reduced = Base.Reduce();
             var exponent_reduced = Exponent.Reduce();

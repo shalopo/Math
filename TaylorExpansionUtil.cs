@@ -16,18 +16,23 @@ namespace MathUtil
                 MathExpr sub = f;
                 double factor = 1;
 
-                var exprs = new List<MathExpr>() { MathEvalUtil.Eval(f, var_with_input) };
+                var exprs = new List<MathExpr>() { MathEvalUtil.EvalReduce(f, var_with_input) };
 
                 for (int term = 1; term <= num_derivatives && !MathEvalUtil.IsZero(sub); term++)
                 {
                     factor *= term;
                     sub = DerivativeUtil.Derive(sub, v);
-                    exprs.Add(MathEvalUtil.Eval(sub, var_with_input) * (v - base_input).Pow(term) / factor);
+                    var expr = MathEvalUtil.EvalReduce(sub, var_with_input) * (v - base_input).Pow(term) / factor;
+                    var reduced_expr = expr.Reduce();
+
+                    if (!MathEvalUtil.IsZero(reduced_expr))
+                    {
+                        exprs.Add(reduced_expr);
+                    }
                 }
 
-                var taylor = AddMathExpr.Create(exprs).Reduce();
-                var taylor_reduced = taylor.Reduce();
-                return taylor_reduced;
+                var taylor = AddMathExpr.Create(exprs);
+                return taylor;
             }
             catch (UndefinedMathBehavior)
             {

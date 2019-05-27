@@ -15,7 +15,20 @@ namespace MathUtil
         public abstract override string ToString();
 
         internal abstract MathExpr Derive(MathVariable v);
-        internal virtual MathExpr Reduce() => this;
+
+        internal MathExpr Reduce()
+        {
+            if (IsReduced)
+            {
+                return this;
+            }
+
+            var reduced = ReduceImpl();
+            reduced.IsReduced = true;
+            return reduced;
+        }
+
+        protected virtual MathExpr ReduceImpl() => this;
 
         internal virtual MathTerm AsMultTerm() => new MathTerm(this, 1);
         internal virtual MathTerm AsPowerTerm() => new MathTerm(this, 1);
@@ -32,6 +45,8 @@ namespace MathUtil
         public MathExpr Pow(MathExpr exponent) => PowerMathExpr.Create(this,exponent);
 
         internal static readonly MathExpr[] EMPTY_ARRAY = new MathExpr[0];
+
+        private bool IsReduced { get; set; } = false;
     }
 
 }

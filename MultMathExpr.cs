@@ -76,7 +76,7 @@ namespace MathUtil
             return (result, coefficient);
         }
 
-        internal override MathExpr Reduce()
+        protected override MathExpr ReduceImpl()
         {
             var exprs = (from expr in Exprs select expr.Reduce());
 
