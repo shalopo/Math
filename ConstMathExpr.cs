@@ -21,7 +21,7 @@ namespace MathUtil
 
         public override string ToString() => Value.ToString();
 
-        internal override MathTerm AsMultTerm() => new MathTerm(1, Value);
+        internal override MultTerm AsMultTerm() => new MultTerm(1, Value);
 
         public override bool Equals(object obj)
         {

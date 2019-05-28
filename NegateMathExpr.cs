@@ -37,7 +37,7 @@ namespace MathUtil
             return -expr_reduced;
         }
 
-        internal override MathTerm AsMultTerm() => Expr.AsMultTerm() * (-1);
+        internal override MultTerm AsMultTerm() => Expr.AsMultTerm() * (-1);
 
         public override bool Equals(object obj)
         {

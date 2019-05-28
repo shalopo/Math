@@ -33,7 +33,7 @@ namespace MathUtil
             return Create(expr_reduced);
         }
 
-        internal override MathTerm AsPowerTerm() => -Expr.AsPowerTerm();
+        internal override PowerMathExpr AsPowerExpr() => Expr.AsPowerExpr().Reciprocate();
 
         public override string ToString() => $"1/{Expr.ToPowScopedString()}";
 

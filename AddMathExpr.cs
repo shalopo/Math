@@ -36,33 +36,19 @@ namespace MathUtil
 
                 switch (term.Coefficient)
                 {
-                    case ExactConstMathExpr exact:
-                    {
-                        if (exact.Value == 1)
-                        {
-                            sb.Append($" + {term.Expr}");
-                        }
-                        else if (exact.Value == -1)
-                        {
-                            //TODO: also relevant when the whole expression is a mult
-                            sb.Append($" - {term.Expr.ToMultScopedString()}");
-                        }
-                        else if (exact.Value >= 0)
-                        {
-                            sb.Append($" + {exact.Value}*{term.Expr.ToMultScopedString()}");
-                        }
-                        else
-                        {
-                            sb.Append($" - {-exact.Value}*{term.Expr.ToMultScopedString()}");
-                        }
-
+                    case 1:
+                        sb.Append($" + {term.Expr}");
                         break;
-                    }
+                    case -1:
+                        sb.Append($" - {term.Expr.ToMultScopedString()}");
+                        break;
+                    case var c when term.Coefficient >= 0:
+                        //TODO: weird result when expression is just a const
+                        sb.Append($" + {c}*{term.Expr.ToMultScopedString()}");
+                        break;
                     default:
-                    {
-                        sb.Append($" + {term.Coefficient.ToMultScopedString()}*{term.Expr.ToMultScopedString()}");
+                        sb.Append($" - {-term.Coefficient}*{term.Expr.ToMultScopedString()}");
                         break;
-                    }
                 }
             }
 

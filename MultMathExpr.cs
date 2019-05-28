@@ -59,10 +59,10 @@ namespace MathUtil
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => Create(Exprs.Select(expr => expr.Visit(transformer)));
 
-        internal override MathTerm AsMultTerm()
+        internal override MultTerm AsMultTerm()
         {
             var coefficient = Exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value);
-            return new MathTerm(Create(Exprs.Where(expr => !(expr is ExactConstMathExpr))), coefficient);
+            return new MultTerm(Create(Exprs.Where(expr => !(expr is ExactConstMathExpr))), coefficient);
         }
 
         public override bool Equals(object other) => (other is MultMathExpr other_mult) && EqualityUtil.Equals(Exprs, other_mult.Exprs);

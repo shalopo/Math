@@ -18,22 +18,22 @@ namespace MathUtil
             var negative_coefficient = exprs.Aggregate(1, (agg, expr) => agg * (expr is NegateMathExpr ? -1 : 1));
             exprs = (from expr in exprs select expr is NegateMathExpr negate ? negate.Expr : expr);
 
-            var powers_dict = new Dictionary<MathExpr, MathExpr>();
+            var powers = new Dictionary<MathExpr, MathExpr>();
             foreach (var expr in exprs)
             {
-                var term = expr.AsPowerTerm();
-                if (powers_dict.ContainsKey(term.Expr))
+                var pow = expr.AsPowerExpr();
+                if (powers.ContainsKey(pow.Base))
                 {
                     //TODO: input range validity: x/x is 1 for x!=0
-                    powers_dict[term.Expr] += term.Coefficient;
+                    powers[pow.Base] += pow.Exponent;
                 }
                 else
                 {
-                    powers_dict.Add(term.Expr, term.Coefficient);
+                    powers.Add(pow.Base, pow.Exponent);
                 }
             }
 
-            exprs = (from item in powers_dict
+            exprs = (from item in powers
                      let @base = item.Key
                      let exponent_reduced = item.Value.Reduce()
                      select MathEvalUtil.IsNegative(exponent_reduced) ?
@@ -49,17 +49,10 @@ namespace MathUtil
             }
 
             var reciprocal_term = MultMathExpr.Create(exprs.OfType<ReciprocalMathExpr>().Select(r => r.Expr)).Reduce().AsMultTerm();
-
-            if (!(reciprocal_term.Coefficient is ExactConstMathExpr exact_reciprocal_coefficient))
-            {
-                //TODO: Separate power terms from mult terms. mult terms must be const
-                throw new Exception($"Unexpected non exact coefficient: {reciprocal_term.Coefficient}");
-            }
-
             {
                 double new_reciprocal_coefficient;
-                (coefficient, new_reciprocal_coefficient) = FractionUtil.ReduceFraction(coefficient, exact_reciprocal_coefficient.Value);
-                reciprocal_term = new MathTerm(reciprocal_term.Expr, new_reciprocal_coefficient);
+                (coefficient, new_reciprocal_coefficient) = FractionUtil.ReduceFraction(coefficient, reciprocal_term.Coefficient);
+                reciprocal_term = new MultTerm(reciprocal_term.Expr, new_reciprocal_coefficient);
             }
 
             exprs = exprs.Where(expr => !(expr is ReciprocalMathExpr) && !(expr is ExactConstMathExpr));

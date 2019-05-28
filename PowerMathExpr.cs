@@ -39,6 +39,7 @@ namespace MathUtil
 
     class PowerMathExpr : MathExpr
     {
+        public PowerMathExpr(MathExpr @base, MathExpr exponent) => (Base, Exponent) = (@base, exponent);
         public static MathExpr Create(MathExpr @base, MathExpr exponent) => IsOne(exponent) ? @base : new PowerMathExpr(@base, exponent);
 
         internal override bool RequiresPowScoping => true;
@@ -46,7 +47,6 @@ namespace MathUtil
         public MathExpr Base { get; }
         public MathExpr Exponent { get; }
 
-        protected PowerMathExpr(MathExpr @base, MathExpr exponent) => (Base, Exponent) = (@base, exponent);
 
         public override string ToString() => $"{Base.ToPowScopedString()}^{Exponent.ToPowScopedString()}";
 
@@ -103,7 +103,7 @@ namespace MathUtil
 
                 var term = base_reduced.AsMultTerm();
 
-                if (term.Coefficient is ExactConstMathExpr exact && exact.Value < 0)
+                if (term.Coefficient < 0)
                 {
                     if (MathEvalUtil.IsEven(exponent_exact.Value))
                     {
@@ -161,9 +161,8 @@ namespace MathUtil
             return MultMathExpr.Create(AddMathExpr.Create(addition_exprs), this);
         }
 
-        internal override MathTerm AsPowerTerm()
-        {
-            return new MathTerm(Base, Exponent);
-        }
+        internal override PowerMathExpr AsPowerExpr() => this;
+
+        public PowerMathExpr Reciprocate() => new PowerMathExpr(Base, (-Exponent).Reduce());
     }
 }

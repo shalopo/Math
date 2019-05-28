@@ -30,8 +30,8 @@ namespace MathUtil
 
         protected virtual MathExpr ReduceImpl() => this;
 
-        internal virtual MathTerm AsMultTerm() => new MathTerm(this, 1);
-        internal virtual MathTerm AsPowerTerm() => new MathTerm(this, 1);
+        internal virtual MultTerm AsMultTerm() => new MultTerm(this, 1);
+        internal virtual PowerMathExpr AsPowerExpr() => new PowerMathExpr(this, 1);
 
         internal abstract MathExpr Visit(IMathExprTransformer transformer);
 

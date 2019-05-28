@@ -49,7 +49,7 @@ namespace MathUtil
             }
         }
 
-        public static bool IsNegative(MathExpr expr) => expr.AsMultTerm().Coefficient is ExactConstMathExpr exact && exact.Value < 0;
+        public static bool IsNegative(MathExpr expr) => expr.AsMultTerm().Coefficient < 0;
 
         public static MathExpr Reduce(MathExpr expr)
         {

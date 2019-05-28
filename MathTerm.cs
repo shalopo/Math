@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace MathUtil
 {
-    struct MathTerm
+    struct MultTerm
     {
-        public MathTerm(MathExpr expr, MathExpr coefficient) => (Expr, Coefficient) = (expr, coefficient);
+        public MultTerm(MathExpr expr, double coefficient) => (Expr, Coefficient) = (expr, coefficient);
 
         public MathExpr Expr { get; }
-        public MathExpr Coefficient { get; }
+        public double Coefficient { get; }
 
         public MathExpr ToMult()
         {
-            if (MathEvalUtil.IsOne(Coefficient))
+            if (Coefficient == 1)
             {
                 return Expr;
             }
@@ -33,13 +33,7 @@ namespace MathUtil
             return Coefficient * Expr;
         }
 
-        public static MathTerm operator -(MathTerm term) =>
-            new MathTerm(term.Expr, (-term.Coefficient).Reduce());
-
-        public static MathTerm operator *(MathTerm term, double mult_coefficient) => 
-            new MathTerm(term.Expr, (term.Coefficient * mult_coefficient).Reduce());
-
-        public static MathTerm operator +(MathTerm term, double added_coefficient) =>
-            new MathTerm(term.Expr, (term.Coefficient + added_coefficient).Reduce());
+        public static MultTerm operator *(MultTerm term, double mult_coefficient) => new MultTerm(term.Expr, term.Coefficient * mult_coefficient);
     }
+
 }
