@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MathUtil
 {
-    abstract class MathFunctionDef
+    public abstract class MathFunctionDef
     {
         protected MathFunctionDef(string name)
         {
@@ -17,18 +17,22 @@ namespace MathUtil
 
         public abstract MathExpr Derive(MathVariable v);
 
-        public FunctionCallMathExpr Call(MathExpr input) => new FunctionCallMathExpr(this, input);
+        public MathExpr Call(MathExpr input) => new FunctionCallMathExpr(this, input);
+        
+        public abstract override string ToString();
 
         public abstract MathExpr TryReduce(MathExpr input);
 
         public static implicit operator Func<MathExpr, MathExpr>(MathFunctionDef func) => func.Call;
 
-        public static VariableMathExpr x1 = new VariableMathExpr(new MathVariable("@1"));
+        public static VariableMathExpr x1 = new VariableMathExpr(new MathVariable("x"));
     }
 
     abstract class SimpleMathFunctionDef : MathFunctionDef
     {
         public SimpleMathFunctionDef(string name) : base(name) { }
+
+        public override string ToString() => Name;
 
         public override sealed MathExpr Derive(MathVariable v) => (v == x1.Variable) ? DeriveSingle() : ExactConstMathExpr.ZERO;
 
@@ -39,13 +43,17 @@ namespace MathUtil
         protected abstract MathExpr DeriveSingle();
     }
 
-    class ExpandableMathFunctionDef : MathFunctionDef
+    public class ExpandableMathFunctionDef : MathFunctionDef
     {
         public ExpandableMathFunctionDef(string name, MathExpr definition) : base(name) => Definition = definition;
 
         public MathExpr Definition { get; }
 
+        public override string ToString() => Definition.ToString();
+
         public override MathExpr Derive(MathVariable v) => Definition.Derive(v);
+
+        public ExpandableMathFunctionDef Reduce() => new ExpandableMathFunctionDef(Name, Definition.Reduce());
 
         public override sealed MathExpr TryReduce(MathExpr input) => 
             TryReduceImpl(input) ?? 

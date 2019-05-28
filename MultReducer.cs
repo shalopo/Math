@@ -62,7 +62,7 @@ namespace MathUtil
                 exprs = exprs.Prepend(coefficient);
             }
 
-            var reciprocal = reciprocal_term.ToMult();
+            var reciprocal = reciprocal_term.ToMultExpr();
 
             if (!MathEvalUtil.IsOne(reciprocal))
             {

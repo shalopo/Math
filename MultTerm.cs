@@ -13,7 +13,7 @@ namespace MathUtil
         public MathExpr Expr { get; }
         public double Coefficient { get; }
 
-        public MathExpr ToMult()
+        public MathExpr ToMultExpr()
         {
             if (Coefficient == 1)
             {
@@ -34,6 +34,24 @@ namespace MathUtil
         }
 
         public static MultTerm operator *(MultTerm term, double mult_coefficient) => new MultTerm(term.Expr, term.Coefficient * mult_coefficient);
+
+        public override string ToString()
+        {
+            var sign = Coefficient >= 0 ? "+" : "-";
+            var reduced_coefficient = Math.Abs(Coefficient);
+
+            if (Math.Abs(Coefficient) == 1)
+            {
+                return $"{sign} {Expr.ToMultScopedString()}";
+            }
+
+            if (MathEvalUtil.IsOne(Expr))
+            {
+                return $"{sign} {reduced_coefficient}";
+            }
+
+            return $"{sign} {reduced_coefficient}*{Expr.ToMultScopedString()}";
+        }
     }
 
 }

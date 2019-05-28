@@ -32,24 +32,7 @@ namespace MathUtil
 
             foreach (var expr in Exprs.Skip(1))
             {
-                var term = expr.AsMultTerm();
-
-                switch (term.Coefficient)
-                {
-                    case 1:
-                        sb.Append($" + {term.Expr}");
-                        break;
-                    case -1:
-                        sb.Append($" - {term.Expr.ToMultScopedString()}");
-                        break;
-                    case var c when term.Coefficient >= 0:
-                        //TODO: weird result when expression is just a const
-                        sb.Append($" + {c}*{term.Expr.ToMultScopedString()}");
-                        break;
-                    default:
-                        sb.Append($" - {-term.Coefficient}*{term.Expr.ToMultScopedString()}");
-                        break;
-                }
+                sb.Append(" ").Append(expr.AsMultTerm());
             }
 
             return sb.ToString();

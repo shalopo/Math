@@ -8,17 +8,17 @@ namespace MathUtil
 {
     public static class TaylorExpansionUtil
     {
-        public static MathExpr Expand(MathExpr f, VariableMathExpr v, MathExpr base_input, int num_derivatives)
+        public static MathExpr Expand(ExpandableMathFunctionDef f, int num_derivatives, MathExpr base_input)
         {
             try
             {
-                var var_with_input = new[] { (v.Variable, base_input) };
-                MathExpr sub = f;
+                var var_with_input = new[] { (MathFunctionDef.x1.Variable, base_input) };
+                MathExpr sub = f.Definition;
                 double factor = 1;
 
                 var exprs = new List<MathExpr>();
 
-                var @const = MathEvalUtil.Eval(f, var_with_input).Reduce();
+                var @const = MathEvalUtil.Eval(sub, var_with_input).Reduce();
                 if (!MathEvalUtil.IsZero(@const))
                 {
                     exprs.Add(@const);
@@ -27,8 +27,8 @@ namespace MathUtil
                 for (int term = 1; term <= num_derivatives && !MathEvalUtil.IsZero(sub); term++)
                 {
                     factor *= term;
-                    sub = DerivativeUtil.Derive(sub, v);
-                    var expr = MathEvalUtil.Eval(sub, var_with_input) * (v - base_input).Pow(term) / factor;
+                    sub = DerivativeUtil.Derive(sub, MathFunctionDef.x1.Variable);
+                    var expr = MathEvalUtil.Eval(sub, var_with_input) * (MathFunctionDef.x1 - base_input).Pow(term) / factor;
                     var reduced_expr = expr.Reduce();
 
                     if (!MathEvalUtil.IsZero(reduced_expr))
