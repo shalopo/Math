@@ -21,7 +21,23 @@ namespace MathUtil
                 return ExactConstMathExpr.ZERO;
             }
 
-            if (input == KnownConstMathExpr.PI)
+            if (IsNegative(input))
+            {
+                var minus_input = (-input).Reduce();
+                return -(TryReduceImpl(minus_input) ?? SIN(minus_input));
+            }
+
+            if ((2 * input).Reduce().Equals(KnownConstMathExpr.PI))
+            {
+                return ExactConstMathExpr.ONE;
+            }
+
+            if (input.Equals(KnownConstMathExpr.PI))
+            {
+                return ExactConstMathExpr.ZERO;
+            }
+
+            if (input.Equals(2 * KnownConstMathExpr.PI))
             {
                 return ExactConstMathExpr.ZERO;
             }
@@ -43,9 +59,24 @@ namespace MathUtil
                 return ExactConstMathExpr.ONE;
             }
 
+            if (IsNegative(input))
+            {
+                return TryReduceImpl((-input).Reduce());
+            }
+
             if (input == KnownConstMathExpr.PI)
             {
                 return ExactConstMathExpr.MINUS_ONE;
+            }
+
+            if ((2*input).Reduce().Equals(KnownConstMathExpr.PI))
+            {
+                return ExactConstMathExpr.ZERO;
+            }
+
+            if (input.Equals(2 * KnownConstMathExpr.PI))
+            {
+                return ExactConstMathExpr.ONE;
             }
 
             return null;

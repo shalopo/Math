@@ -44,6 +44,7 @@ namespace MathUtil
                         }
                         else if (exact.Value == -1)
                         {
+                            //TODO: also relevant when the whole expression is a mult
                             sb.Append($" - {term.Expr.ToMultScopedString()}");
                         }
                         else if (exact.Value >= 0)

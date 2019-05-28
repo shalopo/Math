@@ -25,15 +25,15 @@ namespace MathUtil
             {
                 case ReciprocalMathExpr reciprocal: return reciprocal.Expr;
                 case ExactConstMathExpr exact when Math.Abs(exact.Value) == 1: return exact.Value;
-                //case MultMathExpr mult: return MultMathExpr.Create(mult.Exprs.Select(ReciprocalMathExpr.Create)).Reduce();
+                case MultMathExpr mult: return MultMathExpr.Create(mult.Exprs.Select(ReciprocalMathExpr.Create)).Reduce(); //TODO: wrong?
                 case PowerMathExpr power: return PowerMathExpr.Create(power.Base, (-power.Exponent).Reduce());
-                case NegateMathExpr negate: return NegateMathExpr.Create(1 / negate.Expr);
+                case NegateMathExpr negate: return NegateMathExpr.Create(ReciprocalMathExpr.Create(negate.Expr)).Reduce();
             }
 
             return Create(expr_reduced);
         }
 
-        internal override MathTerm AsPowerTerm() => Expr.AsPowerTerm() * (-1);
+        internal override MathTerm AsPowerTerm() => -Expr.AsPowerTerm();
 
         public override string ToString() => $"1/{Expr.ToPowScopedString()}";
 

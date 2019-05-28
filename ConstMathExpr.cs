@@ -36,6 +36,7 @@ namespace MathUtil
 
         public static readonly ExactConstMathExpr ZERO = new ExactConstMathExpr(0);
         public static readonly ExactConstMathExpr ONE = new ExactConstMathExpr(1);
+        public static readonly ExactConstMathExpr TWO = new ExactConstMathExpr(2);
         public static readonly ExactConstMathExpr MINUS_ONE = new ExactConstMathExpr(-1);
     }
 

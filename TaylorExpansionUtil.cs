@@ -18,7 +18,7 @@ namespace MathUtil
 
                 var exprs = new List<MathExpr>();
 
-                var @const = MathEvalUtil.EvalReduce(f, var_with_input);
+                var @const = MathEvalUtil.Eval(f, var_with_input).Reduce();
                 if (!MathEvalUtil.IsZero(@const))
                 {
                     exprs.Add(@const);
@@ -28,7 +28,7 @@ namespace MathUtil
                 {
                     factor *= term;
                     sub = DerivativeUtil.Derive(sub, v);
-                    var expr = MathEvalUtil.EvalReduce(sub, var_with_input) * (v - base_input).Pow(term) / factor;
+                    var expr = MathEvalUtil.Eval(sub, var_with_input) * (v - base_input).Pow(term) / factor;
                     var reduced_expr = expr.Reduce();
 
                     if (!MathEvalUtil.IsZero(reduced_expr))

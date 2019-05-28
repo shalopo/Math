@@ -55,6 +55,7 @@
     <Compile Include="FunctionMathExpr.cs" />
     <Compile Include="GlobalFunctionDefs.cs" />
     <Compile Include="IMathExprListener.cs" />
+    <Compile Include="MultReducer.cs" />
     <Compile Include="UndefinedMathBehavior.cs" />
     <Compile Include="UndefinedMathExpr.cs" />
     <Compile Include="NegateMathExpr.cs" />

@@ -11,6 +11,11 @@ namespace MathUtil
     {
         public static long GCD(long a, long b)
         {
+            if (b == 0)
+            {
+                throw new UndefinedMathBehavior("Division by zero");
+            }
+
             (a, b) = (Math.Abs(a), Math.Abs(b));
 
             while (a != 0 && b != 0)
@@ -41,6 +46,11 @@ namespace MathUtil
                 {
                     return (a, b);
                 }
+            }
+
+            if (b == 0)
+            {
+                throw new UndefinedMathBehavior("Division by zero");
             }
 
             return (a / b, 1);

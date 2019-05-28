@@ -32,6 +32,11 @@ namespace MathUtil
         public SqrFunctionDef() : base("sqr", x1.Pow(2)) { }
     }
 
+    class SqrtFunctionDef : ExpandableMathFunctionDef
+    {
+        public SqrtFunctionDef() : base("sqrt", x1.Pow(0.5)) { }
+    }
+
     class PowerMathExpr : MathExpr
     {
         public static MathExpr Create(MathExpr @base, MathExpr exponent) => IsOne(exponent) ? @base : new PowerMathExpr(@base, exponent);

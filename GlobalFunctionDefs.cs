@@ -15,5 +15,6 @@ namespace MathUtil
         public static MathFuncCaller TAN = new TanFunctionDef();
         public static MathFuncCaller LN = new LnFunctionDef();
         public static MathFuncCaller SQR = new SqrFunctionDef();
+        public static MathFuncCaller SQRT = new SqrtFunctionDef();
     }
 }
