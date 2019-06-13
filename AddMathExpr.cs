@@ -28,11 +28,11 @@ namespace MathUtil
 
         public override string ToString()
         {
-            var sb = new StringBuilder(Exprs[0].ToString());
+            var sb = new StringBuilder(Exprs[0].AsMultTerm().ToString());
 
             foreach (var expr in Exprs.Skip(1))
             {
-                sb.Append(" ").Append(expr.AsMultTerm());
+                sb.Append(" ").Append(expr.AsMultTerm().ToAddedString());
             }
 
             return sb.ToString();
@@ -52,7 +52,7 @@ namespace MathUtil
 
             foreach (var expr in exprs)
             {
-                if (!(expr is ExactConstMathExpr))
+                if (!(expr is NumericalConstMathExpr))
                 {
                     var term = expr.AsMultTerm();
 
@@ -67,15 +67,16 @@ namespace MathUtil
                 }
             }
 
-            var @const = exprs.OfType<ExactConstMathExpr>().Aggregate(0.0, (agg, expr) => agg + expr.Value);
+            var @const = NumericalConstMathExpr.Add(exprs.OfType<NumericalConstMathExpr>());
 
-            exprs = dict.Select(item => MathEvalUtil.IsOne(item.Key) ? item.Value : (item.Key * item.Value).Reduce()).Concat(
-                @const == 0 ? MathExpr.EMPTY_ARRAY : new MathExpr[] { @const }
-            );
+            exprs = dict.Select(item => MathEvalUtil.IsOne(item.Key) ? item.Value : (item.Key * item.Value).Reduce());
+            if (!MathEvalUtil.IsZero(@const))
+            {
+                exprs = exprs.Append(@const);
+            }
 
             return Create(exprs);
         }
-
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => AddMathExpr.Create(Exprs.Select(expr => expr.Visit(transformer)));
 

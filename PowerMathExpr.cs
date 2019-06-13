@@ -84,7 +84,7 @@ namespace MathUtil
 
             if (exponent_reduced is ExactConstMathExpr exponent_exact)
             {
-                if (base_reduced is ExactConstMathExpr base_exact && 
+                if (base_reduced is ExactConstMathExpr base_exact &&
                     IsWholeNumber(base_exact.Value) && Math.Abs(base_exact.Value) <= 1024 &&
                     IsWholeNumber(exponent_exact.Value) && Math.Abs(exponent_exact.Value) <= 20)
                 {
@@ -103,13 +103,13 @@ namespace MathUtil
 
                 var term = base_reduced.AsMultTerm();
 
-                if (term.Coefficient < 0)
+                if (!term.Coefficient.IsPositive)
                 {
-                    if (MathEvalUtil.IsEven(exponent_exact.Value))
+                    if (IsEven(exponent_exact.Value))
                     {
                         return Create((-base_reduced).Reduce(), exponent_reduced);
                     }
-                    else if (MathEvalUtil.IsOdd(exponent_exact.Value))
+                    else if (IsOdd(exponent_exact.Value))
                     {
                         return -Create((-base_reduced).Reduce(), exponent_reduced);
                     }

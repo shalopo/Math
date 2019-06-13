@@ -8,10 +8,8 @@ namespace MathUtil
 {
     public static class MathEvalUtil
     {
-        public static bool IsExact(MathExpr expr, double value) => expr is ExactConstMathExpr exact_const ? exact_const.Value == value : false;
-
-        public static bool IsZero(MathExpr expr) => IsExact(expr, 0);
-        public static bool IsOne(MathExpr expr) => IsExact(expr, 1);
+        public static bool IsZero(MathExpr expr) => expr.Equals(ExactConstMathExpr.ZERO);
+        public static bool IsOne(MathExpr expr) => expr.Equals(ExactConstMathExpr.ONE);
 
         public static bool IsWholeNumber(double value) => Math.Abs(value % 1) <= (double.Epsilon * 100);
 
@@ -49,7 +47,7 @@ namespace MathUtil
             }
         }
 
-        public static bool IsNegative(MathExpr expr) => expr.AsMultTerm().Coefficient < 0;
+        public static bool IsPositive(MathExpr expr) => expr.AsMultTerm().Coefficient.IsPositive;
 
         public static MathExpr Reduce(MathExpr expr)
         {

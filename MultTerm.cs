@@ -8,14 +8,14 @@ namespace MathUtil
 {
     struct MultTerm
     {
-        public MultTerm(MathExpr expr, double coefficient) => (Expr, Coefficient) = (expr, coefficient);
+        public MultTerm(MathExpr expr, NumericalConstMathExpr coefficient) => (Expr, Coefficient) = (expr, coefficient);
 
         public MathExpr Expr { get; }
-        public double Coefficient { get; }
+        public NumericalConstMathExpr Coefficient { get; }
 
         public MathExpr ToMultExpr()
         {
-            if (Coefficient == 1)
+            if (MathEvalUtil.IsOne(Coefficient))
             {
                 return Expr;
             }
@@ -33,24 +33,38 @@ namespace MathUtil
             return Coefficient * Expr;
         }
 
-        public static MultTerm operator *(MultTerm term, double mult_coefficient) => new MultTerm(term.Expr, term.Coefficient * mult_coefficient);
+        //public static MultTerm operator *(MultTerm term, NumericalConstMathExpr mult_coefficient) => 
+        //    new MultTerm(term.Expr, term.Coefficient.Mult(mult_coefficient));
 
-        public override string ToString()
+        public static MultTerm operator -(MultTerm term) => new MultTerm(term.Expr, term.Coefficient.Negate());
+
+        private string ToStringInner(bool added)
         {
-            var sign = Coefficient >= 0 ? "+" : "-";
-            var reduced_coefficient = Math.Abs(Coefficient);
-
-            if (Math.Abs(Coefficient) == 1)
+            NumericalConstMathExpr positive_coefficient = Coefficient.IsPositive ? Coefficient : Coefficient.Negate();
+            var sign = Coefficient.IsPositive ? (added ? "+" : "") : "-";
+            var space = added ? " " : "";
+                
+            if (MathEvalUtil.IsOne(positive_coefficient))
             {
-                return $"{sign} {Expr.ToMultScopedString()}";
+                return $"{sign}{space}{Expr.ToMultScopedString()}";
             }
 
             if (MathEvalUtil.IsOne(Expr))
             {
-                return $"{sign} {reduced_coefficient}";
+                return $"{sign}{space}{positive_coefficient}";
             }
 
-            return $"{sign} {reduced_coefficient}*{Expr.ToMultScopedString()}";
+            return $"{sign}{space}{positive_coefficient}*{Expr.ToMultScopedString()}";
+        }
+
+        public string ToAddedString()
+        {
+            return ToStringInner(true);
+        }
+
+        public override string ToString()
+        {
+            return ToStringInner(false);
         }
     }
 

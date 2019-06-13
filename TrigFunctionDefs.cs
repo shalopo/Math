@@ -21,7 +21,7 @@ namespace MathUtil
                 return ExactConstMathExpr.ZERO;
             }
 
-            if (IsNegative(input))
+            if (!IsPositive(input))
             {
                 var minus_input = (-input).Reduce();
                 return -(TryReduceImpl(minus_input) ?? SIN(minus_input));
@@ -59,7 +59,7 @@ namespace MathUtil
                 return ExactConstMathExpr.ONE;
             }
 
-            if (IsNegative(input))
+            if (!IsPositive(input))
             {
                 return TryReduceImpl((-input).Reduce());
             }

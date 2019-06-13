@@ -19,30 +19,35 @@ namespace MathTest
         static ExactConstMathExpr _3 = _(3);
         static ExactConstMathExpr _4 = _(4);
         static ExactConstMathExpr _5 = _(5);
+        static ExactConstMathExpr _6 = _(6);
 
         static void Main(string[] args)
         {
             var x = MathFunctionDef.x1;
 
             var f = new ExpandableMathFunctionDef("f",
-             //0.5 -E.Pow(-2 * x)
-             //_2/(_4*3)
-             //-_2 * (-_4)  / (-4*x*E.Pow(x))
-             //E.Pow(SIN(x))
-             SIN(E.Pow(x) - 1)
-            //(_1 / _2) + (_1 / _3)
+            //0.5 -E.Pow(-2 * x)
+            //_2/(_4*3)
+            //-_2 * (-_4)  / (-4*x*E.Pow(x))
+            //E.Pow(SIN(x))
+            E.Pow(x)
+            //SIN(E.Pow(x) - 1)
+            //x * (_1 / _2) + x * (_1 / _3) + x * 0.5
             //SIN(-PI/(_1/2) + 0.5*PI + 0.5*PI)
             //SQRT(SIN(E.Pow(x) + PI / 2 - 1))
+            //x*-x
+            //3.7+4.5+7/_2
             );
 
             var base_input = 0;
+            var eval_at = 1;
 
             Console.WriteLine($"f    = {f}");
 
             f = f.Reduce();
             Console.WriteLine($"f*  = {f}");
             Console.WriteLine();
-            Console.WriteLine($"f(0) = {MathEvalUtil.EvalReduce(f.Definition, (x, base_input))}");
+            Console.WriteLine($"f(0) = {EvalReduce(f.Definition, (x, base_input))}");
 
             Console.WriteLine();
 
@@ -52,14 +57,20 @@ namespace MathTest
                 var derived = DerivativeUtil.Derive(f.Definition, x, derivative_number);
                 Console.WriteLine($"d^{derivative_number} f / dx^{derivative_number}  = {derived}");
                 Console.WriteLine();
-                Console.WriteLine($"derived(0) = {MathEvalUtil.EvalReduce(derived, (x, base_input))}");
+                Console.WriteLine($"derived(0) = {EvalReduce(derived, (x, base_input))}");
                 Console.WriteLine();
 
-                int taylor_derivatives = 6;
+                int taylor_derivatives = 20;
                 var taylor = TaylorExpansionUtil.Expand(f, taylor_derivatives, base_input);
                 Console.WriteLine($"taylor  = {taylor}");
+                Console.WriteLine();
+
+                var evaled = EvalReduce(taylor, (x, eval_at));
+                Console.WriteLine($"f({eval_at}) ~= {evaled}");
             }
 
+            Console.WriteLine();
+            Console.WriteLine("done.");
             Console.ReadLine();
         }
     }

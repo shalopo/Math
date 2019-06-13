@@ -28,7 +28,10 @@ namespace MathUtil
             return reduced;
         }
 
-        protected virtual MathExpr ReduceImpl() => this;
+        protected virtual MathExpr ReduceImpl()
+        {
+            return this;
+        }
 
         internal virtual MultTerm AsMultTerm() => new MultTerm(this, 1);
         internal virtual PowerMathExpr AsPowerExpr() => new PowerMathExpr(this, 1);
@@ -42,6 +45,7 @@ namespace MathUtil
         public static MathExpr operator -(MathExpr a, MathExpr b) => AddMathExpr.Create(a, -b);
         public static MathExpr operator *(MathExpr a, MathExpr b) => MultMathExpr.Create(a, b);
         public static MathExpr operator /(MathExpr a, MathExpr b) => a * ReciprocalMathExpr.Create(b);
+
         public MathExpr Pow(MathExpr exponent) => PowerMathExpr.Create(this,exponent);
 
         internal static readonly MathExpr[] EMPTY_ARRAY = new MathExpr[0];

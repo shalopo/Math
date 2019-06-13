@@ -55,7 +55,10 @@ namespace MathUtil
                  select Exprs[other_expr_index]).Prepend(derived_expr)
             ));
 
-        protected override MathExpr ReduceImpl() => MultReducer.Reduce(Exprs);
+        protected override MathExpr ReduceImpl()
+        {
+            return MultReducer.Reduce(Exprs);
+        }
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => Create(Exprs.Select(expr => expr.Visit(transformer)));
 

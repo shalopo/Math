@@ -1,5 +1,7 @@
 ﻿
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace MathUtil
 {
@@ -11,7 +13,60 @@ namespace MathUtil
         internal override MathExpr Visit(IMathExprTransformer transformer) => transformer.Transform(this);
     }
 
-    public class ExactConstMathExpr : ConstMathExpr
+    public abstract class NumericalConstMathExpr : ConstMathExpr
+    {
+        public static implicit operator NumericalConstMathExpr(double value) => new ExactConstMathExpr(value);
+
+        internal override MultTerm AsMultTerm() => new MultTerm(1, this);
+
+        public abstract bool IsPositive { get; }
+
+        public abstract double ToDouble();
+
+        public abstract NumericalConstMathExpr Negate();
+        public abstract NumericalConstMathExpr Reciprocate();
+
+
+        public static NumericalConstMathExpr Mult(IEnumerable<NumericalConstMathExpr> exprs)
+        {
+            var fractions = exprs.OfType<ConstFractionMathExpr>();
+            var exacts = exprs.OfType<ExactConstMathExpr>();
+
+            if (fractions.Any() && exacts.All(exact => MathEvalUtil.IsWholeNumber(exact.Value)))
+            {
+                long top = exacts.Aggregate(1L, (agg, exact) => agg * Convert.ToInt64(exact.ToDouble())) *
+                           fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Top);
+                long bottom = fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Bottom);
+
+                return ConstFractionMathExpr.Create(top, bottom).NumericalReduce();
+            }
+            else
+            {
+                return exprs.Aggregate(1.0, (agg, expr) => agg * expr.ToDouble());
+            }
+        }
+    
+        public static NumericalConstMathExpr Add(IEnumerable<NumericalConstMathExpr> exprs)
+        {
+            var fractions = exprs.OfType<ConstFractionMathExpr>().ToList();
+            var exacts = exprs.OfType<ExactConstMathExpr>();
+
+            if (fractions.Any() && exacts.All(exact => MathEvalUtil.IsWholeNumber(exact.Value)))
+            {
+                var lcm = Convert.ToInt64(fractions.Aggregate(1UL, (agg, fraction) => FractionUtil.LCM(agg, (ulong)fraction.Bottom)));
+                var fractions_top = fractions.Aggregate(0L, (agg, fraction) => agg + (lcm / fraction.Bottom) * fraction.Top);
+                var exacts_top = exacts.Aggregate(0L, (agg, exact) => agg + Convert.ToInt64(exact.Value) * lcm);
+
+                return ConstFractionMathExpr.Create(fractions_top + exacts_top, lcm).NumericalReduce();
+            }
+            else
+            {
+                return exprs.Aggregate(0.0, (agg, expr) => agg + expr.ToDouble());
+            }
+        }
+    }
+
+    public sealed class ExactConstMathExpr : NumericalConstMathExpr
     {
         public ExactConstMathExpr(double value) => Value = value;
 
@@ -19,9 +74,23 @@ namespace MathUtil
 
         internal override bool RequiresPowScoping => (Value < 0);
 
-        public override string ToString() => Value.ToString();
+        public override bool IsPositive => (Value > 0);
 
-        internal override MultTerm AsMultTerm() => new MultTerm(1, Value);
+        public override double ToDouble() => Value;
+
+        public override NumericalConstMathExpr Negate() => new ExactConstMathExpr(-Value);
+        public override NumericalConstMathExpr Reciprocate()
+        {
+            if (MathEvalUtil.IsWholeNumber(Value))
+            {
+                long long_value = (long)Value;
+                return long_value >= 0 ? ConstFractionMathExpr.Create(1, long_value) : ConstFractionMathExpr.Create(-1, -long_value);
+            }
+
+            return 1.0 / Value;
+        }
+
+        public override string ToString() => Value.ToString();
 
         public override bool Equals(object obj)
         {
@@ -38,6 +107,79 @@ namespace MathUtil
         public static readonly ExactConstMathExpr ONE = new ExactConstMathExpr(1);
         public static readonly ExactConstMathExpr TWO = new ExactConstMathExpr(2);
         public static readonly ExactConstMathExpr MINUS_ONE = new ExactConstMathExpr(-1);
+    }
+
+    public sealed class ConstFractionMathExpr : NumericalConstMathExpr
+    {
+        public static ConstFractionMathExpr Create(long top, long bottom)
+        {
+            if (bottom == 0)
+            {
+                throw new UndefinedMathBehavior("Division by zero");
+            }
+
+            return new ConstFractionMathExpr(top, bottom);
+        }
+
+        private ConstFractionMathExpr(long top, long bottom) => (Top, Bottom) = (top, bottom);
+
+        public long Top { get; }
+        public long Bottom { get; }
+
+        internal override bool RequiresPowScoping => true;
+
+        public override double ToDouble() => Top / ((double)Bottom);
+
+        public override NumericalConstMathExpr Negate() => new ConstFractionMathExpr(-Top, Bottom);
+        public override NumericalConstMathExpr Reciprocate() => new ConstFractionMathExpr(Bottom, Top);
+
+        public override string ToString() => $"{Top}/{Bottom}";
+
+        public override bool IsPositive => (Math.Sign(Top) * Math.Sign(Bottom) > 0);
+
+        public override bool Equals(object obj)
+        {
+            return obj is ConstFractionMathExpr other &&
+                   Top == other.Top &&
+                   Bottom == other.Bottom;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1910534778;
+            hashCode = hashCode * -1521134295 + Top.GetHashCode();
+            hashCode = hashCode * -1521134295 + Bottom.GetHashCode();
+            return hashCode;
+        }
+
+        protected override MathExpr ReduceImpl() => NumericalReduce();
+
+        public NumericalConstMathExpr NumericalReduce()
+        {
+            if (Bottom == 0)
+            {
+                throw new UndefinedMathBehavior("Division by zero");
+            }
+
+            if (Top == 0)
+            {
+                return ExactConstMathExpr.ZERO;
+            }
+
+            (long top_reduced, long bottom_reduced) = Bottom > 0 ? (Top, Bottom) : (-Top, -Bottom);
+
+            if (bottom_reduced == 1)
+            {
+                return new ExactConstMathExpr(top_reduced);
+            }
+
+            (top_reduced, bottom_reduced) = FractionUtil.ReduceFraction(top_reduced, bottom_reduced);
+            return Create(top_reduced, bottom_reduced);
+        }
+
+        public static explicit operator ExactConstMathExpr(ConstFractionMathExpr f) => new ExactConstMathExpr(((double)f.Top) / f.Bottom);
+
+        public static readonly ConstFractionMathExpr HALF = new ConstFractionMathExpr(1, 2);
     }
 
     public class KnownConstMathExpr : ConstMathExpr

@@ -9,14 +9,17 @@ namespace MathUtil
 {
     public static class FractionUtil
     {
-        public static long GCD(long a, long b)
+        public static ulong LCM(ulong a, ulong b)
+        {
+            return a * b / GCD(a, b);
+        }
+
+        public static ulong GCD(ulong a, ulong b)
         {
             if (b == 0)
             {
                 throw new UndefinedMathBehavior("Division by zero");
             }
-
-            (a, b) = (Math.Abs(a), Math.Abs(b));
 
             while (a != 0 && b != 0)
             {
@@ -33,14 +36,20 @@ namespace MathUtil
             return a == 0 ? b : a;
         }
 
+
+        public static (long, long) ReduceFraction(long a, long b)
+        {
+            long gcd = Convert.ToInt64(GCD((ulong)a, (ulong)b));
+            return (a / gcd, b / gcd);
+        }
+
         public static (double, double) ReduceFraction(double a, double b)
         {
             if (IsWholeNumber(a) && IsWholeNumber(b))
             {
                 try
                 {
-                    var gcd = GCD(Convert.ToInt64(Math.Round(a)), Convert.ToInt64(Math.Round(b)));
-                    return (a / gcd, b / gcd);
+                    return ReduceFraction(Convert.ToInt64(Math.Round(a)), Convert.ToInt64(Math.Round(b)));
                 }
                 catch (OverflowException)
                 {
