@@ -38,7 +38,7 @@ namespace MathUtil
                      let exponent_reduced = item.Value.Reduce()
                      select MathEvalUtil.IsPositive(exponent_reduced) ?
                         PowerMathExpr.Create(@base, exponent_reduced).Reduce() :
-                        ReciprocalMathExpr.Create(PowerMathExpr.Create(@base, (-exponent_reduced).Reduce())));
+                        ReciprocalMathExpr.Create(PowerMathExpr.Create(@base, -exponent_reduced)).Reduce());
 
             var coefficient = NumericalConstMathExpr.Mult(exprs.OfType<NumericalConstMathExpr>().Append(negative_coefficient));
 

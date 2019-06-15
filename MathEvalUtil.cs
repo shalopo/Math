@@ -12,6 +12,7 @@ namespace MathUtil
         public static bool IsOne(MathExpr expr) => expr.Equals(ExactConstMathExpr.ONE);
 
         public static bool IsWholeNumber(double value) => Math.Abs(value % 1) <= (double.Epsilon * 100);
+        public static bool IsWholeNumber(MathExpr expr) => expr is ExactConstMathExpr exact && IsWholeNumber(exact.Value);
 
         public static bool IsEven(double value)
         {

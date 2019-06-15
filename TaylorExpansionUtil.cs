@@ -13,22 +13,23 @@ namespace MathUtil
             try
             {
                 var var_with_input = new[] { (MathFunctionDef.x1.Variable, base_input) };
-                MathExpr sub = f.Definition;
+                MathExpr derivative = f.Definition;
                 double factor = 1;
 
                 var exprs = new List<MathExpr>();
 
-                var @const = MathEvalUtil.Eval(sub, var_with_input).Reduce();
+                var @const = MathEvalUtil.Eval(derivative, var_with_input).Reduce();
                 if (!MathEvalUtil.IsZero(@const))
                 {
                     exprs.Add(@const);
                 }
 
-                for (int term = 1; term <= num_derivatives && !MathEvalUtil.IsZero(sub); term++)
+                for (int term = 1; term <= num_derivatives && !MathEvalUtil.IsZero(derivative); term++)
                 {
                     factor *= term;
-                    sub = DerivativeUtil.Derive(sub, MathFunctionDef.x1.Variable);
-                    var expr = MathEvalUtil.Eval(sub, var_with_input) * (MathFunctionDef.x1 - base_input).Pow(term) / factor;
+                    derivative = DerivativeUtil.Derive(derivative, MathFunctionDef.x1.Variable);
+                    Console.WriteLine($"d^{term}(f)/dx^{term}  = {derivative}");
+                    var expr = MathEvalUtil.Eval(derivative, var_with_input) * (MathFunctionDef.x1 - base_input).Pow(term) / factor;
                     var reduced_expr = expr.Reduce();
 
                     if (!MathEvalUtil.IsZero(reduced_expr))

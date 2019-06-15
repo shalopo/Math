@@ -70,18 +70,19 @@ namespace MathUtil
                 return base_reduced;
             }
 
-            if (IsZero(base_reduced) && exponent_reduced is ExactConstMathExpr exact_exponent)
+            if (IsZero(base_reduced) && exponent_reduced is NumericalConstMathExpr numerical_exponent)
             {
-                if (exact_exponent.Value > 0)
+                if (numerical_exponent.IsPositive)
                 {
                     return ExactConstMathExpr.ZERO;
                 }
                 else
                 {
-                    throw new UndefinedMathBehavior($"Divide by zero, exponent:{exact_exponent.Value}");
+                    throw new UndefinedMathBehavior($"Divide by zero, exponent:{numerical_exponent}");
                 }
             }
 
+            //TODO: numerical const
             if (exponent_reduced is ExactConstMathExpr exponent_exact)
             {
                 if (base_reduced is ExactConstMathExpr base_exact &&

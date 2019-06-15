@@ -81,6 +81,11 @@ namespace MathUtil
         public override NumericalConstMathExpr Negate() => new ExactConstMathExpr(-Value);
         public override NumericalConstMathExpr Reciprocate()
         {
+            if (Math.Abs(Value) == 1.0)
+            {
+                return Value;
+            }
+
             if (MathEvalUtil.IsWholeNumber(Value))
             {
                 long long_value = (long)Value;
@@ -166,15 +171,18 @@ namespace MathUtil
                 return ExactConstMathExpr.ZERO;
             }
 
-            (long top_reduced, long bottom_reduced) = Bottom > 0 ? (Top, Bottom) : (-Top, -Bottom);
+            var sign = Math.Sign(Top) * Math.Sign(Bottom);
+
+            (long top_reduced, long bottom_reduced) = (Math.Abs(Top), Math.Abs(Bottom));
+
+            (top_reduced, bottom_reduced) = FractionUtil.ReduceFraction(top_reduced, bottom_reduced);
 
             if (bottom_reduced == 1)
             {
-                return new ExactConstMathExpr(top_reduced);
+                return new ExactConstMathExpr(sign * top_reduced);
             }
 
-            (top_reduced, bottom_reduced) = FractionUtil.ReduceFraction(top_reduced, bottom_reduced);
-            return Create(top_reduced, bottom_reduced);
+            return Create(sign * top_reduced, bottom_reduced);
         }
 
         public static explicit operator ExactConstMathExpr(ConstFractionMathExpr f) => new ExactConstMathExpr(((double)f.Top) / f.Bottom);

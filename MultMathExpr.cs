@@ -26,6 +26,11 @@ namespace MathUtil
 
         public override string ToString()
         {
+            if (Exprs.OfType<NumericalConstMathExpr>().Any())
+            {
+                return AsMultTerm().ToString();
+            }
+
             var sb = new StringBuilder(Exprs[0].ToMultScopedString());
 
             foreach (var expr in Exprs.Skip(1))
@@ -64,8 +69,8 @@ namespace MathUtil
 
         internal override MultTerm AsMultTerm()
         {
-            var coefficient = Exprs.OfType<ExactConstMathExpr>().Aggregate(1.0, (agg, expr) => agg * expr.Value);
-            return new MultTerm(Create(Exprs.Where(expr => !(expr is ExactConstMathExpr))), coefficient);
+            var coefficient = NumericalConstMathExpr.Mult(Exprs.OfType<NumericalConstMathExpr>());
+            return new MultTerm(Create(Exprs.Where(expr => !(expr is NumericalConstMathExpr))), coefficient);
         }
 
         public override bool Equals(object other) => (other is MultMathExpr other_mult) && EqualityUtil.Equals(Exprs, other_mult.Exprs);

@@ -41,20 +41,32 @@ namespace MathUtil
         private string ToStringInner(bool added)
         {
             NumericalConstMathExpr positive_coefficient = Coefficient.IsPositive ? Coefficient : Coefficient.Negate();
-            var sign = Coefficient.IsPositive ? (added ? "+" : "") : "-";
+            var coefficient_sign = Coefficient.IsPositive ? (added ? "+" : "") : "-";
             var space = added ? " " : "";
-                
-            if (MathEvalUtil.IsOne(positive_coefficient))
-            {
-                return $"{sign}{space}{Expr.ToMultScopedString()}";
-            }
 
             if (MathEvalUtil.IsOne(Expr))
             {
-                return $"{sign}{space}{positive_coefficient}";
+                return $"{coefficient_sign}{space}{positive_coefficient}";
             }
 
-            return $"{sign}{space}{positive_coefficient}*{Expr.ToMultScopedString()}";
+            if (positive_coefficient is ConstFractionMathExpr fraction_coefficient)
+            {
+                if (fraction_coefficient.Top == 1)
+                {
+                    return $"{coefficient_sign}{space}{Expr.ToMultScopedString()}/{fraction_coefficient.Bottom}";
+                }
+
+                return $"{coefficient_sign}{space}{fraction_coefficient.Top}*{Expr.ToMultScopedString()}/{fraction_coefficient.Bottom}";
+            }
+            else
+            {
+                if (MathEvalUtil.IsOne(positive_coefficient))
+                {
+                    return $"{coefficient_sign}{space}{Expr.ToMultScopedString()}";
+                }
+                
+                return $"{coefficient_sign}{space}{positive_coefficient}*{Expr.ToMultScopedString()}";
+            }
         }
 
         public string ToAddedString()

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static MathUtil.GlobalFunctionDefs;
+using static MathUtil.KnownConstMathExpr;
 using static MathUtil.MathEvalUtil;
 
 namespace MathUtil
@@ -27,19 +28,18 @@ namespace MathUtil
                 return -(TryReduceImpl(minus_input) ?? SIN(minus_input));
             }
 
-            if ((2 * input).Reduce().Equals(KnownConstMathExpr.PI))
+            if ((2 * input / PI).Reduce() is ExactConstMathExpr exact && IsWholeNumber(exact))
             {
-                return ExactConstMathExpr.ONE;
-            }
-
-            if (input.Equals(KnownConstMathExpr.PI))
-            {
-                return ExactConstMathExpr.ZERO;
-            }
-
-            if (input.Equals(2 * KnownConstMathExpr.PI))
-            {
-                return ExactConstMathExpr.ZERO;
+                switch (Convert.ToInt64(exact.Value) % 4)
+                {
+                    case 0:
+                    case 2:
+                        return 0;
+                    case 1:
+                        return 1;
+                    case 3:
+                        return -1;
+                }
             }
 
             return null;
@@ -61,25 +61,11 @@ namespace MathUtil
 
             if (!IsPositive(input))
             {
-                return TryReduceImpl((-input).Reduce());
+                var minus_input = (-input).Reduce();
+                return TryReduceImpl((-input).Reduce()) ?? COS(minus_input);
             }
 
-            if (input == KnownConstMathExpr.PI)
-            {
-                return ExactConstMathExpr.MINUS_ONE;
-            }
-
-            if ((2*input).Reduce().Equals(KnownConstMathExpr.PI))
-            {
-                return ExactConstMathExpr.ZERO;
-            }
-
-            if (input.Equals(2 * KnownConstMathExpr.PI))
-            {
-                return ExactConstMathExpr.ONE;
-            }
-
-            return null;
+            return new SinFunctionDef().TryReduce(input + ConstFractionMathExpr.HALF * PI);
         }
     }
 
