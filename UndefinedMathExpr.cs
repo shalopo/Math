@@ -14,6 +14,8 @@ namespace MathUtil
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => Instance;
 
+        internal override double ExactEval() => throw new NotImplementedException("Cannot reduce undefined");
+
         public static UndefinedMathExpr Instance = new UndefinedMathExpr();
     }
 }

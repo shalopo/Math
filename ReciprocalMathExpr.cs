@@ -33,6 +33,8 @@ namespace MathUtil
             return Create(expr_reduced);
         }
 
+        internal override double ExactEval() => 1 / Expr.ExactEval();
+
         internal override PowerMathExpr AsPowerExpr() => Expr.AsPowerExpr().Reciprocate();
 
         public override string ToString() => $"1/{Expr.ToPowScopedString()}";

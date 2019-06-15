@@ -37,6 +37,8 @@ namespace MathUtil
             return -expr_reduced;
         }
 
+        internal override double ExactEval() => -Expr.ExactEval();
+
         internal override MultTerm AsMultTerm() => -Expr.AsMultTerm();
 
         public override bool Equals(object obj)

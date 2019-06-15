@@ -67,11 +67,30 @@ namespace MathUtil
             return expr.Visit(new VariablesTransformation(values)); 
         }
 
-        public static MathExpr EvalReduce(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
+        public static MathExpr NumericalEvalWith(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
             var evaled = Eval(expr, values);
-            var reduced = Reduce(evaled);
-            return reduced;
+
+            try
+            {
+                return evaled.Reduce();
+            }
+            catch (UndefinedMathBehavior)
+            {
+                return UndefinedMathExpr.Instance;
+            }
+        }
+
+        public static double ExactEval(MathExpr expr)
+        {
+            return expr.ExactEval();
+        }
+
+
+        public static double ExactEvalWith(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
+        {
+            var evaled = Eval(expr, values);
+            return ExactEval(evaled);
         }
     }
 }

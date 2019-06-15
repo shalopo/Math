@@ -44,6 +44,8 @@ namespace MathUtil
 
             return null;
         }
+
+        public override double ExactEval(double input) => Math.Sin(input);
     }
 
     class CosFunctionDef : SimpleMathFunctionDef
@@ -67,6 +69,8 @@ namespace MathUtil
 
             return new SinFunctionDef().TryReduce(input + ConstFractionMathExpr.HALF * PI);
         }
+
+        public override double ExactEval(double input) => Math.Cos(input);
     }
 
     class TanFunctionDef : ExpandableMathFunctionDef

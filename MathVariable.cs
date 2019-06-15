@@ -30,5 +30,7 @@ namespace MathUtil
         internal override MathExpr Visit(IMathExprTransformer transformer) => transformer.Transform(this);
 
         internal override MathExpr Derive(MathVariable v) => v == Variable ? ExactConstMathExpr.ONE : ExactConstMathExpr.ZERO;
+
+        internal override double ExactEval() => throw new UndefinedMathBehavior("Cannot reduce");
     }
 }

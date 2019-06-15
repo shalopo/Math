@@ -25,6 +25,8 @@ namespace MathUtil
 
             return null;
         }
+
+        public override double ExactEval(double input) => Math.Log(input);
     }
 
     class SqrFunctionDef : ExpandableMathFunctionDef
@@ -124,6 +126,8 @@ namespace MathUtil
 
             return Create(base_reduced, exponent_reduced);
         }
+
+        internal override double ExactEval() => Math.Pow(Base.ExactEval(), Exponent.ExactEval());
 
         public override bool Equals(object obj)
         {

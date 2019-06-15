@@ -70,6 +70,8 @@ namespace MathUtil
     {
         public ExactConstMathExpr(double value) => Value = value;
 
+        public static implicit operator ExactConstMathExpr(double value) => new ExactConstMathExpr(value);
+
         public double Value { get; }
 
         internal override bool RequiresPowScoping => (Value < 0);
@@ -77,6 +79,7 @@ namespace MathUtil
         public override bool IsPositive => (Value > 0);
 
         public override double ToDouble() => Value;
+        internal override double ExactEval() => Value;
 
         public override NumericalConstMathExpr Negate() => new ExactConstMathExpr(-Value);
         public override NumericalConstMathExpr Reciprocate()
@@ -185,7 +188,7 @@ namespace MathUtil
             return Create(sign * top_reduced, bottom_reduced);
         }
 
-        public static explicit operator ExactConstMathExpr(ConstFractionMathExpr f) => new ExactConstMathExpr(((double)f.Top) / f.Bottom);
+        internal override double ExactEval() => Top / ((double)Bottom);
 
         public static readonly ConstFractionMathExpr HALF = new ConstFractionMathExpr(1, 2);
     }
@@ -198,6 +201,8 @@ namespace MathUtil
         public double Value { get; }
 
         internal override bool RequiresPowScoping => false;
+
+        internal override double ExactEval() => Value;
 
         public override string ToString() => Name;
 

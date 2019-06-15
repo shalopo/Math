@@ -28,7 +28,10 @@ namespace MathUtil
                 {
                     factor *= term;
                     derivative = DerivativeUtil.Derive(derivative, MathFunctionDef.x1.Variable);
+
+                    Console.WriteLine();
                     Console.WriteLine($"d^{term}(f)/dx^{term}  = {derivative}");
+
                     var expr = MathEvalUtil.Eval(derivative, var_with_input) * (MathFunctionDef.x1 - base_input).Pow(term) / factor;
                     var reduced_expr = expr.Reduce();
 

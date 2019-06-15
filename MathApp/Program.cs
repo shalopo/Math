@@ -29,8 +29,10 @@ namespace MathTest
             //0.5 -E.Pow(-2 * x)
             //_2/(_4*3)
             //-_2 * (-_4)  / (-4*x*E.Pow(x))
-            //E.Pow(1/(1-x))
-            x * SIN(x)
+            //E.Pow(1 / (1 - x))
+            //LN(x + E - 1)
+            COS(SIN(x))
+            //E.Pow(SIN(x))
             //x * (_1 / _2) + x * (_1 / _3) + x * 0.5
             //SIN(-PI/(_1/2) + 0.5*PI + 0.5*PI)
             //SQRT(SIN(E.Pow(x) + PI / 2 - 1))
@@ -45,7 +47,7 @@ namespace MathTest
             f = f.Reduce();
             Console.WriteLine($"f*  = {f}");
             Console.WriteLine();
-            Console.WriteLine($"f(0) = {EvalReduce(f.Definition, (x, base_input))}");
+            Console.WriteLine($"f(0) = {NumericalEvalWith(f.Definition, (x, base_input))}");
 
             Console.WriteLine();
 
@@ -58,13 +60,22 @@ namespace MathTest
                 //Console.WriteLine($"derived(0) = {EvalReduce(derived, (x, base_input))}");
                 //Console.WriteLine();
 
-                int taylor_derivatives = 7;
+                int taylor_derivatives = 20;
                 var taylor = TaylorExpansionUtil.Expand(f, taylor_derivatives, base_input);
                 Console.WriteLine($"taylor  = {taylor}");
                 Console.WriteLine();
 
-                var evaled = EvalReduce(taylor, (x, eval_at));
-                Console.WriteLine($"f({eval_at}) ~= {evaled}");
+                var taylor_evaled = NumericalEvalWith(taylor, (x, eval_at));
+                var taylor_exact_evaled = ExactEval(taylor_evaled);
+                Console.WriteLine($"f({eval_at}) via taylor ~= {taylor_evaled} = {taylor_exact_evaled}");
+
+                var direct_exact_eval = ExactEvalWith(f.Definition, (x, eval_at));
+                Console.WriteLine();
+                Console.WriteLine($"f({eval_at}) via direct = {direct_exact_eval}");
+
+                var err = Math.Abs(taylor_exact_evaled - direct_exact_eval);
+                Console.WriteLine();
+                Console.WriteLine($"err = {err}");
             }
 
             Console.WriteLine();

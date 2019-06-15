@@ -33,6 +33,8 @@ namespace MathUtil
             return this;
         }
 
+        internal abstract double ExactEval();
+
         internal virtual MultTerm AsMultTerm() => new MultTerm(this, 1);
         internal virtual PowerMathExpr AsPowerExpr() => new PowerMathExpr(this, 1);
 

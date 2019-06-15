@@ -65,6 +65,8 @@ namespace MathUtil
             return MultReducer.Reduce(Exprs);
         }
 
+        internal override double ExactEval() => Exprs.Aggregate(1.0, (agg, expr) => agg * expr.ExactEval());
+
         internal override MathExpr Visit(IMathExprTransformer transformer) => Create(Exprs.Select(expr => expr.Visit(transformer)));
 
         internal override MultTerm AsMultTerm()

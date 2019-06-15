@@ -23,6 +23,8 @@ namespace MathUtil
 
         public abstract MathExpr TryReduce(MathExpr input);
 
+        public abstract double ExactEval(double input);
+        
         public static implicit operator Func<MathExpr, MathExpr>(MathFunctionDef func) => func.Call;
 
         public static VariableMathExpr x1 = new VariableMathExpr(new MathVariable("x"));
@@ -55,12 +57,15 @@ namespace MathUtil
 
         public ExpandableMathFunctionDef Reduce() => new ExpandableMathFunctionDef(Name, Definition.Reduce());
 
-        public override sealed MathExpr TryReduce(MathExpr input) => 
-            TryReduceImpl(input) ?? 
-            Definition.Visit(new VariablesTransformation((x1, input))).Reduce();
+        public override double ExactEval(double input) => EvalCall(input).ExactEval();
+
+        private MathExpr EvalCall(MathExpr input) => Definition.Visit(new VariablesTransformation((x1, input)));
+
+        public override sealed MathExpr TryReduce(MathExpr input) => TryReduceImpl(input) ?? EvalCall(input).Reduce();
 
         protected virtual MathExpr TryReduceImpl(MathExpr input) => null;
     }
+
 
     class FunctionCallMathExpr : MathExpr
     {
@@ -102,6 +107,11 @@ namespace MathUtil
         {
             var input_reduced = Input.Reduce();
             return Func.TryReduce(input_reduced) ?? new FunctionCallMathExpr(Func, input_reduced);
+        }
+
+        internal override double ExactEval()
+        {
+            return Func.ExactEval(Input.ExactEval());
         }
 
         public override string ToString() => $"{Func.Name}({Input})";
