@@ -28,7 +28,7 @@ namespace MathUtil
                 return -(TryReduceImpl(minus_input) ?? SIN(minus_input));
             }
 
-            if ((2 * input / PI).Reduce() is ExactConstMathExpr exact && IsWholeNumber(exact))
+            if (input.IsConst && (2 * input / PI).Reduce() is ExactConstMathExpr exact && IsWholeNumber(exact))
             {
                 switch (Convert.ToInt64(exact.Value) % 4)
                 {
@@ -79,6 +79,69 @@ namespace MathUtil
         {
         }
     }
-    
+
+    class ArcTanFunctionDef : SimpleMathFunctionDef
+    {
+        public ArcTanFunctionDef() : base("arctan")
+        {
+        }
+
+        protected override MathExpr DeriveSingle() => 1 / (1 + SQR(x1));
+
+        protected override MathExpr TryReduceImpl(MathExpr input)
+        {
+            if (IsZero(input))
+            {
+                return ExactConstMathExpr.ZERO;
+            }
+
+            return null;
+        }
+
+        public override double ExactEval(double input) => Math.Atan(input);
+    }
+
+    class ArcSinFunctionDef : SimpleMathFunctionDef
+    {
+        public ArcSinFunctionDef() : base("arcsin")
+        {
+        }
+
+        protected override MathExpr DeriveSingle() => 1 / SQRT(1 - SQR(x1));
+
+        protected override MathExpr TryReduceImpl(MathExpr input)
+        {
+            if (IsZero(input))
+            {
+                return ExactConstMathExpr.ZERO;
+            }
+
+            return null;
+        }
+
+        public override double ExactEval(double input) => Math.Asin(input);
+    }
+
+    class ArcCosFunctionDef : SimpleMathFunctionDef
+    {
+        public ArcCosFunctionDef() : base("arccos")
+        {
+        }
+
+        protected override MathExpr DeriveSingle() => -1 / SQRT(1 - SQR(x1));
+
+        protected override MathExpr TryReduceImpl(MathExpr input)
+        {
+            if (IsOne(input))
+            {
+                return ExactConstMathExpr.ZERO;
+            }
+
+            return null;
+        }
+
+        public override double ExactEval(double input) => Math.Acos(input);
+    }
+
 
 }

@@ -131,6 +131,7 @@ namespace MathUtil
             return Create(base_reduced, exponent_reduced);
         }
 
+        internal override bool IsConst => Base.IsConst && Exponent.IsConst;
         internal override double ExactEval() => Math.Pow(Base.ExactEval(), Exponent.ExactEval());
 
         public override bool Equals(object obj)

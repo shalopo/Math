@@ -13,6 +13,9 @@ namespace MathUtil
         public static MathFuncCaller SIN = new SinFunctionDef();
         public static MathFuncCaller COS = new CosFunctionDef();
         public static MathFuncCaller TAN = new TanFunctionDef();
+        public static MathFuncCaller ARCTAN = new ArcTanFunctionDef();
+        public static MathFuncCaller ARCSIN = new ArcSinFunctionDef();
+        public static MathFuncCaller ARCCOS = new ArcCosFunctionDef();
         public static MathFuncCaller LN = new LnFunctionDef();
         public static MathFuncCaller SQR = new SqrFunctionDef();
         public static MathFuncCaller SQRT = new SqrtFunctionDef();

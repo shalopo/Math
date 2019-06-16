@@ -109,10 +109,8 @@ namespace MathUtil
             return Func.TryReduce(input_reduced) ?? new FunctionCallMathExpr(Func, input_reduced);
         }
 
-        internal override double ExactEval()
-        {
-            return Func.ExactEval(Input.ExactEval());
-        }
+        internal override bool IsConst => Input.IsConst;
+        internal override double ExactEval() => Func.ExactEval(Input.ExactEval());
 
         public override string ToString() => $"{Func.Name}({Input})";
 

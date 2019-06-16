@@ -34,6 +34,7 @@ namespace MathUtil
             return this;
         }
 
+        internal abstract bool IsConst { get; }
         internal abstract double ExactEval();
 
         internal virtual MultTerm AsMultTerm() => new MultTerm(this, 1);

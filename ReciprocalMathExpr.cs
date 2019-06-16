@@ -33,6 +33,7 @@ namespace MathUtil
             return Create(expr_reduced);
         }
 
+        internal override bool IsConst => Expr.IsConst;
         internal override double ExactEval() => 1 / Expr.ExactEval();
 
         internal override PowerMathExpr AsPowerExpr() => Expr.AsPowerExpr().Reciprocate();

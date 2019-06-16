@@ -31,6 +31,7 @@ namespace MathUtil
 
         internal override MathExpr Derive(MathVariable v) => v == Variable ? ExactConstMathExpr.ONE : ExactConstMathExpr.ZERO;
 
+        internal override bool IsConst => false;
         internal override double ExactEval() => throw new UndefinedMathBehavior("Cannot reduce");
     }
 }

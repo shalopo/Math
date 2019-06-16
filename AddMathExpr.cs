@@ -78,6 +78,7 @@ namespace MathUtil
             return Create(exprs);
         }
 
+        internal override bool IsConst => Exprs.All(expr => expr.IsConst);
         internal override double ExactEval() => Exprs.Aggregate(0.0, (agg, expr) => agg + expr.ExactEval());
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => AddMathExpr.Create(Exprs.Select(expr => expr.Visit(transformer)));

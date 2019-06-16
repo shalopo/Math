@@ -30,7 +30,7 @@ namespace MathTest
             //_2/(_4*3)
             //-_2 * (-_4)  / (-4*x*E.Pow(x))
             //E.Pow(1 / (1 - x))
-            LN(x + 1)
+            2 * ARCSIN(x)
             //(x+1).Pow(_1 / 3)
             //E.Pow(x)
             //E.Pow(SIN(x))
@@ -41,8 +41,8 @@ namespace MathTest
             );
 
             var base_input = 0;
-            var eval_at = base_input + 1;
-            int taylor_derivatives = 21;
+            var eval_at = 1;
+            int taylor_derivatives = 20;
 
             Console.WriteLine($"f    = {f}");
 

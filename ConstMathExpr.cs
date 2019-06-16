@@ -11,6 +11,8 @@ namespace MathUtil
         internal override MathExpr Derive(MathVariable v) => ExactConstMathExpr.ZERO;
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => transformer.Transform(this);
+
+        internal override bool IsConst => true;
     }
 
     public abstract class NumericalConstMathExpr : ConstMathExpr

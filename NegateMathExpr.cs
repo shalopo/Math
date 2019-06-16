@@ -39,6 +39,7 @@ namespace MathUtil
 
         internal override double ExactEval() => -Expr.ExactEval();
 
+        internal override bool IsConst => Expr.IsConst;
         internal override MultTerm AsMultTerm() => -Expr.AsMultTerm();
 
         public override bool Equals(object obj)
