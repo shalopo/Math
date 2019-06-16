@@ -36,7 +36,7 @@ namespace MathUtil
 
     class SqrtFunctionDef : ExpandableMathFunctionDef
     {
-        public SqrtFunctionDef() : base("sqrt", x1.Pow(0.5)) { }
+        public SqrtFunctionDef() : base("sqrt", x1.Pow(ConstFractionMathExpr.HALF)) { }
     }
 
     class PowerMathExpr : MathExpr
@@ -84,7 +84,6 @@ namespace MathUtil
                 }
             }
 
-            //TODO: numerical const
             if (exponent_reduced is ExactConstMathExpr exponent_exact)
             {
                 if (base_reduced is ExactConstMathExpr base_exact &&
@@ -117,6 +116,11 @@ namespace MathUtil
                         return -Create((-base_reduced).Reduce(), exponent_reduced);
                     }
                 }
+            }
+
+            if (base_reduced is ConstFractionMathExpr base_fraction)
+            {
+                return (Create(base_fraction.Top, exponent_reduced) / Create(base_fraction.Bottom, exponent_reduced)).Reduce();
             }
 
             if (base_reduced is PowerMathExpr base_power)

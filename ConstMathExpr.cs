@@ -29,19 +29,29 @@ namespace MathUtil
 
         public static NumericalConstMathExpr Mult(IEnumerable<NumericalConstMathExpr> exprs)
         {
-            var fractions = exprs.OfType<ConstFractionMathExpr>();
-            var exacts = exprs.OfType<ExactConstMathExpr>();
-
-            if (fractions.Any() && exacts.All(exact => MathEvalUtil.IsWholeNumber(exact.Value)))
+            checked
             {
-                long top = exacts.Aggregate(1L, (agg, exact) => agg * Convert.ToInt64(exact.ToDouble())) *
-                           fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Top);
-                long bottom = fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Bottom);
+                var fractions = exprs.OfType<ConstFractionMathExpr>();
+                var exacts = exprs.OfType<ExactConstMathExpr>();
 
-                return ConstFractionMathExpr.Create(top, bottom).NumericalReduce();
-            }
-            else
-            {
+                if (fractions.Any() && exacts.All(exact => MathEvalUtil.IsWholeNumber(exact.Value)))
+                {
+                    try
+                    {
+                        checked
+                        {
+                            long top = exacts.Aggregate(1L, (agg, exact) => agg * Convert.ToInt64(exact.ToDouble())) *
+                                        fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Top);
+                            long bottom = fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Bottom);
+
+                            return ConstFractionMathExpr.Create(top, bottom).NumericalReduce();
+                        }
+                    }
+                    catch (OverflowException)
+                    {
+                    }
+                }
+
                 return exprs.Aggregate(1.0, (agg, expr) => agg * expr.ToDouble());
             }
         }
@@ -53,16 +63,23 @@ namespace MathUtil
 
             if (fractions.Any() && exacts.All(exact => MathEvalUtil.IsWholeNumber(exact.Value)))
             {
-                var lcm = Convert.ToInt64(fractions.Aggregate(1UL, (agg, fraction) => FractionUtil.LCM(agg, (ulong)fraction.Bottom)));
-                var fractions_top = fractions.Aggregate(0L, (agg, fraction) => agg + (lcm / fraction.Bottom) * fraction.Top);
-                var exacts_top = exacts.Aggregate(0L, (agg, exact) => agg + Convert.ToInt64(exact.Value) * lcm);
+                try
+                {
+                    checked
+                    {
+                        var lcm = Convert.ToInt64(fractions.Aggregate(1UL, (agg, fraction) => FractionUtil.LCM(agg, (ulong)Math.Abs(fraction.Bottom))));
+                        var fractions_top = fractions.Aggregate(0L, (agg, fraction) => agg + (lcm / fraction.Bottom) * fraction.Top);
+                        var exacts_top = exacts.Aggregate(0L, (agg, exact) => agg + Convert.ToInt64(exact.Value) * lcm);
 
-                return ConstFractionMathExpr.Create(fractions_top + exacts_top, lcm).NumericalReduce();
+                        return ConstFractionMathExpr.Create(fractions_top + exacts_top, lcm).NumericalReduce();
+                    }
+                }
+                catch (OverflowException)
+                {
+                }
             }
-            else
-            {
-                return exprs.Aggregate(0.0, (agg, expr) => agg + expr.ToDouble());
-            }
+
+            return exprs.Aggregate(0.0, (agg, expr) => agg + expr.ToDouble());
         }
     }
 
@@ -91,7 +108,7 @@ namespace MathUtil
 
             if (MathEvalUtil.IsWholeNumber(Value))
             {
-                long long_value = (long)Value;
+                var long_value = Convert.ToInt64(Value);
                 return long_value >= 0 ? ConstFractionMathExpr.Create(1, long_value) : ConstFractionMathExpr.Create(-1, -long_value);
             }
 
@@ -174,18 +191,28 @@ namespace MathUtil
                 return ExactConstMathExpr.ZERO;
             }
 
-            var sign = Math.Sign(Top) * Math.Sign(Bottom);
-
-            (long top_reduced, long bottom_reduced) = (Math.Abs(Top), Math.Abs(Bottom));
-
-            (top_reduced, bottom_reduced) = FractionUtil.ReduceFraction(top_reduced, bottom_reduced);
+            long top_reduced;
+            long bottom_reduced;
+            try
+            {
+                (top_reduced, bottom_reduced) = FractionUtil.ReduceFraction(Top, Bottom);
+            }
+            catch
+            {
+                return Top / ((double)Bottom);
+            }
 
             if (bottom_reduced == 1)
             {
-                return new ExactConstMathExpr(sign * top_reduced);
+                return new ExactConstMathExpr(top_reduced);
             }
 
-            return Create(sign * top_reduced, bottom_reduced);
+            if (bottom_reduced == -1)
+            {
+                return new ExactConstMathExpr(-top_reduced);
+            }
+
+            return Create(top_reduced, bottom_reduced);
         }
 
         internal override double ExactEval() => Top / ((double)Bottom);

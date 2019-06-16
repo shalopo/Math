@@ -33,6 +33,10 @@ namespace MathUtil
                     Console.WriteLine($"d^{term}(f)/dx^{term}  = {derivative}");
 
                     var expr = MathEvalUtil.Eval(derivative, var_with_input) * (MathFunctionDef.x1 - base_input).Pow(term) / factor;
+
+                    //Console.WriteLine();
+                    //Console.WriteLine($"taylor term {term}: {expr}");
+
                     var reduced_expr = expr.Reduce();
 
                     if (!MathEvalUtil.IsZero(reduced_expr))

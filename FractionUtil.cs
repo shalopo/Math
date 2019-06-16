@@ -39,30 +39,8 @@ namespace MathUtil
 
         public static (long, long) ReduceFraction(long a, long b)
         {
-            long gcd = Convert.ToInt64(GCD((ulong)a, (ulong)b));
+            long gcd = Convert.ToInt64(GCD((ulong)Math.Abs(a), (ulong)Math.Abs(b)));
             return (a / gcd, b / gcd);
-        }
-
-        public static (double, double) ReduceFraction(double a, double b)
-        {
-            if (IsWholeNumber(a) && IsWholeNumber(b))
-            {
-                try
-                {
-                    return ReduceFraction(Convert.ToInt64(Math.Round(a)), Convert.ToInt64(Math.Round(b)));
-                }
-                catch (OverflowException)
-                {
-                    return (a, b);
-                }
-            }
-
-            if (b == 0)
-            {
-                throw new UndefinedMathBehavior("Division by zero");
-            }
-
-            return (a / b, 1);
         }
     }
 }

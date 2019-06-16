@@ -30,8 +30,9 @@ namespace MathTest
             //_2/(_4*3)
             //-_2 * (-_4)  / (-4*x*E.Pow(x))
             //E.Pow(1 / (1 - x))
-            //LN(x + E - 1)
-            COS(SIN(x))
+            LN(x + 1)
+            //(x+1).Pow(_1 / 3)
+            //E.Pow(x)
             //E.Pow(SIN(x))
             //x * (_1 / _2) + x * (_1 / _3) + x * 0.5
             //SIN(-PI/(_1/2) + 0.5*PI + 0.5*PI)
@@ -41,6 +42,7 @@ namespace MathTest
 
             var base_input = 0;
             var eval_at = base_input + 1;
+            int taylor_derivatives = 21;
 
             Console.WriteLine($"f    = {f}");
 
@@ -60,8 +62,8 @@ namespace MathTest
                 //Console.WriteLine($"derived(0) = {EvalReduce(derived, (x, base_input))}");
                 //Console.WriteLine();
 
-                int taylor_derivatives = 20;
                 var taylor = TaylorExpansionUtil.Expand(f, taylor_derivatives, base_input);
+                Console.WriteLine();
                 Console.WriteLine($"taylor  = {taylor}");
                 Console.WriteLine();
 

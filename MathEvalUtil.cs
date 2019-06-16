@@ -8,10 +8,23 @@ namespace MathUtil
 {
     public static class MathEvalUtil
     {
+        private static bool IsConvertibleToLong(double value)
+        {
+            try
+            {
+                Convert.ToInt64(value);
+                return true;
+            }
+            catch (OverflowException)
+            {
+                return false;
+            }
+        }
+
         public static bool IsZero(MathExpr expr) => expr.Equals(ExactConstMathExpr.ZERO);
         public static bool IsOne(MathExpr expr) => expr.Equals(ExactConstMathExpr.ONE);
 
-        public static bool IsWholeNumber(double value) => Math.Abs(value % 1) <= (double.Epsilon * 100);
+        public static bool IsWholeNumber(double value) => Math.Abs(value % 1) <= (double.Epsilon * 100) && IsConvertibleToLong(value);
         public static bool IsWholeNumber(MathExpr expr) => expr is ExactConstMathExpr exact && IsWholeNumber(exact.Value);
 
         public static bool IsEven(double value)
