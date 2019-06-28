@@ -34,7 +34,7 @@ namespace MathUtil
         }
 
         internal override bool IsConst => Expr.IsConst;
-        internal override double ExactEval() => 1 / Expr.ExactEval();
+        internal override ConstComplexMathExpr ComplexEval() => Expr.ComplexEval().Reciprocate();
 
         internal override PowerMathExpr AsPowerExpr() => Expr.AsPowerExpr().Reciprocate();
 

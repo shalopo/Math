@@ -18,12 +18,12 @@ namespace MathUtil
         public abstract MathExpr Derive(MathVariable v);
 
         public MathExpr Call(MathExpr input) => new FunctionCallMathExpr(this, input);
-        
-        public abstract override string ToString();
+
+        public override string ToString() => Name;
 
         public abstract MathExpr TryReduce(MathExpr input);
 
-        public abstract double ExactEval(double input);
+        public abstract ConstComplexMathExpr ComplexEval(ConstComplexMathExpr ComplexEval);
         
         public static implicit operator Func<MathExpr, MathExpr>(MathFunctionDef func) => func.Call;
 
@@ -34,15 +34,25 @@ namespace MathUtil
     {
         public SimpleMathFunctionDef(string name) : base(name) { }
 
-        public override string ToString() => Name;
-
-        public override sealed MathExpr Derive(MathVariable v) => (v == x1.Variable) ? DeriveSingle() : ExactConstMathExpr.ZERO;
+        public override sealed MathExpr Derive(MathVariable v) => (v == x1.Variable) ? DeriveSingle() : GlobalMathDefs.ZERO;
 
         public override sealed MathExpr TryReduce(MathExpr input) => TryReduceImpl(input);
 
         protected virtual MathExpr TryReduceImpl(MathExpr input) => null;
 
         protected abstract MathExpr DeriveSingle();
+
+        public sealed override ConstComplexMathExpr ComplexEval(ConstComplexMathExpr input)
+        {
+            if (input.HasImagPart)
+            {
+                throw new UndefinedMathBehavior("Complex not supported");
+            }
+
+            return ConstComplexMathExpr.Create(ExactEval(input.Real.ToDouble()), GlobalMathDefs.ZERO);
+        }
+
+        public abstract double ExactEval(double input);
     }
 
     public class ExpandableMathFunctionDef : MathFunctionDef
@@ -57,7 +67,7 @@ namespace MathUtil
 
         public ExpandableMathFunctionDef Reduce() => new ExpandableMathFunctionDef(Name, Definition.Reduce());
 
-        public override double ExactEval(double input) => EvalCall(input).ExactEval();
+        public override ConstComplexMathExpr ComplexEval(ConstComplexMathExpr input) => EvalCall(input).ComplexEval();
 
         private MathExpr EvalCall(MathExpr input) => Definition.Visit(new VariablesTransformation((x1, input)));
 
@@ -81,7 +91,7 @@ namespace MathUtil
             var input_derived = Input.Derive(v);
             if (MathEvalUtil.IsZero(input_derived))
             {
-                return ExactConstMathExpr.ZERO;
+                return GlobalMathDefs.ZERO;
             }
 
             return input_derived * 
@@ -110,7 +120,7 @@ namespace MathUtil
         }
 
         internal override bool IsConst => Input.IsConst;
-        internal override double ExactEval() => Func.ExactEval(Input.ExactEval());
+        internal override ConstComplexMathExpr ComplexEval() => Func.ComplexEval(Input.ComplexEval());
 
         public override string ToString() => $"{Func.Name}({Input})";
 

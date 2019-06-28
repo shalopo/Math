@@ -16,7 +16,7 @@ namespace MathUtil
         {
             switch (exprs.Count())
             {
-                case 0: return ExactConstMathExpr.ONE;
+                case 0: return GlobalMathDefs.ONE;
                 case 1: return exprs.First();
                 default: return new MultMathExpr(exprs);
             }
@@ -60,13 +60,10 @@ namespace MathUtil
                  select Exprs[other_expr_index]).Prepend(derived_expr)
             ));
 
-        protected override MathExpr ReduceImpl()
-        {
-            return MultReducer.Reduce(Exprs);
-        }
+        protected override MathExpr ReduceImpl() => MultReducer.Reduce(Exprs);
 
         internal override bool IsConst => Exprs.All(expr => expr.IsConst);
-        internal override double ExactEval() => Exprs.Aggregate(1.0, (agg, expr) => agg * expr.ExactEval());
+        internal override ConstComplexMathExpr ComplexEval() => ConstComplexMathExpr.Mult(Exprs.Select(expr => expr.ComplexEval()));
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => Create(Exprs.Select(expr => expr.Visit(transformer)));
 

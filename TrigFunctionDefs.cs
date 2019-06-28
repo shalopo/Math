@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static MathUtil.GlobalFunctionDefs;
-using static MathUtil.KnownConstMathExpr;
+using static MathUtil.GlobalMathDefs;
 using static MathUtil.MathEvalUtil;
 
 namespace MathUtil
@@ -19,7 +18,7 @@ namespace MathUtil
         {
             if (IsZero(input))
             {
-                return ExactConstMathExpr.ZERO;
+                return ZERO;
             }
 
             if (!IsPositive(input))
@@ -28,17 +27,18 @@ namespace MathUtil
                 return -(TryReduceImpl(minus_input) ?? SIN(minus_input));
             }
 
-            if (input.IsConst && (2 * input / PI).Reduce() is ExactConstMathExpr exact && IsWholeNumber(exact))
+            if (input.IsConst && (4 * input / PI).Reduce() is ExactConstMathExpr exact && IsWholeNumber(exact))
             {
-                switch (Convert.ToInt64(exact.Value) % 4)
+                switch (Convert.ToInt64(exact.Value) % 8)
                 {
-                    case 0:
-                    case 2:
-                        return 0;
-                    case 1:
-                        return 1;
-                    case 3:
-                        return -1;
+                    case 0: return ZERO;
+                    case 1: return SQRT(2) / 2;
+                    case 2: return ONE;
+                    case 3: return SQRT(2) / 2;
+                    case 4: return ZERO;
+                    case 5: return -SQRT(2) / 2;
+                    case 6: return MINUS_ONE;
+                    case 7: return -SQRT(2) / 2;
                 }
             }
 
@@ -58,7 +58,7 @@ namespace MathUtil
         {
             if (IsZero(input))
             {
-                return ExactConstMathExpr.ONE;
+                return ONE;
             }
 
             if (!IsPositive(input))
@@ -67,7 +67,7 @@ namespace MathUtil
                 return TryReduceImpl((-input).Reduce()) ?? COS(minus_input);
             }
 
-            return new SinFunctionDef().TryReduce(input + ConstFractionMathExpr.HALF * PI);
+            return new SinFunctionDef().TryReduce((input + HALF * PI).Reduce());
         }
 
         public override double ExactEval(double input) => Math.Cos(input);
@@ -92,13 +92,69 @@ namespace MathUtil
         {
             if (IsZero(input))
             {
-                return ExactConstMathExpr.ZERO;
+                return ZERO;
             }
 
             return null;
         }
 
         public override double ExactEval(double input) => Math.Atan(input);
+    }
+
+    class ArcTan2FunctionDef : MathFunctionDef
+    {
+        public ArcTan2FunctionDef() : base("arctan2")
+        {
+        }
+
+        public override MathExpr TryReduce(MathExpr input)
+        {
+            switch (input)
+            {
+                case NumericalConstMathExpr numerical:
+                    return TryReduce(ConstComplexMathExpr.Create(numerical, ZERO));
+
+                case ConstComplexMathExpr z:
+                    if (!z.HasImagPart)
+                    {
+                        if (!z.HasRealPart)
+                        {
+                            return ZERO;
+                        }
+
+                        return z.Real.IsPositive ? (MathExpr)ZERO : PI;
+                    }
+
+                    if (!z.HasRealPart)
+                    {
+                        return z.Imag.IsPositive ? (PI / 2) : (3 * PI / 2);
+                    }
+
+                    if (z.Real.Equals(z.Imag))
+                    {
+                        return z.Real.IsPositive ? (PI / 4) : (5 * PI / 4);
+                    }
+                    else if (z.Real.Equals(z.Imag.Negate()))
+                    {
+                        return z.Real.IsPositive ? (3 * PI / 4) : (- PI / 4);
+                    }
+
+                    if (!z.Imag.IsPositive)
+                    {
+                        return TryReduce(z.Conjugate()) ?? -ARCTAN2(z.Conjugate());
+                    }
+
+                    break;
+            }
+
+            return null;
+        }
+
+        public override ConstComplexMathExpr ComplexEval(ConstComplexMathExpr z) => ConstComplexMathExpr.Create(
+            Math.Atan2(z.Imag.ToDouble(), z.Real.ToDouble()), 
+            ZERO);
+
+        public override MathExpr Derive(MathVariable v) => throw new NotImplementedException("Derivative of arctan2 is not implemented");
     }
 
     class ArcSinFunctionDef : SimpleMathFunctionDef
@@ -113,7 +169,7 @@ namespace MathUtil
         {
             if (IsZero(input))
             {
-                return ExactConstMathExpr.ZERO;
+                return ZERO;
             }
 
             return null;
@@ -134,7 +190,7 @@ namespace MathUtil
         {
             if (IsOne(input))
             {
-                return ExactConstMathExpr.ZERO;
+                return ZERO;
             }
 
             return null;
@@ -142,6 +198,5 @@ namespace MathUtil
 
         public override double ExactEval(double input) => Math.Acos(input);
     }
-
 
 }

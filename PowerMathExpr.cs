@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using static MathUtil.GlobalFunctionDefs;
+using static MathUtil.GlobalMathDefs;
 using static MathUtil.MathEvalUtil;
 
 namespace MathUtil
@@ -13,14 +13,14 @@ namespace MathUtil
 
         protected override MathExpr TryReduceImpl(MathExpr input)
         {
-            if (input == KnownConstMathExpr.E)
+            if (input == E)
             {
-                return ExactConstMathExpr.ONE;
+                return ONE;
             }
 
             if (IsOne(input))
             {
-                return ExactConstMathExpr.ZERO;
+                return ZERO;
             }
 
             return null;
@@ -36,7 +36,7 @@ namespace MathUtil
 
     class SqrtFunctionDef : ExpandableMathFunctionDef
     {
-        public SqrtFunctionDef() : base("sqrt", x1.Pow(ConstFractionMathExpr.HALF)) { }
+        public SqrtFunctionDef() : base("sqrt", x1.Pow(HALF)) { }
     }
 
     class PowerMathExpr : MathExpr
@@ -64,7 +64,7 @@ namespace MathUtil
             //TODO: bug with 0^0
             if (IsZero(exponent_reduced) || IsOne(base_reduced))
             {
-                return ExactConstMathExpr.ONE;
+                return ONE;
             }
 
             if (IsOne(exponent_reduced))
@@ -72,11 +72,23 @@ namespace MathUtil
                 return base_reduced;
             }
 
+            if (base_reduced == I && IsWholeNumber(exponent_reduced))
+            {
+                switch (Math.Abs(Convert.ToInt64(((ExactConstMathExpr)exponent_reduced).Value)) % 4)
+                {
+                    case 0: return ONE;
+                    case 1: return I;
+                    case 2: return MINUS_ONE;
+                    case 3: return -I;
+                    default: throw new Exception("Invalid quarter");
+                }
+            }
+
             if (IsZero(base_reduced) && exponent_reduced is NumericalConstMathExpr numerical_exponent)
             {
                 if (numerical_exponent.IsPositive)
                 {
-                    return ExactConstMathExpr.ZERO;
+                    return ZERO;
                 }
                 else
                 {
@@ -132,7 +144,7 @@ namespace MathUtil
         }
 
         internal override bool IsConst => Base.IsConst && Exponent.IsConst;
-        internal override double ExactEval() => Math.Pow(Base.ExactEval(), Exponent.ExactEval());
+        internal override ConstComplexMathExpr ComplexEval() => Base.ComplexEval().EvalPow(Exponent.ComplexEval());
 
         public override bool Equals(object obj)
         {

@@ -37,7 +37,7 @@ namespace MathUtil
             return -expr_reduced;
         }
 
-        internal override double ExactEval() => -Expr.ExactEval();
+        internal override ConstComplexMathExpr ComplexEval() => Expr.ComplexEval().Negate();
 
         internal override bool IsConst => Expr.IsConst;
         internal override MultTerm AsMultTerm() => -Expr.AsMultTerm();

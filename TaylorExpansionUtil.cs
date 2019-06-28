@@ -16,7 +16,7 @@ namespace MathUtil
 
             var exprs = new List<MathExpr>();
 
-            var @const = MathEvalUtil.Eval(derivative, var_with_input).Reduce();
+            var @const = MathEvalUtil.TransformVariables(derivative, var_with_input).Reduce();
             if (!MathEvalUtil.IsZero(@const))
             {
                 exprs.Add(@const);
@@ -30,7 +30,7 @@ namespace MathUtil
                 Console.WriteLine();
                 Console.WriteLine($"d^{term}(f)/dx^{term}  = {derivative}");
 
-                var expr = MathEvalUtil.Eval(derivative, var_with_input) * (MathFunctionDef.x1 - base_input).Pow(term) / factor;
+                var expr = MathEvalUtil.TransformVariables(derivative, var_with_input) * (MathFunctionDef.x1 - base_input).Pow(term) / factor;
 
                 //Console.WriteLine();
                 //Console.WriteLine($"taylor term {term}: {expr}");

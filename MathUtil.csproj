@@ -46,7 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConstComplexMathExpr.cs" />
+    <Compile Include="ConstFractionMathExpr.cs" />
     <Compile Include="EqualityUtil.cs" />
+    <Compile Include="ExactConstMathExpr.cs" />
+    <Compile Include="ImaginaryMathExpr.cs" />
+    <Compile Include="KnownConstMathExpr.cs" />
     <Compile Include="MultTerm.cs" />
     <Compile Include="AddMathExpr.cs" />
     <Compile Include="DerivativeUtil.cs" />
@@ -56,8 +61,8 @@
     <Compile Include="GlobalFunctionDefs.cs" />
     <Compile Include="IMathExprListener.cs" />
     <Compile Include="MultReducer.cs" />
+    <Compile Include="NumericalConstMathExpr.cs" />
     <Compile Include="UndefinedMathBehavior.cs" />
-    <Compile Include="UndefinedMathExpr.cs" />
     <Compile Include="NegateMathExpr.cs" />
     <Compile Include="PowerMathExpr.cs" />
     <Compile Include="ConstMathExpr.cs" />

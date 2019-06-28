@@ -18,38 +18,40 @@ namespace MathUtil
             var negative_coefficient = exprs.Aggregate(1, (agg, expr) => expr is NegateMathExpr ? -agg : agg);
             exprs = (from expr in exprs select expr is NegateMathExpr negate ? negate.Expr : expr);
 
-            var powers = new Dictionary<MathExpr, MathExpr>();
+            var powers = new Dictionary<MathExpr, List<MathExpr>>();
             foreach (var expr in exprs)
             {
                 var pow = expr.AsPowerExpr();
                 if (powers.ContainsKey(pow.Base))
                 {
                     //TODO: input range validity: x/x is 1 for x!=0
-                    powers[pow.Base] += pow.Exponent;
+                    powers[pow.Base].Add(pow.Exponent);
                 }
                 else
                 {
-                    powers.Add(pow.Base, pow.Exponent);
+                    powers.Add(pow.Base, new List<MathExpr> { pow.Exponent });
                 }
             }
 
             exprs = (from item in powers
                      let @base = item.Key
-                     let exponent_reduced = item.Value.Reduce()
-                     select MathEvalUtil.IsPositive(exponent_reduced) ?
-                        PowerMathExpr.Create(@base, exponent_reduced).Reduce() :
-                        ReciprocalMathExpr.Create(PowerMathExpr.Create(@base, -exponent_reduced)).Reduce());
+                     let exponent = AddMathExpr.Create(item.Value).Reduce()
+                     select MathEvalUtil.IsPositive(exponent) ?
+                        PowerMathExpr.Create(@base, exponent).Reduce() :
+                        ReciprocalMathExpr.Create(PowerMathExpr.Create(@base, -exponent)).Reduce());
 
             var coefficient = NumericalConstMathExpr.Mult(exprs.OfType<NumericalConstMathExpr>().Append(negative_coefficient));
 
             if (MathEvalUtil.IsZero(coefficient))
             {
-                return ExactConstMathExpr.ZERO;
+                return GlobalMathDefs.ZERO;
             }
 
             exprs = exprs.Where(expr => !(expr is NumericalConstMathExpr));
 
-            if (!coefficient.Equals(ExactConstMathExpr.ONE))
+            //slupu: const * i => ConstComplex
+
+            if (!coefficient.Equals(GlobalMathDefs.ONE))
             {
                 exprs = exprs.Prepend(coefficient);
             }

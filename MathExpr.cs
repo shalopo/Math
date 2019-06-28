@@ -35,7 +35,19 @@ namespace MathUtil
         }
 
         internal abstract bool IsConst { get; }
-        internal abstract double ExactEval();
+        internal abstract ConstComplexMathExpr ComplexEval();
+
+        internal NumericalConstMathExpr RealEval()
+        {
+            var complex = ComplexEval();
+
+            if (complex.HasImagPart)
+            {
+                throw new UndefinedMathBehavior($"Not real: {complex}");
+            }
+
+            return complex.Real;
+        }
 
         internal virtual MultTerm AsMultTerm() => new MultTerm(this, 1);
         internal virtual PowerMathExpr AsPowerExpr() => new PowerMathExpr(this, 1);

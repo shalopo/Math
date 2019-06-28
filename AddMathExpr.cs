@@ -17,7 +17,7 @@ namespace MathUtil
         {
             switch (exprs.Count())
             {
-                case 0: return ExactConstMathExpr.ZERO;
+                case 0: return GlobalMathDefs.ZERO;
                 case 1: return exprs.First();
                 default: return new AddMathExpr(exprs);
             }
@@ -40,7 +40,9 @@ namespace MathUtil
 
         internal override MathExpr Derive(MathVariable v) => Create(Exprs.Select(expr => expr.Derive(v)));
 
-        protected override MathExpr ReduceImpl()
+        protected override MathExpr ReduceImpl() => ReduceAdd(true);
+
+        public MathExpr ReduceAdd(bool allow_reduce_to_const_complex = true)
         {
             var exprs = (from expr in Exprs
                          let expr_reduced = expr.Reduce()
@@ -48,7 +50,7 @@ namespace MathUtil
                          select expr_reduced is AddMathExpr add_expr ? add_expr.Exprs : new MathExpr[] { expr_reduced }
                 ).SelectMany(s => s);
 
-            var dict = new Dictionary<MathExpr, MathExpr>();
+            var multiples = new Dictionary<MathExpr, List<MathExpr>>();
 
             foreach (var expr in exprs)
             {
@@ -56,20 +58,37 @@ namespace MathUtil
                 {
                     var term = expr.AsMultTerm();
 
-                    if (dict.ContainsKey(term.Expr))
+                    if (multiples.ContainsKey(term.Expr))
                     {
-                        dict[term.Expr] += term.Coefficient;
+                        multiples[term.Expr].Add(term.Coefficient);
                     }
                     else
                     {
-                        dict.Add(term.Expr, term.Coefficient);
+                        multiples.Add(term.Expr, new List<MathExpr> { term.Coefficient });
                     }
                 }
             }
 
             var @const = NumericalConstMathExpr.Add(exprs.OfType<NumericalConstMathExpr>());
 
-            exprs = dict.Select(item => MathEvalUtil.IsOne(item.Key) ? item.Value : (item.Key * item.Value).Reduce());
+            exprs = (from item in multiples
+                     let expr = item.Key
+                     let multiple = Create(item.Value).Reduce()
+                     where !MathEvalUtil.IsZero(expr)
+                     select MathEvalUtil.IsOne(expr) ? multiple :
+                            MathEvalUtil.IsOne(multiple) ? expr : (multiple * expr).Reduce());
+
+            if (allow_reduce_to_const_complex && exprs.Count() == 1)
+            {
+                var expr = exprs.First();
+                if (expr.IsConst && (!(expr is ConstMathExpr) || expr.Equals(ImaginaryMathExpr.Instance)))
+                {
+                    var complex = expr.ComplexEval();
+                    var real_part = (@const + complex.Real).RealEval();
+                    return complex.HasImagPart ? ConstComplexMathExpr.Create(real_part, complex.Imag) : (MathExpr)real_part;
+                }
+            }
+
             if (!MathEvalUtil.IsZero(@const))
             {
                 exprs = exprs.Append(@const);
@@ -79,7 +98,7 @@ namespace MathUtil
         }
 
         internal override bool IsConst => Exprs.All(expr => expr.IsConst);
-        internal override double ExactEval() => Exprs.Aggregate(0.0, (agg, expr) => agg + expr.ExactEval());
+        internal override ConstComplexMathExpr ComplexEval() => ConstComplexMathExpr.Add(Exprs.Select(expr => expr.ComplexEval()));
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => AddMathExpr.Create(Exprs.Select(expr => expr.Visit(transformer)));
 

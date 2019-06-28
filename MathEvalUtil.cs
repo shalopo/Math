@@ -21,8 +21,8 @@ namespace MathUtil
             }
         }
 
-        public static bool IsZero(MathExpr expr) => expr.Equals(ExactConstMathExpr.ZERO);
-        public static bool IsOne(MathExpr expr) => expr.Equals(ExactConstMathExpr.ONE);
+        public static bool IsZero(MathExpr expr) => expr.Equals(GlobalMathDefs.ZERO);
+        public static bool IsOne(MathExpr expr) => expr.Equals(GlobalMathDefs.ONE);
 
         public static bool IsWholeNumber(double value) => Math.Abs(value % 1) <= (double.Epsilon * 100) && IsConvertibleToLong(value);
         public static bool IsWholeNumber(MathExpr expr) => expr is ExactConstMathExpr exact && IsWholeNumber(exact.Value);
@@ -63,47 +63,34 @@ namespace MathUtil
 
         public static bool IsPositive(MathExpr expr) => expr.AsMultTerm().Coefficient.IsPositive;
 
+        public static double CalcDistanceSquared(double dx, double dy) => dx * dx + dy * dy;
+        public static double CalcDistance(double dx, double dy) => Math.Sqrt(CalcDistanceSquared(dx, dy));
+
         public static MathExpr Reduce(MathExpr expr)
         {
-            try
-            {
-                return expr.Reduce();
-            }
-            catch (UndefinedMathBehavior)
-            {
-                return UndefinedMathExpr.Instance;
-            }
+            return expr.Reduce();
         }
 
-        internal static MathExpr Eval(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
+        internal static MathExpr TransformVariables(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
             return expr.Visit(new VariablesTransformation(values)); 
         }
 
         public static MathExpr NumericalEvalWith(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
-            var evaled = Eval(expr, values);
-
-            try
-            {
-                return evaled.Reduce();
-            }
-            catch (UndefinedMathBehavior)
-            {
-                return UndefinedMathExpr.Instance;
-            }
+            var evaled = TransformVariables(expr, values);
+            return evaled.Reduce();
         }
 
-        public static double ExactEval(MathExpr expr)
+        public static ConstComplexMathExpr ComplexEval(MathExpr expr)
         {
-            return expr.ExactEval();
+            return expr.ComplexEval();
         }
 
-
-        public static double ExactEvalWith(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
+        public static ConstComplexMathExpr ComplexEvalWith(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
-            var evaled = Eval(expr, values);
-            return ExactEval(evaled);
+            var evaled = TransformVariables(expr, values);
+            return ComplexEval(evaled);
         }
     }
 }
