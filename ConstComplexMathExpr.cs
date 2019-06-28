@@ -88,18 +88,27 @@ namespace MathUtil
             }
 
             var c = exponent.Real.ToDouble();
-            var d = exponent.Imag.ToDouble();
 
-            if (d == 0)
+            if (!exponent.HasImagPart)
             {
+                if (IsWholeNumber(c))
+                {
+                    var whole_exponent = Convert.ToUInt64(c);
+                    if (whole_exponent <= 30)
+                    {
+                        return Mult(Enumerable.Range(0, (int)whole_exponent).Select(i => this));
+                    }
+                }
+
                 var arg = ArgExpr;
-                var result_arg = c * arg;
+                var result_arg = (c * arg).Reduce();
                 var result_size = Math.Pow(size_sqr, c / 2);
                 return Create((result_size * COS(result_arg)).Reduce().RealEval(), 
                               (result_size * SIN(result_arg)).Reduce().RealEval());
             }
             else
             {
+                var d = exponent.Imag.ToDouble();
                 var arg = Arg;
                 var result_arg = d / 2 * Math.Log(size_sqr) + c * arg;
                 var result_size = Math.Pow(size_sqr, c / 2) / Math.Pow(Math.E, d * arg);
