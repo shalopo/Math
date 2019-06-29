@@ -60,16 +60,16 @@ namespace MathUtil
 
         public ConstComplexMathExpr Negate() => Create(Real.Negate(), Imag.Negate());
         public ConstComplexMathExpr Conjugate() => Create(Real, Imag.Negate());
-        public ConstComplexMathExpr Reciprocate() => Create(Real.ToDouble() / SizeSquared, -Imag.ToDouble() / SizeSquared);
+        public ConstComplexMathExpr Reciprocate() => Mult(Conjugate(), new ConstComplexMathExpr(1 / SizeSquared, ZERO));
 
         public static ConstComplexMathExpr Add(IEnumerable<ConstComplexMathExpr> exprs) => Create(
             NumericalConstMathExpr.Add(exprs.Select(expr => expr.Real)),
             NumericalConstMathExpr.Add(exprs.Select(expr => expr.Imag)));
 
         public static ConstComplexMathExpr Mult(IEnumerable<ConstComplexMathExpr> exprs) => 
-            exprs.Aggregate(ONE_COMPLEX, (agg, expr) => MultInner(agg, expr));
+            exprs.Aggregate(ONE_COMPLEX, (agg, expr) => Mult(agg, expr));
 
-        private static ConstComplexMathExpr MultInner(ConstComplexMathExpr a, ConstComplexMathExpr b) =>
+        public static ConstComplexMathExpr Mult(ConstComplexMathExpr a, ConstComplexMathExpr b) =>
             Create(NumericalConstMathExpr.Add(NumericalConstMathExpr.Mult(a.Real, b.Real), NumericalConstMathExpr.Mult(a.Imag, b.Imag).Negate()),
                    NumericalConstMathExpr.Add(NumericalConstMathExpr.Mult(a.Real, b.Imag), NumericalConstMathExpr.Mult(a.Imag, b.Real)));
 

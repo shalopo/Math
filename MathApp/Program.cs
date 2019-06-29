@@ -48,14 +48,15 @@ namespace MathTest
             var x = new MathVariable("x");
 
             var f = new ExpandableMathFunctionDef("f",
-            //2 * ARCSIN(x)
+            //4 * ARCTAN(-x)
             //LN(x + 1)
-            COS(x)
+            //COS(x)
+            //1/(1-I)
             //1/(1-x/4)
             //(-1+2*I).Pow(3-5*I)
             //COS(PI / 2)
             //(SQRT(2) / 2 + I * SQRT(2) / 2).Pow(2)
-            //E.Pow(I * x) / (COS(x) + I * SIN(x))
+            E.Pow(I * x) / (COS(x) + I * SIN(x))
             //SIN(2*x) / 2*SIN(x)*COS(x)
             //LN(g.Call(x) + 1)
             //(27+x).Pow(_1/3)
@@ -63,11 +64,11 @@ namespace MathTest
 
             var base_input = 0;
             var eval_at = 1;
-            int taylor_derivatives = 16;
+            int taylor_derivatives = 10;
 
             Console.WriteLine($"f    = {f}");
 
-            //f = f.Reduce();
+            f = f.Reduce();
             Console.WriteLine($"f*  = {f}");
             Console.WriteLine();
 

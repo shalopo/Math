@@ -27,18 +27,18 @@ namespace MathUtil
                 return -(TryReduceImpl(minus_input) ?? SIN(minus_input));
             }
 
-            if (input.IsConst && (4 * input / PI).Reduce() is ExactConstMathExpr exact && IsWholeNumber(exact))
+            if (input.IsConst && (FOUR * input / PI).Reduce() is ExactConstMathExpr exact && IsWholeNumber(exact))
             {
                 switch (Convert.ToInt64(exact.Value) % 8)
                 {
                     case 0: return ZERO;
-                    case 1: return SQRT(2) / 2;
+                    case 1: return HALF * SQRT(2);
                     case 2: return ONE;
-                    case 3: return SQRT(2) / 2;
+                    case 3: return HALF * SQRT(2);
                     case 4: return ZERO;
-                    case 5: return -SQRT(2) / 2;
+                    case 5: return -HALF * SQRT(2);
                     case 6: return MINUS_ONE;
-                    case 7: return -SQRT(2) / 2;
+                    case 7: return -HALF * SQRT(2);
                 }
             }
 
@@ -86,13 +86,24 @@ namespace MathUtil
         {
         }
 
-        protected override MathExpr DeriveSingle() => 1 / (1 + SQR(x1));
+        protected override MathExpr DeriveSingle() => (ONE + SQR(x1)).Pow(MINUS_ONE);
 
         protected override MathExpr TryReduceImpl(MathExpr input)
         {
             if (IsZero(input))
             {
                 return ZERO;
+            }
+
+            if (IsOne(input))
+            {
+                return QUARTER * PI;
+            }
+
+            if (!IsPositive(input))
+            {
+                var minus_input = (-input).Reduce();
+                return -(TryReduceImpl(minus_input) ?? ARCTAN(minus_input));
             }
 
             return null;
@@ -163,7 +174,7 @@ namespace MathUtil
         {
         }
 
-        protected override MathExpr DeriveSingle() => 1 / SQRT(1 - SQR(x1));
+        protected override MathExpr DeriveSingle() => SQRT(ONE - SQR(x1)).Pow(MINUS_ONE);
 
         protected override MathExpr TryReduceImpl(MathExpr input)
         {
@@ -184,7 +195,7 @@ namespace MathUtil
         {
         }
 
-        protected override MathExpr DeriveSingle() => -1 / SQRT(1 - SQR(x1));
+        protected override MathExpr DeriveSingle() => -SQRT(ONE - SQR(x1)).Pow(MINUS_ONE);
 
         protected override MathExpr TryReduceImpl(MathExpr input)
         {

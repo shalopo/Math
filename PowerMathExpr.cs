@@ -9,7 +9,7 @@ namespace MathUtil
     {
         public LnFunctionDef() : base("ln") { }
 
-        protected override MathExpr DeriveSingle() => 1 / x1;
+        protected override MathExpr DeriveSingle() => x1.Pow(MINUS_ONE);
 
         protected override MathExpr TryReduceImpl(MathExpr input)
         {
@@ -31,7 +31,7 @@ namespace MathUtil
 
     class SqrFunctionDef : ExpandableMathFunctionDef
     {
-        public SqrFunctionDef() : base("sqr", x1.Pow(2)) { }
+        public SqrFunctionDef() : base("sqr", x1.Pow(TWO)) { }
     }
 
     class SqrtFunctionDef : ExpandableMathFunctionDef
@@ -170,7 +170,7 @@ namespace MathUtil
 
             if (IsZero(exponent_derived))
             {
-                return Exponent * base_derived * Create(Base, (Exponent - 1).Reduce());
+                return Exponent * base_derived * Create(Base, (Exponent - ONE).Reduce());
             }
 
             addition_exprs.Add(exponent_derived * LN(Base));

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static MathUtil.GlobalMathDefs;
 
 namespace MathUtil
 {
@@ -31,7 +32,7 @@ namespace MathUtil
             {
                 case NegateMathExpr negate: return negate.Expr;
                 case AddMathExpr add: return AddMathExpr.Create(add.Exprs.Select(NegateMathExpr.Create)).Reduce();
-                case MultMathExpr mult: return MultMathExpr.Create(mult.Exprs.Prepend(-1)).Reduce();
+                case MultMathExpr mult: return MultMathExpr.Create(mult.Exprs.Prepend(MINUS_ONE)).Reduce();
             }
 
             return -expr_reduced;

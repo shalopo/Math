@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
+using static MathUtil.GlobalMathDefs;
 
 namespace MathUtil
 {
@@ -49,8 +50,8 @@ namespace MathUtil
             return complex.Real;
         }
 
-        internal virtual MultTerm AsMultTerm() => new MultTerm(this, 1);
-        internal virtual PowerMathExpr AsPowerExpr() => new PowerMathExpr(this, 1);
+        internal virtual MultTerm AsMultTerm() => new MultTerm(this, ONE);
+        internal virtual PowerMathExpr AsPowerExpr() => new PowerMathExpr(this, ONE);
 
         internal abstract MathExpr Visit(IMathExprTransformer transformer);
 

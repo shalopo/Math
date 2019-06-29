@@ -13,8 +13,10 @@ namespace MathUtil
         public static readonly ExactConstMathExpr ZERO = new ExactConstMathExpr(0);
         public static readonly ExactConstMathExpr ONE = new ExactConstMathExpr(1);
         public static readonly ExactConstMathExpr TWO = new ExactConstMathExpr(2);
+        public static readonly ExactConstMathExpr FOUR = new ExactConstMathExpr(4);
         public static readonly ExactConstMathExpr MINUS_ONE = new ExactConstMathExpr(-1);
         public static readonly ConstFractionMathExpr HALF = ConstFractionMathExpr.Create(1, 2);
+        public static readonly ConstFractionMathExpr QUARTER = ConstFractionMathExpr.Create(1, 4);
         public static readonly KnownConstMathExpr E = new KnownConstMathExpr("e", Math.E);
         public static readonly KnownConstMathExpr PI = new KnownConstMathExpr("π", Math.PI);
         public static readonly ImaginaryMathExpr I = ImaginaryMathExpr.Instance;

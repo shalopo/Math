@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static MathUtil.GlobalMathDefs;
 
 namespace MathUtil
 {
@@ -10,7 +11,7 @@ namespace MathUtil
     {
         public static implicit operator NumericalConstMathExpr(double value) => new ExactConstMathExpr(value);
 
-        internal override MultTerm AsMultTerm() => new MultTerm(1, this);
+        internal override MultTerm AsMultTerm() => new MultTerm(ONE, this);
 
         public abstract bool IsPositive { get; }
 
