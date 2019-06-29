@@ -1,24 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MathUtil
 {
-    class VariablesTransformation : IMathExprTransformer
+    public class BaseVariablesTransformation : IMathExprTransformer
     {
-        public VariablesTransformation(params (MathVariable v, MathExpr transformed)[] transformation) :
-            this(transformation.ToDictionary(t => t.v, t => t.transformed))
+        protected BaseVariablesTransformation((MathVariable v, MathExpr transformed)[] transformations)
         {
+            Sources = transformations.Select(t => t.v).ToList().AsReadOnly();
+            Transformations = new ReadOnlyDictionary<MathVariable, MathExpr>(transformations.ToDictionary(t => t.v, t => t.transformed));
         }
 
-        public VariablesTransformation(IReadOnlyDictionary<MathVariable, MathExpr> transformation) => Transformation = transformation;
+        public MathExpr Transform(MathVariable v) => Transformations.TryGetValue(v, out MathExpr expr) ? expr : v;
 
-        public MathExpr Transform(VariableMathExpr v) => Transformation.TryGetValue(v, out MathExpr expr) ? expr : v;
+        public MathExpr Transform(MathExpr expr) => expr is MathVariable v ? Transform(v) : expr;
 
-        public MathExpr Transform(MathExpr expr) => expr is VariableMathExpr var_expr ? Transform(var_expr) : expr;
+        public MathExpr this[MathVariable v] => Transformations[v];
 
-        IReadOnlyDictionary<MathVariable, MathExpr> Transformation { get; }
+        public ReadOnlyCollection<MathVariable> Sources { get; }
+        private ReadOnlyDictionary<MathVariable, MathExpr> Transformations { get; }
+    }
+
+    public class VariablesEvalTransformation : BaseVariablesTransformation
+    {
+        public VariablesEvalTransformation(params (MathVariable v, MathExpr transformed)[] transformation) :
+            base(transformation)
+        {
+        }
+    }
+
+    public class VariablesChangeTransformation : BaseVariablesTransformation
+    {
+        public VariablesChangeTransformation(MathVariable[] targets, params (MathVariable v, MathExpr transformed)[] transformation) :
+            base(transformation)
+        {
+            Targets = Array.AsReadOnly(targets);
+        }
+
+        public ReadOnlyCollection<MathVariable> Targets { get; }
     }
 }

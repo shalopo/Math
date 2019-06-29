@@ -22,28 +22,52 @@ namespace MathTest
 
         static void Main(string[] args)
         {
-            var x = MathFunctionDef.x1;
-            Console.WriteLine(Math.Atan2(0,0));
+            //JacobianTest();
+            TaylorTest();
+
+
+            Console.WriteLine();
+            Console.WriteLine("done.");
+            Console.ReadLine();
+        }
+
+        static void JacobianTest()
+        {
+            var x = new MathVariable("x");
+            var y = new MathVariable("y");
+
+            var r = new MathVariable("r");
+            var t = new MathVariable("t");
+
+            var jacobian = JacobianMatrix.Create(new VariablesChangeTransformation(new MathVariable[]{ r, t }, (x, r * COS(t)), (y, r * SIN(t))));
+            Console.WriteLine(jacobian.Determinant());
+        }
+
+        static void TaylorTest()
+        {
+            var x = new MathVariable("x");
+
             var f = new ExpandableMathFunctionDef("f",
             //2 * ARCSIN(x)
             //LN(x + 1)
-            //E.Pow(x)
+            COS(x)
             //1/(1-x/4)
             //(-1+2*I).Pow(3-5*I)
             //COS(PI / 2)
             //(SQRT(2) / 2 + I * SQRT(2) / 2).Pow(2)
             //E.Pow(I * x) / (COS(x) + I * SIN(x))
             //SIN(2*x) / 2*SIN(x)*COS(x)
-            LN(x + 1)
+            //LN(g.Call(x) + 1)
+            //(27+x).Pow(_1/3)
             );
 
             var base_input = 0;
             var eval_at = 1;
-            int taylor_derivatives = 10;
+            int taylor_derivatives = 16;
 
             Console.WriteLine($"f    = {f}");
 
-            f = f.Reduce();
+            //f = f.Reduce();
             Console.WriteLine($"f*  = {f}");
             Console.WriteLine();
 
@@ -60,7 +84,7 @@ namespace MathTest
             //Console.WriteLine($"derived(0) = {EvalReduce(derived, (x, base_input))}");
             //Console.WriteLine();
 
-            var taylor = TaylorExpansionUtil.Expand(f, taylor_derivatives, base_input);
+            var taylor = TaylorExpansionUtil.Expand(f, taylor_derivatives, x, base_input);
             Console.WriteLine();
             Console.WriteLine($"taylor  = {taylor}");
             Console.WriteLine();
@@ -76,10 +100,6 @@ namespace MathTest
             var err = ComplexEval(taylor_exact_evaled - direct_exact_eval).Size;
             Console.WriteLine();
             Console.WriteLine($"err = {err}");
-
-            Console.WriteLine();
-            Console.WriteLine("done.");
-            Console.ReadLine();
         }
     }
 }

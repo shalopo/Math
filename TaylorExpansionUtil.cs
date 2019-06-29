@@ -8,15 +8,15 @@ namespace MathUtil
 {
     public static class TaylorExpansionUtil
     {
-        public static MathExpr Expand(ExpandableMathFunctionDef f, int num_derivatives, MathExpr base_input)
+        public static MathExpr Expand(ExpandableMathFunctionDef f, int num_derivatives, MathVariable v, MathExpr base_input)
         {
-            var var_with_input = new[] { (MathFunctionDef.x1.Variable, base_input) };
+            var var_with_input = new[] { (v, base_input) };
             MathExpr derivative = f.Definition;
             double factor = 1;
 
             var exprs = new List<MathExpr>();
 
-            var @const = MathEvalUtil.TransformVariables(derivative, var_with_input).Reduce();
+            var @const = MathEvalUtil.EvalTransformVariables(derivative, var_with_input).Reduce();
             if (!MathEvalUtil.IsZero(@const))
             {
                 exprs.Add(@const);
@@ -25,12 +25,12 @@ namespace MathUtil
             for (int term = 1; term <= num_derivatives && !MathEvalUtil.IsZero(derivative); term++)
             {
                 factor *= term;
-                derivative = DerivativeUtil.Derive(derivative, MathFunctionDef.x1.Variable);
+                derivative = DerivativeUtil.Derive(derivative, v);
 
                 Console.WriteLine();
                 Console.WriteLine($"d^{term}(f)/dx^{term}  = {derivative}");
 
-                var expr = MathEvalUtil.TransformVariables(derivative, var_with_input) * (MathFunctionDef.x1 - base_input).Pow(term) / factor;
+                var expr = MathEvalUtil.EvalTransformVariables(derivative, var_with_input) * (v - base_input).Pow(term) / factor;
 
                 //Console.WriteLine();
                 //Console.WriteLine($"taylor term {term}: {expr}");

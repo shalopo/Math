@@ -27,14 +27,14 @@ namespace MathUtil
         
         public static implicit operator Func<MathExpr, MathExpr>(MathFunctionDef func) => func.Call;
 
-        public static VariableMathExpr x1 = new VariableMathExpr(new MathVariable("x"));
+        public static MathVariable x1 = new MathVariable("x");
     }
 
     abstract class SimpleMathFunctionDef : MathFunctionDef
     {
         public SimpleMathFunctionDef(string name) : base(name) { }
 
-        public override sealed MathExpr Derive(MathVariable v) => (v == x1.Variable) ? DeriveSingle() : GlobalMathDefs.ZERO;
+        public override sealed MathExpr Derive(MathVariable v) => (v == x1) ? DeriveSingle() : GlobalMathDefs.ZERO;
 
         public override sealed MathExpr TryReduce(MathExpr input) => TryReduceImpl(input);
 
@@ -69,7 +69,7 @@ namespace MathUtil
 
         public override ConstComplexMathExpr ComplexEval(ConstComplexMathExpr input) => EvalCall(input).ComplexEval();
 
-        private MathExpr EvalCall(MathExpr input) => Definition.Visit(new VariablesTransformation((x1, input)));
+        private MathExpr EvalCall(MathExpr input) => Definition.Visit(new VariablesEvalTransformation((x1, input)));
 
         public override sealed MathExpr TryReduce(MathExpr input) => TryReduceImpl(input) ?? EvalCall(input).Reduce();
 
@@ -95,7 +95,7 @@ namespace MathUtil
             }
 
             return input_derived * 
-                Func.Derive(MathFunctionDef.x1).Visit(new VariablesTransformation((MathFunctionDef.x1, Input)));
+                Func.Derive(MathFunctionDef.x1).Visit(new VariablesEvalTransformation((MathFunctionDef.x1, Input)));
         }
 
         public override bool Equals(object obj)

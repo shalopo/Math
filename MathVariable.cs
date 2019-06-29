@@ -6,30 +6,19 @@ using System.Threading.Tasks;
 
 namespace MathUtil
 {
-    public class MathVariable
+    public class MathVariable : MathExpr
     {
         public MathVariable(string name) => Name = name;
 
-        public String Name { get; }
+        public string Name { get; }
 
         public override string ToString() => Name;
-    }
-
-    public class VariableMathExpr : MathExpr
-    {
-        public VariableMathExpr(MathVariable v) => Variable = v;
-
-        public MathVariable Variable { get; }
-
-        public static implicit operator MathVariable(VariableMathExpr expr) => expr.Variable;
 
         internal override bool RequiresPowScoping => false;
 
-        public override string ToString() => Variable.ToString();
-
         internal override MathExpr Visit(IMathExprTransformer transformer) => transformer.Transform(this);
 
-        internal override MathExpr Derive(MathVariable v) => v == Variable ? GlobalMathDefs.ONE : GlobalMathDefs.ZERO;
+        internal override MathExpr Derive(MathVariable v) => v == this ? GlobalMathDefs.ONE : GlobalMathDefs.ZERO;
 
         internal override bool IsConst => false;
         internal override ConstComplexMathExpr ComplexEval() => throw new UndefinedMathBehavior("Cannot reduce");

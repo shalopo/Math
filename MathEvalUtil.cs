@@ -71,14 +71,14 @@ namespace MathUtil
             return expr.Reduce();
         }
 
-        internal static MathExpr TransformVariables(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
+        internal static MathExpr EvalTransformVariables(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
-            return expr.Visit(new VariablesTransformation(values)); 
+            return expr.Visit(new VariablesEvalTransformation(values)); 
         }
 
         public static MathExpr NumericalEvalWith(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
-            var evaled = TransformVariables(expr, values);
+            var evaled = EvalTransformVariables(expr, values);
             return evaled.Reduce();
         }
 
@@ -89,7 +89,7 @@ namespace MathUtil
 
         public static ConstComplexMathExpr ComplexEvalWith(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
-            var evaled = TransformVariables(expr, values);
+            var evaled = EvalTransformVariables(expr, values);
             return ComplexEval(evaled);
         }
     }

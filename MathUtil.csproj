@@ -51,7 +51,9 @@
     <Compile Include="EqualityUtil.cs" />
     <Compile Include="ExactConstMathExpr.cs" />
     <Compile Include="ImaginaryMathExpr.cs" />
+    <Compile Include="JacobianMatrix.cs" />
     <Compile Include="KnownConstMathExpr.cs" />
+    <Compile Include="Matrix.cs" />
     <Compile Include="MultTerm.cs" />
     <Compile Include="AddMathExpr.cs" />
     <Compile Include="DerivativeUtil.cs" />
