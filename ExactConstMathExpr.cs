@@ -16,6 +16,7 @@ namespace MathUtil
 
         public double Value { get; }
 
+        internal override double Weight => MathEvalUtil.IsWholeNumber(Value) ? 1 : 2;
         internal override bool RequiresPowScoping => (Value < 0);
 
         public override bool IsPositive => (Value > 0);

@@ -46,13 +46,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddReducer.cs" />
     <Compile Include="ConstComplexMathExpr.cs" />
     <Compile Include="ConstFractionMathExpr.cs" />
+    <Compile Include="DiscreteFourierTransform.cs" />
     <Compile Include="EqualityUtil.cs" />
     <Compile Include="ExactConstMathExpr.cs" />
     <Compile Include="ImaginaryMathExpr.cs" />
     <Compile Include="JacobianMatrix.cs" />
     <Compile Include="KnownConstMathExpr.cs" />
+    <Compile Include="MathIdentity.cs" />
     <Compile Include="Matrix.cs" />
     <Compile Include="MultTerm.cs" />
     <Compile Include="AddMathExpr.cs" />
@@ -64,6 +67,9 @@
     <Compile Include="IMathExprListener.cs" />
     <Compile Include="MultReducer.cs" />
     <Compile Include="NumericalConstMathExpr.cs" />
+    <Compile Include="Tensors\MetricTensor.cs" />
+    <Compile Include="Tensors\BaseTensor.cs" />
+    <Compile Include="Tensors\Tensor.cs" />
     <Compile Include="UndefinedMathBehavior.cs" />
     <Compile Include="NegateMathExpr.cs" />
     <Compile Include="PowerMathExpr.cs" />

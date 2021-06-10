@@ -59,7 +59,7 @@ namespace MathUtil
 
         public static NumericalConstMathExpr Add(IEnumerable<NumericalConstMathExpr> exprs)
         {
-            var fractions = exprs.OfType<ConstFractionMathExpr>().ToList();
+            var fractions = exprs.OfType<ConstFractionMathExpr>();
             var exacts = exprs.OfType<ExactConstMathExpr>();
 
             if (fractions.Any() && exacts.All(exact => MathEvalUtil.IsWholeNumber(exact.Value)))

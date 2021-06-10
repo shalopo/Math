@@ -11,16 +11,11 @@ namespace MathUtil
     public sealed class ConstComplexMathExpr : ConstMathExpr
     {
         private ConstComplexMathExpr(NumericalConstMathExpr real, NumericalConstMathExpr imag) =>
-            (Real, Imag, AddExpr) = (real, imag, ((AddMathExpr)(real + imag * I)).ReduceAdd(false));
+            (Real, Imag, AddExpr) = (real, imag, AddReducer.Reduce(((AddMathExpr)(real + imag * I)).Exprs, false));
 
         public static ConstComplexMathExpr Create(NumericalConstMathExpr real, NumericalConstMathExpr imag) => new ConstComplexMathExpr(real, imag);
 
-        public static ConstComplexMathExpr CreatePolar(double size, double arg) => Create(size * Math.Cos(arg), size * Math.Sin(arg));
-
-        public static ConstComplexMathExpr CreatePolar(double size, MathExpr arg) => Create(
-            size * COS(arg).Reduce().RealEval().ToDouble(), 
-            size * SIN(arg).Reduce().RealEval().ToDouble());
-
+        public static ConstComplexMathExpr CreatePolar(double size, double phase) => Create(size * Math.Cos(phase), size * Math.Sin(phase));
 
         public NumericalConstMathExpr Real { get; }
         public NumericalConstMathExpr Imag { get; }
@@ -29,6 +24,7 @@ namespace MathUtil
         public bool HasImagPart => !(IsZero(Imag));
         public bool HasRealPart => !(IsZero(Real));
 
+        internal override double Weight => AddExpr.Weight;
         internal override bool RequiresMultScoping => AddExpr.RequiresMultScoping;
         internal override bool RequiresPowScoping => AddExpr.RequiresPowScoping;
         public override string ToString() => AddExpr.ToString();
@@ -55,8 +51,8 @@ namespace MathUtil
         public double SizeSquared => CalcDistanceSquared(Real.ToDouble(), Imag.ToDouble());
         public double Size => Math.Sqrt(SizeSquared);
 
-        private MathExpr ArgExpr => ARCTAN2(this);
-        public double Arg => ArgExpr.RealEval().ToDouble();
+        private MathExpr PhaseExpr => ARCTAN2(this);
+        public double Phase => PhaseExpr.RealEval().ToDouble();
 
         public ConstComplexMathExpr Negate() => Create(Real.Negate(), Imag.Negate());
         public ConstComplexMathExpr Conjugate() => Create(Real, Imag.Negate());
@@ -93,30 +89,34 @@ namespace MathUtil
             {
                 if (IsWholeNumber(c))
                 {
-                    var whole_exponent = Convert.ToUInt64(c);
-                    if (whole_exponent <= 30)
+                    var whole_exponent = Convert.ToInt64(c);
+                    if (Math.Abs(whole_exponent) <= 30)
                     {
-                        return Mult(Enumerable.Range(0, (int)whole_exponent).Select(i => this));
+                        var result = Mult(Enumerable.Range(0, Math.Abs((int)whole_exponent)).Select(i => this));
+                        if (whole_exponent < 0)
+                        {
+                            return result.Reciprocate();
+                        }
                     }
                 }
 
-                var arg = ArgExpr;
-                var result_arg = (c * arg).Reduce();
+                var phase = PhaseExpr;
+                var result_phase = (c * phase).Reduce();
                 var result_size = Math.Pow(size_sqr, c / 2);
-                return Create((result_size * COS(result_arg)).Reduce().RealEval(), 
-                              (result_size * SIN(result_arg)).Reduce().RealEval());
+                return Create((result_size * COS(result_phase)).Reduce().RealEval(), 
+                              (result_size * SIN(result_phase)).Reduce().RealEval());
             }
             else
             {
                 var d = exponent.Imag.ToDouble();
-                var arg = Arg;
-                var result_arg = d / 2 * Math.Log(size_sqr) + c * arg;
-                var result_size = Math.Pow(size_sqr, c / 2) / Math.Pow(Math.E, d * arg);
-                return CreatePolar(result_size, result_arg);
+                var phase = Phase;
+                var result_phase = d / 2 * Math.Log(size_sqr) + c * phase;
+                var result_size = Math.Pow(size_sqr, c / 2) / Math.Pow(Math.E, d * phase);
+                return CreatePolar(result_size, result_phase);
             }
         }
 
-        private static ConstComplexMathExpr ZERO_COMPLEX = Create(ZERO, ZERO);
+        public static ConstComplexMathExpr ZERO_COMPLEX = Create(ZERO, ZERO);
         private static ConstComplexMathExpr ONE_COMPLEX = Create(ONE, ZERO);
     }
 }

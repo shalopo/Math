@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MathUtil;
+using MathUtil.Tensors;
 using static MathUtil.GlobalMathDefs;
 using static MathUtil.MathEvalUtil;
 
@@ -11,19 +12,14 @@ namespace MathTest
 {
     class Program
     {
-        static ExactConstMathExpr _(double value) => new ExactConstMathExpr(value);
-        static ExactConstMathExpr _0 = _(0);
-        static ExactConstMathExpr _1 = _(1);
-        static ExactConstMathExpr _2 = _(2);
-        static ExactConstMathExpr _3 = _(3);
-        static ExactConstMathExpr _4 = _(4);
-        static ExactConstMathExpr _5 = _(5);
-        static ExactConstMathExpr _6 = _(6);
-
-        static void Main(string[] args)
+        static void Main()
         {
-            //JacobianTest();
-            TaylorTest();
+            Console.OutputEncoding = Encoding.UTF8;
+
+            TensorTestIdentity();
+            TensorTestPolar2d();
+            TensorTestPolar3d();
+            //TaylorTest();
 
 
             Console.WriteLine();
@@ -31,16 +27,65 @@ namespace MathTest
             Console.ReadLine();
         }
 
-        static void JacobianTest()
+        static void TensorTestIdentity()
+        {
+            var t = new MathVariable("t");
+            var x = new MathVariable("x");
+            var y = new MathVariable("y");
+            var z = new MathVariable("z");
+
+            var tensor = new MetricTensor(new MathVariable[] { t, x, y, z });
+            tensor[t, t] = MINUS_ONE;
+            tensor[x, x] = ONE;
+            tensor[y, y] = ONE;
+            tensor[z, z] = ONE;
+            Console.WriteLine(tensor);
+
+            var transformation = new VariablesChangeTransformation(new MathVariable[] { t, x, y, z }, (t, t), (x, x), (y, y), (z, z));
+
+            var triviallyTransformedTensor = tensor.ChangeCoordinates(transformation);
+
+            Console.WriteLine(triviallyTransformedTensor);
+            Console.WriteLine();
+        }
+
+        static void TensorTestPolar2d()
         {
             var x = new MathVariable("x");
             var y = new MathVariable("y");
 
-            var r = new MathVariable("r");
-            var t = new MathVariable("t");
+            var tensor = MetricTensor.Identity(new MathVariable[] { x, y });
+            Console.WriteLine(tensor);
 
-            var jacobian = JacobianMatrix.Create(new VariablesChangeTransformation(new MathVariable[]{ r, t }, (x, r * COS(t)), (y, r * SIN(t))));
-            Console.WriteLine(jacobian.Determinant());
+            var r = new MathVariable("r");
+            var theta = new MathVariable("θ");
+
+            var transformation = new VariablesChangeTransformation(new MathVariable[] { r, theta }, (x, r * COS(theta)), (y, r * SIN(theta)));
+            var polarTensor = tensor.ChangeCoordinates(transformation);
+
+            Console.WriteLine(polarTensor.ToString());
+            Console.WriteLine();
+        }
+
+        static void TensorTestPolar3d()
+        {
+            var x = new MathVariable("x");
+            var y = new MathVariable("y");
+            var z = new MathVariable("z");
+
+            var tensor = MetricTensor.Identity(new MathVariable[] { x, y, z });
+            Console.WriteLine(tensor);
+
+            var r = new MathVariable("r");
+            var theta = new MathVariable("θ");
+            var phi = new MathVariable("φ");
+
+            var transformation = new VariablesChangeTransformation(new MathVariable[] { r, theta, phi }, 
+                (x, r * COS(phi) * SIN(theta)), (y, r * SIN(phi) * SIN(theta)), (z, r * COS(theta)));
+            var polarTensor = tensor.ChangeCoordinates(transformation);
+
+            Console.WriteLine(polarTensor.ToString());
+            Console.WriteLine();
         }
 
         static void TaylorTest()
@@ -50,13 +95,15 @@ namespace MathTest
             var f = new ExpandableMathFunctionDef("f",
             //4 * ARCTAN(-x)
             //LN(x + 1)
-            //COS(x)
+            //E.Pow(x)
+            2*ARCCOS(-0.5)
             //1/(1-I)
             //1/(1-x/4)
             //(-1+2*I).Pow(3-5*I)
             //COS(PI / 2)
+            //(2*(x-3) + 6)/x
             //(SQRT(2) / 2 + I * SQRT(2) / 2).Pow(2)
-            E.Pow(I * x) / (COS(x) + I * SIN(x))
+            //E.Pow(I * x) / (COS(x) + I * SIN(x))
             //SIN(2*x) / 2*SIN(x)*COS(x)
             //LN(g.Call(x) + 1)
             //(27+x).Pow(_1/3)

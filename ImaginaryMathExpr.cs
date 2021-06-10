@@ -15,6 +15,8 @@ namespace MathUtil
 
         public static ImaginaryMathExpr Instance = new ImaginaryMathExpr();
 
+        internal override double Weight => 1;
+
         public override string ToString() => "i";
 
         internal override ConstComplexMathExpr ComplexEval() => ConstComplexMathExpr.Create(ZERO, ONE);

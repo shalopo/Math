@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathUtil", "MathUtil.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathApp", "MathApp\MathApp.csproj", "{DF9F92C3-034D-4B16-AC1C-F960240306A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FourierDraw", "..\FourierDraw\FourierDraw.csproj", "{822840EE-0F6E-4ACC-9E09-8A1E2D7708AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{DF9F92C3-034D-4B16-AC1C-F960240306A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF9F92C3-034D-4B16-AC1C-F960240306A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF9F92C3-034D-4B16-AC1C-F960240306A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{822840EE-0F6E-4ACC-9E09-8A1E2D7708AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{822840EE-0F6E-4ACC-9E09-8A1E2D7708AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{822840EE-0F6E-4ACC-9E09-8A1E2D7708AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{822840EE-0F6E-4ACC-9E09-8A1E2D7708AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

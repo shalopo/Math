@@ -24,6 +24,7 @@ namespace MathUtil
         public long Top { get; }
         public long Bottom { get; }
 
+        internal override double Weight => 2;
         internal override bool RequiresPowScoping => true;
 
         public override double ToDouble() => Top / ((double)Bottom);

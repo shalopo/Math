@@ -35,6 +35,7 @@ namespace MathUtil
             return this;
         }
 
+        internal abstract double Weight { get; }
         internal abstract bool IsConst { get; }
         internal abstract ConstComplexMathExpr ComplexEval();
 

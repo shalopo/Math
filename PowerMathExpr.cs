@@ -143,6 +143,7 @@ namespace MathUtil
             return Create(base_reduced, exponent_reduced);
         }
 
+        internal override double Weight => Base.Weight + Exponent.Weight;
         internal override bool IsConst => Base.IsConst && Exponent.IsConst;
         internal override ConstComplexMathExpr ComplexEval() => Base.ComplexEval().EvalPow(Exponent.ComplexEval());
 

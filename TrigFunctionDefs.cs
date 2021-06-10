@@ -23,8 +23,7 @@ namespace MathUtil
 
             if (!IsPositive(input))
             {
-                var minus_input = (-input).Reduce();
-                return -(TryReduceImpl(minus_input) ?? SIN(minus_input));
+                return (-SIN(-input)).Reduce();
             }
 
             if (input.IsConst && (FOUR * input / PI).Reduce() is ExactConstMathExpr exact && IsWholeNumber(exact))
@@ -63,8 +62,7 @@ namespace MathUtil
 
             if (!IsPositive(input))
             {
-                var minus_input = (-input).Reduce();
-                return TryReduceImpl((-input).Reduce()) ?? COS(minus_input);
+                return COS(-input).Reduce();
             }
 
             return new SinFunctionDef().TryReduce((input + HALF * PI).Reduce());
@@ -102,8 +100,7 @@ namespace MathUtil
 
             if (!IsPositive(input))
             {
-                var minus_input = (-input).Reduce();
-                return -(TryReduceImpl(minus_input) ?? ARCTAN(minus_input));
+                return (-ARCTAN(-input)).Reduce();
             }
 
             return null;
@@ -183,6 +180,16 @@ namespace MathUtil
                 return ZERO;
             }
 
+            if (IsOne(input))
+            {
+                return HALF * PI;
+            }
+
+            if (!IsPositive(input))
+            {
+                return (-ARCSIN(-input)).Reduce();
+            }
+
             return null;
         }
 
@@ -199,6 +206,11 @@ namespace MathUtil
 
         protected override MathExpr TryReduceImpl(MathExpr input)
         {
+            if (IsZero(input))
+            {
+                return HALF * PI;
+            }
+
             if (IsOne(input))
             {
                 return ZERO;

@@ -13,6 +13,7 @@ namespace MathUtil
 
         public MathExpr Expr { get; }
 
+        internal override double Weight => Expr.Weight + 1;
         internal override bool RequiresPowScoping => true;
 
         internal override MathExpr Derive(MathVariable v) => -Expr.Derive(v) * Expr.Pow(-2);

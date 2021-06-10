@@ -16,24 +16,17 @@ namespace MathUtil
 
         public static ulong GCD(ulong a, ulong b)
         {
-            if (b == 0)
+            if (a == 0 || b == 0)
             {
                 throw new UndefinedMathBehavior("Division by zero");
             }
 
-            while (a != 0 && b != 0)
+            while (b != 0)
             {
-                if (a > b)
-                {
-                    a %= b;
-                }
-                else
-                {
-                    b %= a;
-                }
+                (a, b) = (b, a % b);
             }
 
-            return a == 0 ? b : a;
+            return a;
         }
 
 

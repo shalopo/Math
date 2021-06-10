@@ -15,6 +15,7 @@ namespace MathUtil
 
         public MathExpr Expr { get; }
 
+        internal override double Weight => Expr.Weight + 1;
         internal override bool RequiresMultScoping => true;
         internal override bool RequiresPowScoping => true;
 

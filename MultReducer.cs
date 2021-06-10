@@ -36,9 +36,9 @@ namespace MathUtil
             exprs = (from item in powers
                      let @base = item.Key
                      let exponent = AddMathExpr.Create(item.Value).Reduce()
-                     select MathEvalUtil.IsPositive(exponent) ?
-                        PowerMathExpr.Create(@base, exponent).Reduce() :
-                        ReciprocalMathExpr.Create(PowerMathExpr.Create(@base, -exponent)).Reduce());
+                     select (exponent is NumericalConstMathExpr exponent_numerical && !exponent_numerical.IsPositive) ?
+                        ReciprocalMathExpr.Create(PowerMathExpr.Create(@base, exponent_numerical.Negate())).Reduce() :
+                        PowerMathExpr.Create(@base, exponent).Reduce());
 
             var coefficient = NumericalConstMathExpr.Mult(exprs.OfType<NumericalConstMathExpr>().Append(negative_coefficient));
 
