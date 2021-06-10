@@ -28,6 +28,11 @@ namespace MathUtil
 
         internal override bool IsConst => false;
         internal override ConstComplexMathExpr ComplexEval() => throw new UndefinedMathBehavior("Cannot reduce");
+
+        internal override MathExprMatch Match(MathExpr expr)
+        {
+            return new MathExprMatch(new VariablesTransformation((this, expr)));
+        }
     }
 
     public class MathVariableDelta : MathExpr
@@ -40,10 +45,12 @@ namespace MathUtil
 
         internal override double Weight => 1;
         internal override bool RequiresPowScoping => false;
-
+        
         internal override MathExpr Visit(IMathExprTransformer transformer) => throw new NotImplementedException();
         
         internal override MathExpr Derive(MathVariable v) => throw new UndefinedMathBehavior("Cannot derive " + ToString());
+
+        internal override MathExprMatch Match(MathExpr expr) => throw new NotImplementedException();
 
         internal override bool IsConst => false;
         internal override ConstComplexMathExpr ComplexEval() => throw new UndefinedMathBehavior("Cannot reduce");

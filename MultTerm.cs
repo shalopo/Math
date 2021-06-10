@@ -11,6 +11,9 @@ namespace MathUtil
         public MultTerm(MathExpr expr, NumericalConstMathExpr coefficient) => (Expr, Coefficient) = (expr, coefficient);
 
         public MathExpr Expr { get; }
+
+        //TODO: should coefficients should be fixed to include additional consts which are not considered numerical,
+        // but actually are? e.g. (8*pi^2*e + 2/3) should be a compound const and as such a valid coefficient
         public NumericalConstMathExpr Coefficient { get; }
 
         public MathExpr ToMultExpr()

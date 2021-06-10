@@ -78,6 +78,13 @@ namespace MathUtil
         }
     }
 
+    class CotFunctionDef : ExpandableMathFunctionDef
+    {
+        public CotFunctionDef() : base("cot", COS(x1) / SIN(x1))
+        {
+        }
+    }
+
     class ArcTanFunctionDef : SimpleMathFunctionDef
     {
         public ArcTanFunctionDef() : base("arctan")

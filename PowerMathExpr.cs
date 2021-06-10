@@ -43,6 +43,7 @@ namespace MathUtil
     {
         public PowerMathExpr(MathExpr @base, MathExpr exponent) => (Base, Exponent) = (@base, exponent);
         public static MathExpr Create(MathExpr @base, MathExpr exponent) => IsOne(exponent) ? @base : new PowerMathExpr(@base, exponent);
+        //TODO: -1 should be reciprocal
 
         internal override bool RequiresPowScoping => true;
 
@@ -187,5 +188,24 @@ namespace MathUtil
         internal override PowerMathExpr AsPowerExpr() => this;
 
         public PowerMathExpr Reciprocate() => new PowerMathExpr(Base, (-Exponent).Reduce());
+
+        internal override MathExprMatch Match(MathExpr expr)
+        {
+            if (!(expr is PowerMathExpr powerExpr))
+            {
+                return null;
+            }
+
+            var match = Base.Match(powerExpr.Base);
+            
+            if (match != null)
+            {
+                return match;
+            }
+            
+            match = Exponent.Match(powerExpr.Exponent);
+            
+            return match;
+        }
     }
 }

@@ -12,22 +12,33 @@ namespace MathTest
 {
     class Program
     {
+        static void TestReduceIdentities(MathExpr expr)
+        {
+            Console.WriteLine(MathIdentitiesManager.Reduce(expr.Reduce()));
+        }
+
         static void Main()
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            TensorTestIdentity();
-            TensorTestPolar2d();
-            TensorTestPolar3d();
-            TaylorTest();
+            var x = new MathVariable("x");
+            var y = new MathVariable("y");
 
+            //TestReduceIdentities(SIN(x).Pow(2) + COS(x).Pow(2));
+            TestReduceIdentities(4 * COS(3 * x / 2).Pow(2) - 4 * SIN(3 * x / 2).Pow(2) + 2 * SIN(y).Pow(2) + 2 * COS(y).Pow(2));
+            //Console.TestReduceIdentities(2 * PI * SIN(x).Pow(2) + 2 * PI * COS(x).Pow(2));
+
+            //TensorTestIdentity();
+            //TensorTestPolar2d();
+            TensorTestPolar3d();
+            //TaylorTest();
 
             Console.WriteLine();
             Console.WriteLine("done.");
             Console.ReadLine();
         }
 
-        static void TensorTestIdentity()
+        public static void TensorTestIdentity()
         {
             var t = new MathVariable("t");
             var x = new MathVariable("x");
@@ -49,7 +60,7 @@ namespace MathTest
             Console.WriteLine();
         }
 
-        static void TensorTestPolar2d()
+        public static void TensorTestPolar2d()
         {
             var x = new MathVariable("x");
             var y = new MathVariable("y");
@@ -67,7 +78,7 @@ namespace MathTest
             Console.WriteLine();
         }
 
-        static void TensorTestPolar3d()
+        public static void TensorTestPolar3d()
         {
             var x = new MathVariable("x");
             var y = new MathVariable("y");
@@ -88,16 +99,14 @@ namespace MathTest
             Console.WriteLine();
         }
 
-        static void TaylorTest()
+        public void TaylorTest()
         {
             var x = new MathVariable("x");
 
             var f = new ExpandableMathFunctionDef("f",
             //SIN(-x + 1).Pow(2) * SIN(x + 1)
             //4 * ARCTAN(-x)
-            LN(x + 1)
             //E.Pow(x)
-            //2*ARCCOS(x)
             //1/(1-I)
             //1/(1-x/4)
             //(-1+2*I).Pow(3-5*I)
@@ -105,13 +114,12 @@ namespace MathTest
             //(2 * (x - 3) + 6) / (x + 1)
             //(SQRT(2) / 2 + I * SQRT(2) / 2).Pow(2)
             //E.Pow(I * x) / (COS(x) + I * SIN(x))
-            //SIN(2*x) / 2*SIN(x)*COS(x)
-            //LN(g.Call(x) + 1)
-            //(27 + x).Pow(ONE / 3)
+            //SIN(2 * x) / 2 * SIN(x) * COS(x)
+            (27 + x).Pow(ONE / 3)
             );
 
-            var base_input = 0;
-            var eval_at = 1;
+            var base_input = 1;
+            var eval_at = 2;
             int taylor_derivatives = 10;
 
             Console.WriteLine($"f    = {f}");

@@ -40,7 +40,7 @@ namespace MathUtil
             exprs = (from item in multiples
                      let expr = item.Key
                      let multiple = AddMathExpr.Create(item.Value).Reduce()
-                     where !MathEvalUtil.IsZero(expr)
+                     where !MathEvalUtil.IsZero(expr) && !MathEvalUtil.IsZero(multiple)
                      select MathEvalUtil.IsOne(expr) ? multiple :
                             MathEvalUtil.IsOne(multiple) ? expr : (multiple * expr).Reduce());
 

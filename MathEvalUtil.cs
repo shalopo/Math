@@ -66,11 +66,6 @@ namespace MathUtil
         public static double CalcDistanceSquared(double dx, double dy) => dx * dx + dy * dy;
         public static double CalcDistance(double dx, double dy) => Math.Sqrt(CalcDistanceSquared(dx, dy));
 
-        public static MathExpr Reduce(MathExpr expr)
-        {
-            return expr.Reduce();
-        }
-
         internal static MathExpr EvalTransformVariables(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
             return expr.Visit(new VariablesEvalTransformation(values)); 

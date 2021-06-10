@@ -18,7 +18,7 @@ namespace MathUtil
 
         internal abstract MathExpr Derive(MathVariable v);
 
-        internal MathExpr Reduce()
+        public MathExpr Reduce()
         {
             if (IsReduced)
             {
@@ -30,6 +30,8 @@ namespace MathUtil
             return reduced;
         }
 
+        internal abstract MathExprMatch Match(MathExpr expr);
+
         protected virtual MathExpr ReduceImpl()
         {
             return this;
@@ -37,6 +39,8 @@ namespace MathUtil
 
         internal abstract double Weight { get; }
         internal abstract bool IsConst { get; }
+
+        // TODO: extend this to eval into anything (e.g. consider matrices)
         internal abstract ConstComplexMathExpr ComplexEval();
 
         internal NumericalConstMathExpr RealEval()

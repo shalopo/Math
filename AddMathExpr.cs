@@ -50,5 +50,10 @@ namespace MathUtil
 
         public override bool Equals(object other) => (other is AddMathExpr other_add) && EqualityUtil.Equals(Exprs, other_add.Exprs);
         public override int GetHashCode() => EqualityUtil.GetHashCode(Exprs, 982734678);
+
+        internal override MathExprMatch Match(MathExpr expr)
+        {
+            return null;
+        }
     }
 }

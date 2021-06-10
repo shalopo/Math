@@ -127,6 +127,20 @@ namespace MathUtil
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => new FunctionCallMathExpr(Func, Input.Visit(transformer));
 
+        internal override MathExprMatch Match(MathExpr expr)
+        {
+            if (!(expr is FunctionCallMathExpr callExpr))
+            {
+                return null;
+            }
+
+            if (callExpr.Func != Func)
+            {
+                return null;
+            }
+
+            return Input.Match(callExpr.Input);
+        }
 
     }
 }

@@ -55,7 +55,9 @@
     <Compile Include="ImaginaryMathExpr.cs" />
     <Compile Include="JacobianMatrix.cs" />
     <Compile Include="KnownConstMathExpr.cs" />
+    <Compile Include="MathExprMatch.cs" />
     <Compile Include="MathIdentity.cs" />
+    <Compile Include="MathIdentityMatcher.cs" />
     <Compile Include="Matrix.cs" />
     <Compile Include="MultTerm.cs" />
     <Compile Include="AddMathExpr.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="Tensors\MetricTensor.cs" />
     <Compile Include="Tensors\BaseTensor.cs" />
     <Compile Include="Tensors\Tensor.cs" />
+    <Compile Include="TrigIdentities.cs" />
     <Compile Include="UndefinedMathBehavior.cs" />
     <Compile Include="PowerMathExpr.cs" />
     <Compile Include="ConstMathExpr.cs" />

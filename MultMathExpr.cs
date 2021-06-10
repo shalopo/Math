@@ -76,6 +76,12 @@ namespace MathUtil
 
         public override bool Equals(object other) => (other is MultMathExpr other_mult) && EqualityUtil.Equals(Exprs, other_mult.Exprs);
         public override int GetHashCode() => EqualityUtil.GetHashCode(Exprs, 407977119);
+
+        internal override MathExprMatch Match(MathExpr expr)
+        {
+            //TODO: match mult
+            return null;
+        }
     }
 
 }

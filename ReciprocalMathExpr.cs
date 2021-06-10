@@ -52,5 +52,11 @@ namespace MathUtil
         {
             return 601397246 + EqualityComparer<MathExpr>.Default.GetHashCode(Expr);
         }
+
+        internal override MathExprMatch Match(MathExpr expr)
+        {
+            //TODO: match mult
+            return null;
+        }
     }
 }

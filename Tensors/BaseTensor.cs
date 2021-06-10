@@ -27,6 +27,11 @@ namespace MathUtil.Tensors
             throw new NotImplementedException();
         }
 
+        internal override MathExprMatch Match(MathExpr expr)
+        {
+            return null;
+        }
+
         internal override MathExpr Visit(IMathExprTransformer transformer)
         {
             throw new NotImplementedException();
