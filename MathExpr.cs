@@ -59,11 +59,12 @@ namespace MathUtil
         public static implicit operator MathExpr(double value) => new ExactConstMathExpr(value);
 
         public static MathExpr operator +(MathExpr a, MathExpr b) => AddMathExpr.Create(a, b);
-        public static MathExpr operator -(MathExpr a) => NegateMathExpr.Create(a);
+        public static MathExpr operator -(MathExpr a) => MINUS_ONE * a;
         public static MathExpr operator -(MathExpr a, MathExpr b) => AddMathExpr.Create(a, -b);
         public static MathExpr operator *(MathExpr a, MathExpr b) => MultMathExpr.Create(a, b);
         public static MathExpr operator /(MathExpr a, MathExpr b) => a * ReciprocalMathExpr.Create(b);
 
+        // the ^ operator does not fit due to non-matching order of operations
         public MathExpr Pow(MathExpr exponent) => PowerMathExpr.Create(this,exponent);
 
         internal static readonly MathExpr[] EMPTY_ARRAY = new MathExpr[0];

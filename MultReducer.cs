@@ -15,9 +15,6 @@ namespace MathUtil
             exprs = (from expr in exprs select expr is MultMathExpr mult_expr ? mult_expr.Exprs : new MathExpr[] { expr }
                 ).SelectMany(s => s).ToList();
 
-            var negative_coefficient = exprs.Aggregate(1, (agg, expr) => expr is NegateMathExpr ? -agg : agg);
-            exprs = (from expr in exprs select expr is NegateMathExpr negate ? negate.Expr : expr);
-
             var powers = new Dictionary<MathExpr, List<MathExpr>>();
             foreach (var expr in exprs)
             {
@@ -40,7 +37,7 @@ namespace MathUtil
                         ReciprocalMathExpr.Create(PowerMathExpr.Create(@base, exponent_numerical.Negate())).Reduce() :
                         PowerMathExpr.Create(@base, exponent).Reduce());
 
-            var coefficient = NumericalConstMathExpr.Mult(exprs.OfType<NumericalConstMathExpr>().Append(negative_coefficient));
+            var coefficient = NumericalConstMathExpr.Mult(exprs.OfType<NumericalConstMathExpr>());
 
             if (MathEvalUtil.IsZero(coefficient))
             {

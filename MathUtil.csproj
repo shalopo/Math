@@ -71,7 +71,6 @@
     <Compile Include="Tensors\BaseTensor.cs" />
     <Compile Include="Tensors\Tensor.cs" />
     <Compile Include="UndefinedMathBehavior.cs" />
-    <Compile Include="NegateMathExpr.cs" />
     <Compile Include="PowerMathExpr.cs" />
     <Compile Include="ConstMathExpr.cs" />
     <Compile Include="MathExpr.cs" />

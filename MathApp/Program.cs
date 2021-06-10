@@ -19,7 +19,7 @@ namespace MathTest
             TensorTestIdentity();
             TensorTestPolar2d();
             TensorTestPolar3d();
-            //TaylorTest();
+            TaylorTest();
 
 
             Console.WriteLine();
@@ -93,20 +93,21 @@ namespace MathTest
             var x = new MathVariable("x");
 
             var f = new ExpandableMathFunctionDef("f",
+            //SIN(-x + 1).Pow(2) * SIN(x + 1)
             //4 * ARCTAN(-x)
-            //LN(x + 1)
+            LN(x + 1)
             //E.Pow(x)
-            2*ARCCOS(-0.5)
+            //2*ARCCOS(x)
             //1/(1-I)
             //1/(1-x/4)
             //(-1+2*I).Pow(3-5*I)
             //COS(PI / 2)
-            //(2*(x-3) + 6)/x
+            //(2 * (x - 3) + 6) / (x + 1)
             //(SQRT(2) / 2 + I * SQRT(2) / 2).Pow(2)
             //E.Pow(I * x) / (COS(x) + I * SIN(x))
             //SIN(2*x) / 2*SIN(x)*COS(x)
             //LN(g.Call(x) + 1)
-            //(27+x).Pow(_1/3)
+            //(27 + x).Pow(ONE / 3)
             );
 
             var base_input = 0;

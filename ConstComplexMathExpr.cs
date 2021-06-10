@@ -116,7 +116,7 @@ namespace MathUtil
             }
         }
 
-        public static ConstComplexMathExpr ZERO_COMPLEX = Create(ZERO, ZERO);
-        private static ConstComplexMathExpr ONE_COMPLEX = Create(ONE, ZERO);
+        public static readonly ConstComplexMathExpr ZERO_COMPLEX = Create(ZERO, ZERO);
+        private static readonly ConstComplexMathExpr ONE_COMPLEX = Create(ONE, ZERO);
     }
 }
