@@ -11,7 +11,7 @@ namespace MathUtil
     {
         public MathIdentity(MathExpr expr)
         {
-            expr = expr.Reduce();
+            expr = expr.Reduce(ReduceOptions.DEFAULT.With(allowSearchIdentities: false));
 
             if (!(expr is AddMathExpr addExpr))
             {
@@ -26,13 +26,15 @@ namespace MathUtil
         public MathExpr Expr => AddExpr;
     }
 
-    public static class MathIdentitiesManager
+    public static class MathIdentityManager
     {
-        private static List<MathIdentity> Identities { get; } = new List<MathIdentity>();
+        private static readonly List<MathIdentity> identities = new List<MathIdentity>();
+
+        public static IReadOnlyCollection<MathIdentity> Identities => identities;
 
         public static void Register(MathIdentity identity)
         {
-            Identities.Add(identity);
+            identities.Add(identity);
         }
 
         public static void Register(List<MathIdentity> identities)
@@ -43,34 +45,11 @@ namespace MathUtil
             }
         }
 
-        static MathIdentitiesManager()
+        static MathIdentityManager()
         {
             Register(TrigIdentities.Get());
         }
 
-        public static MathExpr Reduce(MathExpr expr)
-        {
-            if (!(expr is AddMathExpr addExpr))
-            {
-                return expr;
-            }
-
-            foreach (var identity in Identities)
-            {
-                MathExpr newExpr = MathIdentityMatcher.Reduce(addExpr, identity);
-
-                if (newExpr is AddMathExpr adjustedAddExpr)
-                {
-                    expr = newExpr;
-                }
-                else
-                {
-                    return newExpr;
-                }
-            }
-
-            return expr;
-        }
     }
 
 }

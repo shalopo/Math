@@ -51,7 +51,7 @@ namespace MathUtil
             return hashCode;
         }
 
-        protected override MathExpr ReduceImpl() => NumericalReduce();
+        protected override MathExpr ReduceImpl(ReduceOptions options) => NumericalReduce();
 
         public NumericalConstMathExpr NumericalReduce()
         {

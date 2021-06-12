@@ -8,7 +8,33 @@ namespace MathUtil
 {
     internal class MathIdentityMatcher
     {
-        public static MathExpr Reduce(AddMathExpr addExpr, MathIdentity identity)
+        public static MathExpr Reduce(MathExpr expr, ReduceOptions options)
+        {
+            if (!(expr is AddMathExpr addExpr))
+            {
+                return expr;
+            }
+
+            options = options.With(allowSearchIdentities: false);
+
+            foreach (var identity in MathIdentityManager.Identities)
+            {
+                MathExpr newExpr = ReduceByIdentity(addExpr, identity, options);
+
+                if (newExpr is AddMathExpr adjustedAddExpr)
+                {
+                    expr = newExpr;
+                }
+                else
+                {
+                    return newExpr;
+                }
+            }
+
+            return expr;
+        }
+    
+        private static MathExpr ReduceByIdentity(AddMathExpr addExpr, MathIdentity identity, ReduceOptions options)
         {
             if (addExpr.Exprs.Count < identity.AddExpr.Exprs.Count - 1)
             {
@@ -27,15 +53,14 @@ namespace MathUtil
 
                     if (match != null)
                     {
-                        var coefficient = (multTerm.Coefficient / identityMultTerm.Coefficient).Reduce();
+                        var coefficient = (multTerm.Coefficient / identityMultTerm.Coefficient).Reduce(options);
 
                         var identityExprWithCoefficient = (AddMathExpr)AddMathExpr.Create(
-                            identity.AddExpr.Exprs.Select(t => (-coefficient * t).Reduce()));
+                            identity.AddExpr.Exprs.Select(t => (-coefficient * t).Reduce(options)));
 
                         var transformedIdentity = identityExprWithCoefficient.Visit(match.Transformation);
 
-                        //TODO - light reduction so we don't get an infinite loop!
-                        var adjustedExpr = (addExpr + transformedIdentity).Reduce();
+                        var adjustedExpr = AddReducer.Reduce(((AddMathExpr)(addExpr + transformedIdentity)).Exprs, options);
                         
                         if (adjustedExpr.Weight < addExpr.Weight)
                         {

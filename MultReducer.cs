@@ -8,9 +8,9 @@ namespace MathUtil
 {
     class MultReducer
     {
-        public static MathExpr Reduce(IEnumerable<MathExpr> exprs)
+        public static MathExpr Reduce(IEnumerable<MathExpr> exprs, ReduceOptions options)
         {
-            exprs = (from expr in exprs select expr.Reduce());
+            exprs = (from expr in exprs select expr.Reduce(options));
 
             exprs = (from expr in exprs select expr is MultMathExpr mult_expr ? mult_expr.Exprs : new MathExpr[] { expr }
                 ).SelectMany(s => s).ToList();
@@ -32,10 +32,10 @@ namespace MathUtil
 
             exprs = (from item in powers
                      let @base = item.Key
-                     let exponent = AddMathExpr.Create(item.Value).Reduce()
+                     let exponent = AddMathExpr.Create(item.Value).Reduce(options)
                      select (exponent is NumericalConstMathExpr exponent_numerical && !exponent_numerical.IsPositive) ?
-                        ReciprocalMathExpr.Create(PowerMathExpr.Create(@base, exponent_numerical.Negate())).Reduce() :
-                        PowerMathExpr.Create(@base, exponent).Reduce());
+                        ReciprocalMathExpr.Create(PowerMathExpr.Create(@base, exponent_numerical.Negate())).Reduce(options) :
+                        PowerMathExpr.Create(@base, exponent).Reduce(options));
 
             var coefficient = NumericalConstMathExpr.Mult(exprs.OfType<NumericalConstMathExpr>());
 

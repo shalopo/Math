@@ -74,7 +74,7 @@ namespace MathUtil
         public static MathExpr NumericalEvalWith(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
             var evaled = EvalTransformVariables(expr, values);
-            return evaled.Reduce();
+            return evaled.Reduce(ReduceOptions.DEFAULT);
         }
 
         public static ConstComplexMathExpr ComplexEval(MathExpr expr)

@@ -21,7 +21,7 @@ namespace MathUtil
 
         public override string ToString() => Name;
 
-        public abstract MathExpr TryReduce(MathExpr input);
+        public abstract MathExpr TryReduce(MathExpr input, ReduceOptions options);
 
         public abstract ConstComplexMathExpr ComplexEval(ConstComplexMathExpr ComplexEval);
         
@@ -36,9 +36,9 @@ namespace MathUtil
 
         public override sealed MathExpr Derive(MathVariable v) => (v == x1) ? DeriveSingle() : GlobalMathDefs.ZERO;
 
-        public override sealed MathExpr TryReduce(MathExpr input) => TryReduceImpl(input);
+        public override sealed MathExpr TryReduce(MathExpr input, ReduceOptions options) => TryReduceImpl(input, options);
 
-        protected virtual MathExpr TryReduceImpl(MathExpr input) => null;
+        protected virtual MathExpr TryReduceImpl(MathExpr input, ReduceOptions options) => null;
 
         protected abstract MathExpr DeriveSingle();
 
@@ -65,15 +65,17 @@ namespace MathUtil
 
         public override MathExpr Derive(MathVariable v) => Definition.Derive(v);
 
-        public ExpandableMathFunctionDef Reduce() => new ExpandableMathFunctionDef(Name, Definition.Reduce());
+        public ExpandableMathFunctionDef Reduce(ReduceOptions options) => 
+            new ExpandableMathFunctionDef(Name, Definition.Reduce(options));
 
         public override ConstComplexMathExpr ComplexEval(ConstComplexMathExpr input) => EvalCall(input).ComplexEval();
 
         private MathExpr EvalCall(MathExpr input) => Definition.Visit(new VariablesEvalTransformation((x1, input)));
 
-        public override sealed MathExpr TryReduce(MathExpr input) => TryReduceImpl(input) ?? EvalCall(input).Reduce();
+        public override sealed MathExpr TryReduce(MathExpr input, ReduceOptions options) => 
+            TryReduceImpl(input, options) ?? EvalCall(input).Reduce(options);
 
-        protected virtual MathExpr TryReduceImpl(MathExpr input) => null;
+        protected virtual MathExpr TryReduceImpl(MathExpr input, ReduceOptions options) => null;
     }
 
 
@@ -113,10 +115,10 @@ namespace MathUtil
             return hashCode;
         }
 
-        protected override MathExpr ReduceImpl()
+        protected override MathExpr ReduceImpl(ReduceOptions options)
         {
-            var input_reduced = Input.Reduce();
-            return Func.TryReduce(input_reduced) ?? new FunctionCallMathExpr(Func, input_reduced);
+            var input_reduced = Input.Reduce(options);
+            return Func.TryReduce(input_reduced, options) ?? new FunctionCallMathExpr(Func, input_reduced);
         }
 
         internal override double Weight => Input.Weight + 1;

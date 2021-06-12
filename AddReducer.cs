@@ -8,10 +8,10 @@ namespace MathUtil
 {
     class AddReducer
     {
-        public static MathExpr Reduce(IEnumerable<MathExpr> exprs, bool allow_reduce_to_const_complex = true)
+        public static MathExpr Reduce(IEnumerable<MathExpr> exprs, ReduceOptions options)
         {
             exprs = (from expr in exprs
-                     let expr_reduced = expr.Reduce()
+                     let expr_reduced = expr.Reduce(options)
                      where !MathEvalUtil.IsZero(expr_reduced)
                      select expr_reduced is AddMathExpr add_expr ? add_expr.Exprs : new MathExpr[] { expr_reduced }
             ).SelectMany(s => s);
@@ -39,12 +39,12 @@ namespace MathUtil
 
             exprs = (from item in multiples
                      let expr = item.Key
-                     let multiple = AddMathExpr.Create(item.Value).Reduce()
+                     let multiple = AddMathExpr.Create(item.Value).Reduce(options)
                      where !MathEvalUtil.IsZero(expr) && !MathEvalUtil.IsZero(multiple)
                      select MathEvalUtil.IsOne(expr) ? multiple :
-                            MathEvalUtil.IsOne(multiple) ? expr : (multiple * expr).Reduce());
+                            MathEvalUtil.IsOne(multiple) ? expr : (multiple * expr).Reduce(options));
 
-            if (allow_reduce_to_const_complex && exprs.Count() == 1)
+            if (options.AllowReduceToConstComplex && exprs.Count() == 1)
             {
                 var expr = exprs.First();
                 if (expr.IsConst && (!(expr is ConstMathExpr) || expr.Equals(ImaginaryMathExpr.Instance)))
@@ -60,7 +60,14 @@ namespace MathUtil
                 exprs = exprs.Append(@const);
             }
 
-            return AddMathExpr.Create(exprs);
+            var reducedExpr = AddMathExpr.Create(exprs);
+
+            if (options.AllowSearchIdentities)
+            {
+                reducedExpr = MathIdentityMatcher.Reduce(reducedExpr, options);
+            }
+
+            return reducedExpr;
         }
 
     }

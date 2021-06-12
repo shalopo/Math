@@ -69,6 +69,7 @@
     <Compile Include="IMathExprListener.cs" />
     <Compile Include="MultReducer.cs" />
     <Compile Include="NumericalConstMathExpr.cs" />
+    <Compile Include="ReduceOptions.cs" />
     <Compile Include="Tensors\MetricTensor.cs" />
     <Compile Include="Tensors\BaseTensor.cs" />
     <Compile Include="Tensors\Tensor.cs" />

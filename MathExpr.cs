@@ -18,21 +18,21 @@ namespace MathUtil
 
         internal abstract MathExpr Derive(MathVariable v);
 
-        public MathExpr Reduce()
+        public MathExpr Reduce(ReduceOptions options)
         {
             if (IsReduced)
             {
                 return this;
             }
 
-            var reduced = ReduceImpl();
+            var reduced = ReduceImpl(options);
             reduced.IsReduced = true;
             return reduced;
         }
 
         internal abstract MathExprMatch Match(MathExpr expr);
 
-        protected virtual MathExpr ReduceImpl()
+        protected virtual MathExpr ReduceImpl(ReduceOptions options)
         {
             return this;
         }

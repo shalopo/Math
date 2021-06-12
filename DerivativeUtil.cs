@@ -14,7 +14,7 @@ namespace MathUtil
 
             for (int i = 0; i < num_derivatives; i++)
             {
-                sub = sub.Derive(v).Reduce();
+                sub = sub.Derive(v).Reduce(ReduceOptions.DEFAULT);
             }
 
             return sub;

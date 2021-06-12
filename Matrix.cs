@@ -22,7 +22,7 @@ namespace MathUtil
 
         public MathExpr Determinant()
         {
-            return InnerDeterminant().Reduce();
+            return InnerDeterminant().Reduce(ReduceOptions.DEFAULT);
         }
 
         private MathExpr InnerDeterminant()

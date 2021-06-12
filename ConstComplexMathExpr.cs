@@ -11,7 +11,8 @@ namespace MathUtil
     public sealed class ConstComplexMathExpr : ConstMathExpr
     {
         private ConstComplexMathExpr(NumericalConstMathExpr real, NumericalConstMathExpr imag) =>
-            (Real, Imag, AddExpr) = (real, imag, AddReducer.Reduce(((AddMathExpr)(real + imag * I)).Exprs, false));
+            (Real, Imag, AddExpr) = (real, imag, AddReducer.Reduce(((AddMathExpr)(real + imag * I)).Exprs, 
+                ReduceOptions.DEFAULT.With(allowReduceToConstComplex: false)));
 
         public static ConstComplexMathExpr Create(NumericalConstMathExpr real, NumericalConstMathExpr imag) => new ConstComplexMathExpr(real, imag);
 
@@ -100,11 +101,13 @@ namespace MathUtil
                     }
                 }
 
+                var reduceOptions = ReduceOptions.DEFAULT;
+
                 var phase = PhaseExpr;
-                var result_phase = (c * phase).Reduce();
+                var result_phase = (c * phase).Reduce(reduceOptions);
                 var result_size = Math.Pow(size_sqr, c / 2);
-                return Create((result_size * COS(result_phase)).Reduce().RealEval(), 
-                              (result_size * SIN(result_phase)).Reduce().RealEval());
+                return Create((result_size * COS(result_phase)).Reduce(reduceOptions).RealEval(), 
+                              (result_size * SIN(result_phase)).Reduce(reduceOptions).RealEval());
             }
             else
             {

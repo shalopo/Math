@@ -12,9 +12,12 @@ namespace MathTest
 {
     class Program
     {
-        static void TestReduceIdentities(MathExpr expr)
+        static void TestReduction(MathExpr expr)
         {
-            Console.WriteLine(MathIdentitiesManager.Reduce(expr.Reduce()));
+            Console.WriteLine(expr.ToString());
+            Console.WriteLine("=>");
+            Console.WriteLine(expr.Reduce(ReduceOptions.DEFAULT));
+            Console.WriteLine();
         }
 
         static void Main()
@@ -24,14 +27,14 @@ namespace MathTest
             var x = new MathVariable("x");
             var y = new MathVariable("y");
 
-            //TestReduceIdentities(SIN(x).Pow(2) + COS(x).Pow(2));
-            TestReduceIdentities(4 * COS(3 * x / 2).Pow(2) - 4 * SIN(3 * x / 2).Pow(2) + 2 * SIN(y).Pow(2) + 2 * COS(y).Pow(2));
+            TestReduction(SIN(x).Pow(2) + COS(x).Pow(2));
+            TestReduction(3 * COS(x / 2).Pow(2) - SIN(x / 2).Pow(2) + 2 * SIN(2 * y).Pow(2) + 2 * COS(2 * y).Pow(2));
             //Console.TestReduceIdentities(2 * PI * SIN(x).Pow(2) + 2 * PI * COS(x).Pow(2));
 
             //TensorTestIdentity();
-            //TensorTestPolar2d();
-            TensorTestPolar3d();
-            //TaylorTest();
+            TensorTestPolar2d();
+            //TensorTestPolar3d();
+            TaylorTest();
 
             Console.WriteLine();
             Console.WriteLine("done.");
@@ -99,14 +102,14 @@ namespace MathTest
             Console.WriteLine();
         }
 
-        public void TaylorTest()
+        public static void TaylorTest()
         {
             var x = new MathVariable("x");
 
             var f = new ExpandableMathFunctionDef("f",
             //SIN(-x + 1).Pow(2) * SIN(x + 1)
             //4 * ARCTAN(-x)
-            //E.Pow(x)
+            E.Pow(2*x*I)
             //1/(1-I)
             //1/(1-x/4)
             //(-1+2*I).Pow(3-5*I)
@@ -115,22 +118,21 @@ namespace MathTest
             //(SQRT(2) / 2 + I * SQRT(2) / 2).Pow(2)
             //E.Pow(I * x) / (COS(x) + I * SIN(x))
             //SIN(2 * x) / 2 * SIN(x) * COS(x)
-            (27 + x).Pow(ONE / 3)
+            //(27 + x).Pow(ONE / 3)
             );
 
-            var base_input = 1;
-            var eval_at = 2;
+            var base_input = 0;
+            var eval_at = PI / 8;
             int taylor_derivatives = 10;
 
-            Console.WriteLine($"f    = {f}");
+            f = f.Reduce(ReduceOptions.DEFAULT.With(allowSearchIdentities: false));
 
-            f = f.Reduce();
-            Console.WriteLine($"f*  = {f}");
+            Console.WriteLine();
+            Console.WriteLine($"f(x) = {f}");
             Console.WriteLine();
 
-            var numerical_eval = NumericalEvalWith(f.Definition, (x, base_input));
             var complex_eval = ComplexEvalWith(f.Definition, (x, base_input));
-            Console.WriteLine($"f(0) = {numerical_eval} = {complex_eval}");
+            Console.WriteLine($"f(0) = {complex_eval}");
 
             Console.WriteLine();
 
@@ -143,12 +145,12 @@ namespace MathTest
 
             var taylor = TaylorExpansionUtil.Expand(f, taylor_derivatives, x, base_input);
             Console.WriteLine();
-            Console.WriteLine($"taylor  = {taylor}");
+            Console.WriteLine($"taylor series of f(x) around {base_input} = {taylor}");
             Console.WriteLine();
 
             var taylor_evaled = NumericalEvalWith(taylor, (x, eval_at));
             var taylor_exact_evaled = ComplexEval(taylor_evaled);
-            Console.WriteLine($"f({eval_at}) via taylor ~= {taylor_evaled} = {taylor_exact_evaled}");
+            Console.WriteLine($"f({eval_at}) via taylor series ~= {taylor_evaled} = {taylor_exact_evaled}");
 
             var direct_exact_eval = ComplexEvalWith(f.Definition, (x, eval_at));
             Console.WriteLine();

@@ -14,7 +14,7 @@ namespace MathUtil
 
         protected override MathExpr DeriveSingle() => COS(x1);
 
-        protected override MathExpr TryReduceImpl(MathExpr input)
+        protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {
             if (IsZero(input))
             {
@@ -23,10 +23,10 @@ namespace MathUtil
 
             if (!IsPositive(input))
             {
-                return (-SIN(-input)).Reduce();
+                return (-SIN(-input)).Reduce(options);
             }
 
-            if (input.IsConst && (FOUR * input / PI).Reduce() is ExactConstMathExpr exact && IsWholeNumber(exact))
+            if (input.IsConst && (FOUR * input / PI).Reduce(options) is ExactConstMathExpr exact && IsWholeNumber(exact))
             {
                 switch (Convert.ToInt64(exact.Value) % 8)
                 {
@@ -53,7 +53,7 @@ namespace MathUtil
         
         protected override MathExpr DeriveSingle() => -SIN(x1);
 
-        protected override MathExpr TryReduceImpl(MathExpr input)
+        protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {
             if (IsZero(input))
             {
@@ -62,10 +62,10 @@ namespace MathUtil
 
             if (!IsPositive(input))
             {
-                return COS(-input).Reduce();
+                return COS(-input).Reduce(options);
             }
 
-            return new SinFunctionDef().TryReduce((input + HALF * PI).Reduce());
+            return new SinFunctionDef().TryReduce((input + HALF * PI).Reduce(options), options);
         }
 
         public override double ExactEval(double input) => Math.Cos(input);
@@ -93,7 +93,7 @@ namespace MathUtil
 
         protected override MathExpr DeriveSingle() => (ONE + SQR(x1)).Pow(MINUS_ONE);
 
-        protected override MathExpr TryReduceImpl(MathExpr input)
+        protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {
             if (IsZero(input))
             {
@@ -107,7 +107,7 @@ namespace MathUtil
 
             if (!IsPositive(input))
             {
-                return (-ARCTAN(-input)).Reduce();
+                return (-ARCTAN(-input)).Reduce(options);
             }
 
             return null;
@@ -122,12 +122,12 @@ namespace MathUtil
         {
         }
 
-        public override MathExpr TryReduce(MathExpr input)
+        public override MathExpr TryReduce(MathExpr input, ReduceOptions options)
         {
             switch (input)
             {
                 case NumericalConstMathExpr numerical:
-                    return TryReduce(ConstComplexMathExpr.Create(numerical, ZERO));
+                    return TryReduce(ConstComplexMathExpr.Create(numerical, ZERO), options);
 
                 case ConstComplexMathExpr z:
                     if (!z.HasImagPart)
@@ -156,7 +156,7 @@ namespace MathUtil
 
                     if (!z.Imag.IsPositive)
                     {
-                        return TryReduce(z.Conjugate()) ?? -ARCTAN2(z.Conjugate());
+                        return TryReduce(z.Conjugate(), options) ?? -ARCTAN2(z.Conjugate());
                     }
 
                     break;
@@ -180,7 +180,7 @@ namespace MathUtil
 
         protected override MathExpr DeriveSingle() => SQRT(ONE - SQR(x1)).Pow(MINUS_ONE);
 
-        protected override MathExpr TryReduceImpl(MathExpr input)
+        protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {
             if (IsZero(input))
             {
@@ -194,7 +194,7 @@ namespace MathUtil
 
             if (!IsPositive(input))
             {
-                return (-ARCSIN(-input)).Reduce();
+                return (-ARCSIN(-input)).Reduce(options);
             }
 
             return null;
@@ -211,7 +211,7 @@ namespace MathUtil
 
         protected override MathExpr DeriveSingle() => -SQRT(ONE - SQR(x1)).Pow(MINUS_ONE);
 
-        protected override MathExpr TryReduceImpl(MathExpr input)
+        protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {
             if (IsZero(input))
             {

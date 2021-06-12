@@ -40,7 +40,7 @@ namespace MathUtil
 
         internal override MathExpr Derive(MathVariable v) => Create(Exprs.Select(expr => expr.Derive(v)));
 
-        protected override MathExpr ReduceImpl() => AddReducer.Reduce(Exprs, true);
+        protected override MathExpr ReduceImpl(ReduceOptions options) => AddReducer.Reduce(Exprs, options);
 
         internal override double Weight => Exprs.Aggregate(0.0, (agg, expr) => agg + expr.Weight);
         internal override bool IsConst => Exprs.All(expr => expr.IsConst);

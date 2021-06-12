@@ -121,7 +121,7 @@ namespace MathUtil.Tensors
                 }
             }
 
-            return AddMathExpr.Create(terms).Reduce();
+            return AddMathExpr.Create(terms).Reduce(ReduceOptions.DEFAULT);
         }
 
         public override string ToString()
@@ -139,7 +139,8 @@ namespace MathUtil.Tensors
 
                     if (!MathEvalUtil.IsZero(metricTensorEntry))
                     {
-                        var term = metricTensorEntry * (Variables[varIndex1].Delta * Variables[varIndex2].Delta).Reduce();
+                        var term = metricTensorEntry * (Variables[varIndex1].Delta * Variables[varIndex2].Delta);
+                        term = term.Reduce(ReduceOptions.DEFAULT);
                         terms.Add(term);
                     }
                 }

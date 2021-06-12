@@ -18,16 +18,16 @@ namespace MathUtil
 
         internal override MathExpr Derive(MathVariable v) => -Expr.Derive(v) * Expr.Pow(-2);
 
-        protected override MathExpr ReduceImpl()
+        protected override MathExpr ReduceImpl(ReduceOptions options)
         {
-            var expr_reduced = Expr.Reduce();
+            var expr_reduced = Expr.Reduce(options);
 
             switch (expr_reduced)
             {
                 case ReciprocalMathExpr reciprocal: return reciprocal.Expr;
-                case NumericalConstMathExpr numerical: return numerical.Reciprocate().Reduce();
-                case MultMathExpr mult: return MultMathExpr.Create(mult.Exprs.Select(ReciprocalMathExpr.Create)).Reduce(); //TODO: wrong?
-                case PowerMathExpr power: return PowerMathExpr.Create(power.Base, (-power.Exponent).Reduce());
+                case NumericalConstMathExpr numerical: return numerical.Reciprocate().Reduce(options);
+                case MultMathExpr mult: return MultMathExpr.Create(mult.Exprs.Select(Create)).Reduce(options); //TODO: wrong?
+                case PowerMathExpr power: return PowerMathExpr.Create(power.Base, (-power.Exponent).Reduce(options));
             }
 
             return Create(expr_reduced);

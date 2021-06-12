@@ -11,7 +11,7 @@ namespace MathUtil
 
         protected override MathExpr DeriveSingle() => x1.Pow(MINUS_ONE);
 
-        protected override MathExpr TryReduceImpl(MathExpr input)
+        protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {
             if (input == E)
             {
@@ -57,10 +57,10 @@ namespace MathUtil
             Base.Visit(transformer), 
             Exponent.Visit(transformer));
 
-        protected override MathExpr ReduceImpl()
+        protected override MathExpr ReduceImpl(ReduceOptions options)
         {
-            var base_reduced = Base.Reduce();
-            var exponent_reduced = Exponent.Reduce();
+            var base_reduced = Base.Reduce(options);
+            var exponent_reduced = Exponent.Reduce(options);
 
             //TODO: bug with 0^0
             if (IsZero(exponent_reduced) || IsOne(base_reduced))
@@ -122,23 +122,23 @@ namespace MathUtil
                 {
                     if (IsEven(exponent_exact.Value))
                     {
-                        return Create((-base_reduced).Reduce(), exponent_reduced);
+                        return Create((-base_reduced).Reduce(options), exponent_reduced);
                     }
                     else if (IsOdd(exponent_exact.Value))
                     {
-                        return -Create((-base_reduced).Reduce(), exponent_reduced);
+                        return -Create((-base_reduced).Reduce(options), exponent_reduced);
                     }
                 }
             }
 
             if (base_reduced is ConstFractionMathExpr base_fraction)
             {
-                return (Create(base_fraction.Top, exponent_reduced) / Create(base_fraction.Bottom, exponent_reduced)).Reduce();
+                return (Create(base_fraction.Top, exponent_reduced) / Create(base_fraction.Bottom, exponent_reduced)).Reduce(options);
             }
 
             if (base_reduced is PowerMathExpr base_power)
             {
-                return Create(base_power.Base, (base_power.Exponent * exponent_reduced).Reduce());
+                return Create(base_power.Base, (base_power.Exponent * exponent_reduced).Reduce(options));
             }
 
             return Create(base_reduced, exponent_reduced);
@@ -172,7 +172,7 @@ namespace MathUtil
 
             if (IsZero(exponent_derived))
             {
-                return Exponent * base_derived * Create(Base, (Exponent - ONE).Reduce());
+                return Exponent * base_derived * Create(Base, (Exponent - ONE).Reduce(ReduceOptions.DEFAULT));
             }
 
             addition_exprs.Add(exponent_derived * LN(Base));
@@ -187,7 +187,7 @@ namespace MathUtil
 
         internal override PowerMathExpr AsPowerExpr() => this;
 
-        public PowerMathExpr Reciprocate() => new PowerMathExpr(Base, (-Exponent).Reduce());
+        public PowerMathExpr Reciprocate() => new PowerMathExpr(Base, (-Exponent).Reduce(ReduceOptions.DEFAULT));
 
         internal override MathExprMatch Match(MathExpr expr)
         {

@@ -60,7 +60,7 @@ namespace MathUtil
                  select Exprs[other_expr_index]).Prepend(derived_expr)
             ));
 
-        protected override MathExpr ReduceImpl() => MultReducer.Reduce(Exprs);
+        protected override MathExpr ReduceImpl(ReduceOptions options) => MultReducer.Reduce(Exprs, options);
 
         internal override double Weight => Exprs.Aggregate(0.0, (agg, expr) => agg + expr.Weight);
         internal override bool IsConst => Exprs.All(expr => expr.IsConst);
