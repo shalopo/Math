@@ -16,6 +16,9 @@ namespace MathUtil
 
         public double Value { get; }
 
+        public bool IsWholeNumber => MathEvalUtil.IsWholeNumber(Value);
+        public long? AsWholeNumber => IsWholeNumber ? Convert.ToInt64(Value) : (long?)null;
+
         internal override double Weight => MathEvalUtil.IsWholeNumber(Value) ? 1 : 2;
         internal override bool RequiresPowScoping => (Value < 0);
 
@@ -31,10 +34,12 @@ namespace MathUtil
                 return Value;
             }
 
-            if (MathEvalUtil.IsWholeNumber(Value))
+            long? wholeNumber = AsWholeNumber;
+            
+            if (wholeNumber != null)
             {
-                var long_value = Convert.ToInt64(Value);
-                return long_value >= 0 ? ConstFractionMathExpr.Create(1, long_value) : ConstFractionMathExpr.Create(-1, -long_value);
+                return wholeNumber >= 0 ? ConstFractionMathExpr.Create(1, wholeNumber.Value) : 
+                    ConstFractionMathExpr.Create(-1, -wholeNumber.Value);
             }
 
             return 1.0 / Value;

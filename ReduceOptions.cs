@@ -12,9 +12,11 @@ namespace MathUtil
         {
             AllowSearchIdentities = true,
             AllowReduceToConstComplex = true,
+            AllowCommonFactorSearch = true,
         };
 
-        public ReduceOptions With(bool? allowSearchIdentities = null, bool? allowReduceToConstComplex = null)
+        public ReduceOptions With(bool? allowSearchIdentities = null, bool? allowReduceToConstComplex = null,
+            bool? allowCommonFactorSearch = null)
         {
             ReduceOptions newOptions = this;
 
@@ -26,6 +28,11 @@ namespace MathUtil
             if (allowReduceToConstComplex.HasValue)
             {
                 newOptions.AllowReduceToConstComplex = allowReduceToConstComplex.Value;
+            }
+
+            if (allowCommonFactorSearch.HasValue)
+            {
+                newOptions.AllowCommonFactorSearch = allowCommonFactorSearch.Value;
             }
 
             return newOptions;

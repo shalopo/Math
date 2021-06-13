@@ -21,7 +21,8 @@ namespace MathUtil
 
         public override string ToString() => Name;
         
-        public MathExpr TryReduce(MathExpr input, ReduceOptions options) => TryReduceImpl(input, options);
+        public MathExpr TryReduce(MathExpr input, ReduceOptions options) => 
+            TryReduceImpl(input, options.With(allowCommonFactorSearch: false, allowSearchIdentities: false));
 
         protected virtual MathExpr TryReduceImpl(MathExpr input, ReduceOptions options) => null;
 

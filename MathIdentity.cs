@@ -11,8 +11,6 @@ namespace MathUtil
     {
         public MathIdentity(MathExpr expr)
         {
-            expr = expr.Reduce(ReduceOptions.DEFAULT.With(allowSearchIdentities: false));
-
             if (!(expr is AddMathExpr addExpr))
             {
                 throw new NotImplementedException("Expression not supported");

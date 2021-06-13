@@ -32,6 +32,11 @@ namespace MathUtil
             }
 
             var reducedExpr = AddMathExpr.Create(terms);
+            
+            if (options.AllowCommonFactorSearch && reducedExpr is AddMathExpr addExpr)
+            {
+                reducedExpr = CommonFactorReducer.Reduce(addExpr.Terms, options);
+            }
 
             if (options.AllowSearchIdentities)
             {
