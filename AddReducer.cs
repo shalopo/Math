@@ -22,7 +22,7 @@ namespace MathUtil
 
                 if (constComplex != null)
                 {
-                    return null;
+                    return constComplex;
                 }
             }
 
