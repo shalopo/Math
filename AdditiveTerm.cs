@@ -16,7 +16,7 @@ namespace MathUtil
         // but actually are? e.g. (8*pi^2*e + 2/3) should be a compound const and as such a valid coefficient
         public NumericalConstMathExpr Coefficient { get; }
 
-        public MathExpr ToMultExpr()
+        public MathExpr GetFullExpr()
         {
             if (MathEvalUtil.IsOne(Coefficient))
             {
