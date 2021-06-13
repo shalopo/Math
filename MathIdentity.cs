@@ -19,9 +19,12 @@ namespace MathUtil
             }
 
             AddExpr = addExpr;
+
+            MultTerms = AddExpr.Select(term => term.AsMultTerm()).ToArray();
         }
 
         internal AddMathExpr AddExpr { get; }
+        internal MultTerm[] MultTerms { get; }
 
         public MathExpr Expr => AddExpr;
     }

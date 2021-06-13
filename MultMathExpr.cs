@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace MathUtil
 {
-    class MultMathExpr : MathExpr
+    class MultMathExpr : MathExpr, IEnumerable<MathExpr>
     {
         private MultMathExpr(IEnumerable<MathExpr> exprs) => Exprs = exprs.ToList().AsReadOnly();
 
@@ -80,9 +81,13 @@ namespace MathUtil
 
         internal override MathExprMatch Match(MathExpr expr)
         {
-            //TODO: match mult
+            //TODO: more advanced identity matching, e.g. 2sin(x)cos(x) = sin(2x)
             return null;
         }
+
+        public IEnumerator<MathExpr> GetEnumerator() => Exprs.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
     }
 
 }

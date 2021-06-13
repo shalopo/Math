@@ -17,11 +17,11 @@ namespace MathUtil
             return new List<MathIdentity> {
                 new MathIdentity(SIN(x).Pow(TWO) + COS(x).Pow(TWO) - ONE),
                  //new MathIdentity(SIN(x)/COS(x) - TAN(x))
-                // new MathIdentity(COS(x)/SIN(x) - COT(X))
+                 //new MathIdentity(COS(x)/SIN(x) - COT(x)),
                 //new MathIdentity(SIN(TWO * x) - TWO * SIN(x) * COS(x)),
-                //new MathIdentity(COS(TWO * x) + TWO * SIN(x).Pow(TWO) - ONE),
-                //new MathIdentity(COS(TWO * x) - TWO * COS(x).Pow(TWO) + ONE),
-                //new MathIdentity(COS(TWO * x) - TWO * COS(x).Pow(TWO) + SIN(x).Pow(2)),
+                new MathIdentity(COS(TWO * x) + TWO * SIN(x).Pow(TWO) - ONE),
+                new MathIdentity(COS(TWO * x) - TWO * COS(x).Pow(TWO) + ONE),
+                new MathIdentity(COS(TWO * x) - TWO * COS(x).Pow(TWO) + SIN(x).Pow(2)),
 
                 //    ONE - TWO * SIN(x).Pow(TWO),
                 //    COS(x).Pow(TWO) - SIN(x).Pow(TWO) }),

@@ -8,78 +8,71 @@ namespace MathUtil
 {
     internal class MathIdentityMatcher
     {
+        private const int MAX_IDENTITY_TERMS_TO_CHECK = 2;
+
         public static MathExpr Reduce(MathExpr expr, ReduceOptions options)
         {
-            if (!(expr is AddMathExpr addExpr))
-            {
-                return expr;
-            }
-
             options = options.With(allowSearchIdentities: false);
 
             foreach (var identity in MathIdentityManager.Identities)
             {
-                MathExpr newExpr = ReduceByIdentity(addExpr, identity, options);
+                var maxIndex = Math.Min(MAX_IDENTITY_TERMS_TO_CHECK, identity.MultTerms.Length);
 
-                if (newExpr is AddMathExpr adjustedAddExpr)
+                for (int idTermIndex1 = 0; idTermIndex1 < MAX_IDENTITY_TERMS_TO_CHECK; idTermIndex1++)
                 {
-                    expr = newExpr;
-                }
-                else
-                {
-                    return newExpr;
+                    expr = TryReduceByIdentity(expr, identity, identity.MultTerms[idTermIndex1], options);
                 }
             }
 
             return expr;
         }
     
-        private static MathExpr ReduceByIdentity(AddMathExpr addExpr, MathIdentity identity, ReduceOptions options)
+        private static MathExpr TryReduceByIdentity(MathExpr expr, MathIdentity identity, MultTerm identityMultTerm,
+            ReduceOptions options)
         {
-            if (addExpr.Exprs.Count < identity.AddExpr.Exprs.Count - 1)
-            {
-                return addExpr;
-            }
+            bool redo;
 
-            // No point in matching the last term if all the others failed
-            for (int idTermIndex1 = 0; idTermIndex1 < identity.AddExpr.Exprs.Count - 1; idTermIndex1++)
+            do
             {
-                var identityMultTerm = identity.AddExpr.Exprs[idTermIndex1].AsMultTerm();
+                redo = false;
 
-                foreach (var addTerm in addExpr.Exprs)
+                var subExprs = (expr is AddMathExpr addExpr) ? addExpr.Exprs : new[] { expr };
+
+                if (subExprs.Count < identity.AddExpr.Exprs.Count - 1)
+                {
+                    return expr;
+                }
+
+                foreach (var addTerm in subExprs)
                 {
                     var multTerm = addTerm.AsMultTerm();
                     var match = identityMultTerm.Expr.Match(multTerm.Expr);
 
-                    if (match != null)
+                    if (match == null)
                     {
-                        var coefficient = (multTerm.Coefficient / identityMultTerm.Coefficient).Reduce(options);
+                        continue;
+                    }
 
-                        var identityExprWithCoefficient = (AddMathExpr)AddMathExpr.Create(
-                            identity.AddExpr.Exprs.Select(t => (-coefficient * t).Reduce(options)));
+                    var coefficient = (multTerm.Coefficient / identityMultTerm.Coefficient).Reduce(options);
 
-                        var transformedIdentity = identityExprWithCoefficient.Visit(match.Transformation);
+                    var identityExprWithCoefficient = (AddMathExpr)AddMathExpr.Create(
+                        identity.AddExpr.Exprs.Select(t => (-coefficient * t).Reduce(options)));
 
-                        var adjustedExpr = AddReducer.Reduce(((AddMathExpr)(addExpr + transformedIdentity)).Exprs, options);
-                        
-                        if (adjustedExpr.Weight < addExpr.Weight)
-                        {
-                            if (adjustedExpr is AddMathExpr adjustedAddExpr)
-                            {
-                                //TODO - block the used transformation
-                                //TODO - can't loop while changing
-                                addExpr = adjustedAddExpr;
-                            }
-                            else
-                            {
-                                return adjustedExpr;
-                            }
-                        }
+                    var transformedIdentity = identityExprWithCoefficient.Visit(match.Transformation);
+
+                    var adjustedExpr = AddReducer.Reduce(((AddMathExpr)(expr + transformedIdentity)).Exprs, options);
+
+                    if (adjustedExpr.Weight < expr.Weight)
+                    {
+                        expr = adjustedExpr;
+                        redo = true;
+                        break;
                     }
                 }
             }
+            while (redo);
 
-            return addExpr;
+            return expr;
         }
     }
 }

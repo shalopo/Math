@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace MathUtil
 {
-    class AddMathExpr : MathExpr
+    class AddMathExpr : MathExpr, IEnumerable<MathExpr>
     {
         private AddMathExpr(IEnumerable<MathExpr> exprs) => Exprs = exprs.ToList().AsReadOnly();
 
@@ -54,7 +55,12 @@ namespace MathUtil
 
         internal override MathExprMatch Match(MathExpr expr)
         {
+            //TODO: more advanced identity matching, e.g. sin(x) + i * cos(x) = e^(i*x)
             return null;
         }
+
+        public IEnumerator<MathExpr> GetEnumerator() => Exprs.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
     }
 }
