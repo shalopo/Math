@@ -43,11 +43,17 @@ namespace MathUtil
 
         private string ToStringInner(bool added)
         {
-            NumericalConstMathExpr positive_coefficient = Coefficient.IsPositive ? Coefficient : Coefficient.Negate();
-            var coefficient_sign = Coefficient.IsPositive ? (added ? "+" : "") : "-";
+            bool isNegative = !Coefficient.IsPositive && !MathEvalUtil.IsZero(Coefficient);
+
+            NumericalConstMathExpr positive_coefficient = isNegative ? Coefficient.Negate() : Coefficient;
+            var coefficient_sign = isNegative ? "-" : (added ? "+" : "");
             var space = added ? " " : "";
 
-            if (MathEvalUtil.IsOne(Expr))
+            if (MathEvalUtil.IsZero(Expr))
+            {
+                return "0";
+            }
+            else if (MathEvalUtil.IsOne(Expr))
             {
                 return $"{coefficient_sign}{space}{positive_coefficient}";
             }
