@@ -10,12 +10,56 @@ namespace MathUtil
     {
         public static MathExpr Reduce(IEnumerable<MathExpr> terms, ReduceOptions options)
         {
-            terms = (from expr in terms
-                     let expr_reduced = expr.Reduce(options)
-                     where !MathEvalUtil.IsZero(expr_reduced)
-                     select expr_reduced is AddMathExpr add_expr ? add_expr.Terms : new MathExpr[] { expr_reduced }
-            ).SelectMany(s => s);
+            terms = ReduceTerms(terms, options);
 
+            var constTerm = NumericalConstMathExpr.Add(terms.OfType<NumericalConstMathExpr>());
+
+            terms = CollectLikeTerms(terms, options);
+
+            if (options.AllowReduceToConstComplex)
+            {
+                var constComplex = TryReduceToConstComplex(terms, constTerm);
+
+                if (constComplex != null)
+                {
+                    return null;
+                }
+            }
+
+            if (!MathEvalUtil.IsZero(constTerm))
+            {
+                terms = terms.Append(constTerm);
+            }
+
+            var reducedExpr = AddMathExpr.Create(terms);
+
+            if (options.AllowSearchIdentities)
+            {
+                reducedExpr = MathIdentityMatcher.Reduce(reducedExpr, options);
+            }
+
+            return reducedExpr;
+        }
+
+        private static IEnumerable<MathExpr> ReduceTerms(IEnumerable<MathExpr> terms, ReduceOptions options)
+        {
+            terms = (from expr in terms
+                     let exprReduced = expr.Reduce(options)
+                     where !MathEvalUtil.IsZero(exprReduced)
+                     select exprReduced is AddMathExpr addExpr ? addExpr.Terms : new[] { exprReduced }
+            ).SelectMany(s => s);
+            return terms;
+        }
+
+        private static IEnumerable<MathExpr> CollectLikeTerms(IEnumerable<MathExpr> terms, ReduceOptions options)
+        {
+            var multiples = CollectMultiples(terms);
+            terms = AggregateMultiples(options, multiples);
+            return terms;
+        }
+
+        private static Dictionary<MathExpr, List<MathExpr>> CollectMultiples(IEnumerable<MathExpr> terms)
+        {
             var multiples = new Dictionary<MathExpr, List<MathExpr>>();
 
             foreach (var expr in terms)
@@ -35,39 +79,34 @@ namespace MathUtil
                 }
             }
 
-            var @const = NumericalConstMathExpr.Add(terms.OfType<NumericalConstMathExpr>());
+            return multiples;
+        }
 
-            terms = (from item in multiples
-                     let expr = item.Key
-                     let multiple = AddMathExpr.Create(item.Value).Reduce(options)
-                     where !MathEvalUtil.IsZero(expr) && !MathEvalUtil.IsZero(multiple)
-                     select MathEvalUtil.IsOne(expr) ? multiple :
-                            MathEvalUtil.IsOne(multiple) ? expr : (multiple * expr).Reduce(options));
+        private static IEnumerable<MathExpr> AggregateMultiples(ReduceOptions options, Dictionary<MathExpr, List<MathExpr>> multiples)
+        {
+            return (from item in multiples
+                    let expr = item.Key
+                    let multiple = AddMathExpr.Create(item.Value).Reduce(options)
+                    where !MathEvalUtil.IsZero(expr) && !MathEvalUtil.IsZero(multiple)
+                    select MathEvalUtil.IsOne(expr) ? multiple :
+                           MathEvalUtil.IsOne(multiple) ? expr : (multiple * expr).Reduce(options));
+        }
 
-            if (options.AllowReduceToConstComplex && terms.Count() == 1)
+        private static MathExpr TryReduceToConstComplex(IEnumerable<MathExpr> terms, NumericalConstMathExpr constTerm)
+        {
+            if (terms.Count() == 1)
             {
                 var expr = terms.First();
                 if (expr.IsConst && (!(expr is ConstMathExpr) || expr.Equals(ImaginaryMathExpr.Instance)))
                 {
                     var complex = expr.ComplexEval();
-                    var real_part = (@const + complex.Real).RealEval();
+                    var real_part = (constTerm + complex.Real).RealEval();
+
                     return complex.HasImagPart ? ConstComplexMathExpr.Create(real_part, complex.Imag) : (MathExpr)real_part;
                 }
             }
 
-            if (!MathEvalUtil.IsZero(@const))
-            {
-                terms = terms.Append(@const);
-            }
-
-            var reducedExpr = AddMathExpr.Create(terms);
-
-            if (options.AllowSearchIdentities)
-            {
-                reducedExpr = MathIdentityMatcher.Reduce(reducedExpr, options);
-            }
-
-            return reducedExpr;
+            return null;
         }
 
     }

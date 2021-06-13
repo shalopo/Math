@@ -28,8 +28,6 @@ namespace MathTest
             var y = new MathVariable("y");
             var z = new MathVariable("z");
 
-            Console.WriteLine(ZERO + ONE);
-
             TestReduction(3 * COS(x / 2).Pow(2) - SIN(x / 2).Pow(2) + 
                           2 * SIN(2 * y).Pow(2) + 2 * COS(2 * y).Pow(2) +
                           SIN(z).Pow(3) / SIN(z) + COS(z) * COS(z));
