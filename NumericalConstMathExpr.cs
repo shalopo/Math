@@ -11,7 +11,7 @@ namespace MathUtil
     {
         public static implicit operator NumericalConstMathExpr(double value) => new ExactConstMathExpr(value);
 
-        internal override MultTerm AsMultTerm() => new MultTerm(ONE, this);
+        internal override AdditiveTerm AsAdditiveTerm() => new AdditiveTerm(ONE, this);
 
         public abstract bool IsPositive { get; }
 

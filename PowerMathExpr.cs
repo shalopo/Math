@@ -116,7 +116,7 @@ namespace MathUtil
                     }
                 }
 
-                var term = base_reduced.AsMultTerm();
+                var term = base_reduced.AsAdditiveTerm();
 
                 if (!term.Coefficient.IsPositive)
                 {

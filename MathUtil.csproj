@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddReducer.cs" />
+    <Compile Include="CommonFactorReducer.cs" />
     <Compile Include="ConstComplexMathExpr.cs" />
     <Compile Include="ConstFractionMathExpr.cs" />
     <Compile Include="DiscreteFourierTransform.cs" />
@@ -59,7 +60,7 @@
     <Compile Include="MathIdentity.cs" />
     <Compile Include="MathIdentityMatcher.cs" />
     <Compile Include="Matrix.cs" />
-    <Compile Include="MultTerm.cs" />
+    <Compile Include="AdditiveTerm.cs" />
     <Compile Include="AddMathExpr.cs" />
     <Compile Include="DerivativeUtil.cs" />
     <Compile Include="FractionUtil.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="IMathExprListener.cs" />
     <Compile Include="MultReducer.cs" />
     <Compile Include="NumericalConstMathExpr.cs" />
+    <Compile Include="PowerTerm.cs" />
     <Compile Include="ReduceOptions.cs" />
     <Compile Include="Tensors\MetricTensor.cs" />
     <Compile Include="Tensors\BaseTensor.cs" />

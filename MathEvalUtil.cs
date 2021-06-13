@@ -61,7 +61,7 @@ namespace MathUtil
             }
         }
 
-        public static bool IsPositive(MathExpr expr) => expr.AsMultTerm().Coefficient.IsPositive;
+        public static bool IsPositive(MathExpr expr) => expr.AsAdditiveTerm().Coefficient.IsPositive;
 
         public static double CalcDistanceSquared(double dx, double dy) => dx * dx + dy * dy;
         public static double CalcDistance(double dx, double dy) => Math.Sqrt(CalcDistanceSquared(dx, dy));

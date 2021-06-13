@@ -16,18 +16,18 @@ namespace MathUtil
 
             foreach (var identity in MathIdentityManager.Identities)
             {
-                var maxIndex = Math.Min(MAX_IDENTITY_TERMS_TO_CHECK, identity.MultTerms.Length);
+                var maxIndex = Math.Min(MAX_IDENTITY_TERMS_TO_CHECK, identity.AdditiveTerms.Length);
 
                 for (int idTermIndex1 = 0; idTermIndex1 < MAX_IDENTITY_TERMS_TO_CHECK; idTermIndex1++)
                 {
-                    expr = TryReduceByIdentity(expr, identity, identity.MultTerms[idTermIndex1], options);
+                    expr = TryReduceByIdentity(expr, identity, identity.AdditiveTerms[idTermIndex1], options);
                 }
             }
 
             return expr;
         }
     
-        private static MathExpr TryReduceByIdentity(MathExpr expr, MathIdentity identity, MultTerm identityMultTerm,
+        private static MathExpr TryReduceByIdentity(MathExpr expr, MathIdentity identity, AdditiveTerm identityAdditiveTerm,
             ReduceOptions options)
         {
             bool redo;
@@ -45,15 +45,15 @@ namespace MathUtil
 
                 foreach (var addTerm in terms)
                 {
-                    var multTerm = addTerm.AsMultTerm();
-                    var match = identityMultTerm.Expr.Match(multTerm.Expr);
+                    var additiveTerm = addTerm.AsAdditiveTerm();
+                    var match = identityAdditiveTerm.Expr.Match(additiveTerm.Expr);
 
                     if (match == null)
                     {
                         continue;
                     }
 
-                    var coefficient = (multTerm.Coefficient / identityMultTerm.Coefficient).Reduce(options);
+                    var coefficient = (additiveTerm.Coefficient / identityAdditiveTerm.Coefficient).Reduce(options);
 
                     var identityExprWithCoefficient = (AddMathExpr)AddMathExpr.Create(
                         identity.AddExpr.Terms.Select(t => (-coefficient * t).Reduce(options)));

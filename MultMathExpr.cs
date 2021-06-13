@@ -30,7 +30,7 @@ namespace MathUtil
         {
             if (Terms.OfType<NumericalConstMathExpr>().Any())
             {
-                return AsMultTerm().ToString();
+                return AsAdditiveTerm().ToString();
             }
 
             var sb = new StringBuilder(Terms[0].ToMultScopedString());
@@ -70,10 +70,10 @@ namespace MathUtil
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => Create(Terms.Select(expr => expr.Visit(transformer)));
 
-        internal override MultTerm AsMultTerm()
+        internal override AdditiveTerm AsAdditiveTerm()
         {
             var coefficient = NumericalConstMathExpr.Mult(Terms.OfType<NumericalConstMathExpr>());
-            return new MultTerm(Create(Terms.Where(expr => !(expr is NumericalConstMathExpr))), coefficient);
+            return new AdditiveTerm(Create(Terms.Where(expr => !(expr is NumericalConstMathExpr))), coefficient);
         }
 
         public override bool Equals(object other) => (other is MultMathExpr other_mult) && EqualityUtil.Equals(Terms, other_mult.Terms);

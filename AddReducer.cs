@@ -66,7 +66,7 @@ namespace MathUtil
             {
                 if (!(expr is NumericalConstMathExpr))
                 {
-                    var term = expr.AsMultTerm();
+                    var term = expr.AsAdditiveTerm();
 
                     if (multiples.ContainsKey(term.Expr))
                     {

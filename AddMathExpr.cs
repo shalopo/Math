@@ -30,11 +30,11 @@ namespace MathUtil
 
         public override string ToString()
         {
-            var sb = new StringBuilder(Terms[0].AsMultTerm().ToString());
+            var sb = new StringBuilder(Terms[0].AsAdditiveTerm().ToString());
 
             foreach (var expr in Terms.Skip(1))
             {
-                sb.Append(" ").Append(expr.AsMultTerm().ToAddedString());
+                sb.Append(" ").Append(expr.AsAdditiveTerm().ToAddedString());
             }
 
             return sb.ToString();

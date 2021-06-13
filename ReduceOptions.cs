@@ -33,5 +33,6 @@ namespace MathUtil
 
         public bool AllowSearchIdentities { get; private set; }
         public bool AllowReduceToConstComplex { get; private set; }
+        public bool AllowCommonFactorSearch { get; private set; }
     }
 }

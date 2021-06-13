@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace MathUtil
 {
-    struct MultTerm
+    struct AdditiveTerm
     {
-        public MultTerm(MathExpr expr, NumericalConstMathExpr coefficient) => (Expr, Coefficient) = (expr, coefficient);
+        public AdditiveTerm(MathExpr expr, NumericalConstMathExpr coefficient) => (Expr, Coefficient) = (expr, coefficient);
 
         public MathExpr Expr { get; }
 
@@ -36,10 +36,7 @@ namespace MathUtil
             return Coefficient * Expr;
         }
 
-        //public static MultTerm operator *(MultTerm term, NumericalConstMathExpr mult_coefficient) => 
-        //    new MultTerm(term.Expr, term.Coefficient.Mult(mult_coefficient));
-
-        public static MultTerm operator -(MultTerm term) => new MultTerm(term.Expr, term.Coefficient.Negate());
+        public static AdditiveTerm operator -(AdditiveTerm term) => new AdditiveTerm(term.Expr, term.Coefficient.Negate());
 
         private string ToStringInner(bool added)
         {

@@ -55,7 +55,7 @@ namespace MathUtil
             return complex.Real;
         }
 
-        internal virtual MultTerm AsMultTerm() => new MultTerm(this, ONE);
+        internal virtual AdditiveTerm AsAdditiveTerm() => new AdditiveTerm(this, ONE);
         internal virtual PowerMathExpr AsPowerExpr() => new PowerMathExpr(this, ONE);
 
         internal abstract MathExpr Visit(IMathExprTransformer transformer);
