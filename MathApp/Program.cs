@@ -37,7 +37,8 @@ namespace MathTest
 
             //TensorTestIdentity();
             //TensorTestPolar2d();
-            TensorTestPolar3d();
+            //TensorTestPolar3d();
+            TensorTestPolar_nd();
             TaylorTest();
 
             Console.WriteLine();
@@ -106,6 +107,49 @@ namespace MathTest
             Console.WriteLine();
         }
 
+        private static void TensorTestPolar_nd()
+        {
+            int n = 4;
+            var variables = new MathVariable[n];
+            var primedVariables = new MathVariable[n];
+
+            for (int i = 0; i < n; i++)
+            {
+                variables[i] = new MathVariable(((char)('p' + i)).ToString());
+            }
+
+            var r = new MathVariable("r");
+            primedVariables[0] = r;
+
+            for (int i = 1; i < n; i++)
+            {
+                primedVariables[i] = new MathVariable($"φ{i}");
+            }
+             
+            var tensor = MetricTensor.Identity(variables);
+            Console.WriteLine(tensor);
+
+            var mappings = new List<(MathVariable v, MathExpr transformed)>();
+
+            MathExpr sinMultR = r;
+
+            for (int i = 0; i < n - 1; i++)
+            {
+                mappings.Add((variables[i], sinMultR * COS(primedVariables[i + 1])));
+
+                sinMultR *= SIN(primedVariables[i + 1]);
+            }
+
+            mappings.Add((variables[n - 1], sinMultR));
+
+            var transformation = new VariablesChangeTransformation(primedVariables, mappings.ToArray());
+
+            var polarTensor = tensor.ChangeCoordinates(transformation);
+
+            Console.WriteLine(polarTensor.ToString());
+            Console.WriteLine();
+        }
+
         public static void TaylorTest()
         {
             var x = new MathVariable("x");
@@ -113,7 +157,9 @@ namespace MathTest
             var f = new ExpandableMathFunctionDef("f",
             //SIN(-x + 1).Pow(2) * SIN(x + 1)
             //4 * ARCTAN(-x)
-            E.Pow(2*x*I)
+            //E.Pow(x)
+            E.Pow(2 * x * I)
+            //SIN(x).Pow(2)
             //1/(1-I)
             //1/(1-x/4)
             //(-1+2*I).Pow(3-5*I)
@@ -127,7 +173,7 @@ namespace MathTest
 
             var base_input = 0;
             var eval_at = PI / 8;
-            int taylor_derivatives = 10;
+            int taylor_derivatives = 20;
 
             f = f.Reduce(ReduceOptions.DEFAULT.With(allowSearchIdentities: false));
 
