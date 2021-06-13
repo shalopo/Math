@@ -19,7 +19,8 @@ namespace MathUtil
             {
                 case 0: return GlobalMathDefs.ZERO;
                 case 1: return exprs.First();
-                default: return new AddMathExpr(exprs);
+                default: return new AddMathExpr(exprs.SelectMany(expr => (expr is AddMathExpr addExpr)?  
+                                                addExpr.Exprs : new[]{ expr }));
             }
         }
 

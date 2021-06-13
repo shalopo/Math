@@ -18,7 +18,8 @@ namespace MathUtil
             {
                 case 0: return GlobalMathDefs.ONE;
                 case 1: return exprs.First();
-                default: return new MultMathExpr(exprs);
+                default: return new MultMathExpr(exprs.SelectMany(expr => (expr is MultMathExpr multExpr) ?
+                                                 multExpr.Exprs : new[]{ expr }));
             }
         }
 
