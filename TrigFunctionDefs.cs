@@ -122,7 +122,7 @@ namespace MathUtil
         {
         }
 
-        public override MathExpr TryReduce(MathExpr input, ReduceOptions options)
+        protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {
             switch (input)
             {

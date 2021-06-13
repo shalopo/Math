@@ -27,6 +27,10 @@ namespace MathTest
             var x = new MathVariable("x");
             var y = new MathVariable("y");
 
+            TestReduction(TAN(x));
+            TestReduction(TAN(0));
+            TestReduction(TAN(x - x));
+
             //TestReduction(SIN(x).Pow(2) + COS(x).Pow(2));
             TestReduction(3 * COS(x / 2).Pow(2) - SIN(x / 2).Pow(2) + 2 * SIN(2 * y).Pow(2) + 2 * COS(2 * y).Pow(2));
             //Console.TestReduceIdentities(2 * PI * SIN(x).Pow(2) + 2 * PI * COS(x).Pow(2));

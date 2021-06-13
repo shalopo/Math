@@ -20,8 +20,10 @@ namespace MathUtil
         public MathExpr Call(MathExpr input) => new FunctionCallMathExpr(this, input);
 
         public override string ToString() => Name;
+        
+        public MathExpr TryReduce(MathExpr input, ReduceOptions options) => TryReduceImpl(input, options);
 
-        public abstract MathExpr TryReduce(MathExpr input, ReduceOptions options);
+        protected virtual MathExpr TryReduceImpl(MathExpr input, ReduceOptions options) => null;
 
         public abstract ConstComplexMathExpr ComplexEval(ConstComplexMathExpr ComplexEval);
         
@@ -35,10 +37,6 @@ namespace MathUtil
         public SimpleMathFunctionDef(string name) : base(name) { }
 
         public override sealed MathExpr Derive(MathVariable v) => (v == x1) ? DeriveSingle() : GlobalMathDefs.ZERO;
-
-        public override sealed MathExpr TryReduce(MathExpr input, ReduceOptions options) => TryReduceImpl(input, options);
-
-        protected virtual MathExpr TryReduceImpl(MathExpr input, ReduceOptions options) => null;
 
         protected abstract MathExpr DeriveSingle();
 
@@ -70,12 +68,16 @@ namespace MathUtil
 
         public override ConstComplexMathExpr ComplexEval(ConstComplexMathExpr input) => EvalCall(input).ComplexEval();
 
-        private MathExpr EvalCall(MathExpr input) => Definition.Visit(new VariablesEvalTransformation((x1, input)));
+        private MathExpr EvalCall(MathExpr input)
+        {
+            return Definition.Visit(new VariablesEvalTransformation((x1, input))).Reduce(ReduceOptions.DEFAULT);
+        }
 
-        public override sealed MathExpr TryReduce(MathExpr input, ReduceOptions options) => 
-            TryReduceImpl(input, options) ?? EvalCall(input).Reduce(options);
-
-        protected virtual MathExpr TryReduceImpl(MathExpr input, ReduceOptions options) => null;
+        protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
+        {
+            var evaled = EvalCall(input);
+            return (evaled.Weight <= input.Weight) ? evaled : null;
+        }
     }
 
 
