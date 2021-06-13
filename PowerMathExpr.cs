@@ -165,24 +165,24 @@ namespace MathUtil
 
         internal override MathExpr Derive(MathVariable v)
         {
-            var base_derived = Base.Derive(v);
-            var exponent_derived = Exponent.Derive(v);
+            var baseDerived = Base.Derive(v);
+            var exponentDerived = Exponent.Derive(v);
 
-            var addition_exprs = new List<MathExpr>();
+            var additionTerms = new List<MathExpr>();
 
-            if (IsZero(exponent_derived))
+            if (IsZero(exponentDerived))
             {
-                return Exponent * base_derived * Create(Base, (Exponent - ONE).Reduce(ReduceOptions.DEFAULT));
+                return Exponent * baseDerived * Create(Base, (Exponent - ONE).Reduce(ReduceOptions.DEFAULT));
             }
 
-            addition_exprs.Add(exponent_derived * LN(Base));
+            additionTerms.Add(exponentDerived * LN(Base));
 
-            if (!IsZero(base_derived))
+            if (!IsZero(baseDerived))
             {
-                addition_exprs.Add(Exponent * base_derived / Base);
+                additionTerms.Add(Exponent * baseDerived / Base);
             }
 
-            return MultMathExpr.Create(AddMathExpr.Create(addition_exprs), this);
+            return MultMathExpr.Create(AddMathExpr.Create(additionTerms), this);
         }
 
         internal override PowerMathExpr AsPowerExpr() => this;

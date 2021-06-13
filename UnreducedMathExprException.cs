@@ -8,8 +8,8 @@ namespace MathUtil
 {
     class UnreducedMathExprException : Exception
     {
-        public UnreducedMathExprException(IEnumerable<MathExpr> exprs) : 
-            base($"Unsupported operation for unreduced expressions: {string.Join(", ", exprs.Select(expr => expr.ToString()))}")
+        public UnreducedMathExprException(IEnumerable<MathExpr> terms) : 
+            base($"Unsupported operation for unreduced expressions: {string.Join(", ", terms.Select(expr => expr.ToString()))}")
         {
         }
     }

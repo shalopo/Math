@@ -8,20 +8,20 @@ namespace MathUtil
 {
     class AddMathExpr : MathExpr, IEnumerable<MathExpr>
     {
-        private AddMathExpr(IEnumerable<MathExpr> exprs) => Exprs = exprs.ToList().AsReadOnly();
+        private AddMathExpr(IEnumerable<MathExpr> terms) => Terms = terms.ToList().AsReadOnly();
 
-        public IReadOnlyList<MathExpr> Exprs { get; }
+        public IReadOnlyList<MathExpr> Terms { get; }
 
-        public static MathExpr Create(params MathExpr[] exprs) => Create(exprs.AsEnumerable());
+        public static MathExpr Create(params MathExpr[] terms) => Create(terms.AsEnumerable());
 
-        public static MathExpr Create(IEnumerable<MathExpr> exprs)
+        public static MathExpr Create(IEnumerable<MathExpr> terms)
         {
-            switch (exprs.Count())
+            switch (terms.Count())
             {
                 case 0: return GlobalMathDefs.ZERO;
-                case 1: return exprs.First();
-                default: return new AddMathExpr(exprs.SelectMany(expr => (expr is AddMathExpr addExpr)?  
-                                                addExpr.Exprs : new[]{ expr }));
+                case 1: return terms.First();
+                default: return new AddMathExpr(terms.SelectMany(expr => (expr is AddMathExpr addExpr)?  
+                                                addExpr.Terms : new[]{ expr }));
             }
         }
 
@@ -30,9 +30,9 @@ namespace MathUtil
 
         public override string ToString()
         {
-            var sb = new StringBuilder(Exprs[0].AsMultTerm().ToString());
+            var sb = new StringBuilder(Terms[0].AsMultTerm().ToString());
 
-            foreach (var expr in Exprs.Skip(1))
+            foreach (var expr in Terms.Skip(1))
             {
                 sb.Append(" ").Append(expr.AsMultTerm().ToAddedString());
             }
@@ -40,18 +40,18 @@ namespace MathUtil
             return sb.ToString();
         }
 
-        internal override MathExpr Derive(MathVariable v) => Create(Exprs.Select(expr => expr.Derive(v)));
+        internal override MathExpr Derive(MathVariable v) => Create(Terms.Select(expr => expr.Derive(v)));
 
-        protected override MathExpr ReduceImpl(ReduceOptions options) => AddReducer.Reduce(Exprs, options);
+        protected override MathExpr ReduceImpl(ReduceOptions options) => AddReducer.Reduce(Terms, options);
 
-        internal override double Weight => Exprs.Aggregate(0.0, (agg, expr) => agg + expr.Weight);
-        internal override bool IsConst => Exprs.All(expr => expr.IsConst);
-        internal override ConstComplexMathExpr ComplexEval() => ConstComplexMathExpr.Add(Exprs.Select(expr => expr.ComplexEval()));
+        internal override double Weight => Terms.Aggregate(0.0, (agg, expr) => agg + expr.Weight);
+        internal override bool IsConst => Terms.All(expr => expr.IsConst);
+        internal override ConstComplexMathExpr ComplexEval() => ConstComplexMathExpr.Add(Terms.Select(expr => expr.ComplexEval()));
 
-        internal override MathExpr Visit(IMathExprTransformer transformer) => AddMathExpr.Create(Exprs.Select(expr => expr.Visit(transformer)));
+        internal override MathExpr Visit(IMathExprTransformer transformer) => AddMathExpr.Create(Terms.Select(expr => expr.Visit(transformer)));
 
-        public override bool Equals(object other) => (other is AddMathExpr other_add) && EqualityUtil.Equals(Exprs, other_add.Exprs);
-        public override int GetHashCode() => EqualityUtil.GetHashCode(Exprs, 982734678);
+        public override bool Equals(object other) => (other is AddMathExpr other_add) && EqualityUtil.Equals(Terms, other_add.Terms);
+        public override int GetHashCode() => EqualityUtil.GetHashCode(Terms, 982734678);
 
         internal override MathExprMatch Match(MathExpr expr)
         {
@@ -59,7 +59,7 @@ namespace MathUtil
             return null;
         }
 
-        public IEnumerator<MathExpr> GetEnumerator() => Exprs.GetEnumerator();
+        public IEnumerator<MathExpr> GetEnumerator() => Terms.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     }

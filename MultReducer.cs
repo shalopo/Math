@@ -8,15 +8,15 @@ namespace MathUtil
 {
     class MultReducer
     {
-        public static MathExpr Reduce(IEnumerable<MathExpr> exprs, ReduceOptions options)
+        public static MathExpr Reduce(IEnumerable<MathExpr> terms, ReduceOptions options)
         {
-            exprs = (from expr in exprs select expr.Reduce(options));
+            terms = (from expr in terms select expr.Reduce(options));
 
-            exprs = (from expr in exprs select expr is MultMathExpr mult_expr ? mult_expr.Exprs : new MathExpr[] { expr }
+            terms = (from expr in terms select expr is MultMathExpr mult_expr ? mult_expr.Terms : new MathExpr[] { expr }
                 ).SelectMany(s => s).ToList();
 
             var powers = new Dictionary<MathExpr, List<MathExpr>>();
-            foreach (var expr in exprs)
+            foreach (var expr in terms)
             {
                 var pow = expr.AsPowerExpr();
                 if (powers.ContainsKey(pow.Base))
@@ -30,30 +30,30 @@ namespace MathUtil
                 }
             }
 
-            exprs = (from item in powers
+            terms = (from item in powers
                      let @base = item.Key
                      let exponent = AddMathExpr.Create(item.Value).Reduce(options)
                      select (exponent is NumericalConstMathExpr exponent_numerical && !exponent_numerical.IsPositive) ?
                         ReciprocalMathExpr.Create(PowerMathExpr.Create(@base, exponent_numerical.Negate())).Reduce(options) :
                         PowerMathExpr.Create(@base, exponent).Reduce(options));
 
-            var coefficient = NumericalConstMathExpr.Mult(exprs.OfType<NumericalConstMathExpr>());
+            var coefficient = NumericalConstMathExpr.Mult(terms.OfType<NumericalConstMathExpr>());
 
             if (MathEvalUtil.IsZero(coefficient))
             {
                 return GlobalMathDefs.ZERO;
             }
 
-            exprs = exprs.Where(expr => !(expr is NumericalConstMathExpr));
+            terms = terms.Where(expr => !(expr is NumericalConstMathExpr));
 
             //slupu: const * i => ConstComplex
 
             if (!coefficient.Equals(GlobalMathDefs.ONE))
             {
-                exprs = exprs.Prepend(coefficient);
+                terms = terms.Prepend(coefficient);
             }
 
-            return MultMathExpr.Create(exprs);
+            return MultMathExpr.Create(terms);
         }
 
     }

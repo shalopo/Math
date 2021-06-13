@@ -11,7 +11,7 @@ namespace MathUtil
     public sealed class ConstComplexMathExpr : ConstMathExpr
     {
         private ConstComplexMathExpr(NumericalConstMathExpr real, NumericalConstMathExpr imag) =>
-            (Real, Imag, AddExpr) = (real, imag, AddReducer.Reduce(((AddMathExpr)(real + imag * I)).Exprs, 
+            (Real, Imag, AddExpr) = (real, imag, AddReducer.Reduce((AddMathExpr)(real + imag * I), 
                 ReduceOptions.DEFAULT.With(allowReduceToConstComplex: false)));
 
         public static ConstComplexMathExpr Create(NumericalConstMathExpr real, NumericalConstMathExpr imag) => new ConstComplexMathExpr(real, imag);
@@ -59,12 +59,12 @@ namespace MathUtil
         public ConstComplexMathExpr Conjugate() => Create(Real, Imag.Negate());
         public ConstComplexMathExpr Reciprocate() => Mult(Conjugate(), new ConstComplexMathExpr(1 / SizeSquared, ZERO));
 
-        public static ConstComplexMathExpr Add(IEnumerable<ConstComplexMathExpr> exprs) => Create(
-            NumericalConstMathExpr.Add(exprs.Select(expr => expr.Real)),
-            NumericalConstMathExpr.Add(exprs.Select(expr => expr.Imag)));
+        public static ConstComplexMathExpr Add(IEnumerable<ConstComplexMathExpr> terms) => Create(
+            NumericalConstMathExpr.Add(terms.Select(expr => expr.Real)),
+            NumericalConstMathExpr.Add(terms.Select(expr => expr.Imag)));
 
-        public static ConstComplexMathExpr Mult(IEnumerable<ConstComplexMathExpr> exprs) => 
-            exprs.Aggregate(ONE_COMPLEX, (agg, expr) => Mult(agg, expr));
+        public static ConstComplexMathExpr Mult(IEnumerable<ConstComplexMathExpr> terms) => 
+            terms.Aggregate(ONE_COMPLEX, (agg, expr) => Mult(agg, expr));
 
         public static ConstComplexMathExpr Mult(ConstComplexMathExpr a, ConstComplexMathExpr b) =>
             Create(NumericalConstMathExpr.Add(NumericalConstMathExpr.Mult(a.Real, b.Real), NumericalConstMathExpr.Mult(a.Imag, b.Imag).Negate()),

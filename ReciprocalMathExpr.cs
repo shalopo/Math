@@ -26,7 +26,7 @@ namespace MathUtil
             {
                 case ReciprocalMathExpr reciprocal: return reciprocal.Expr;
                 case NumericalConstMathExpr numerical: return numerical.Reciprocate().Reduce(options);
-                case MultMathExpr mult: return MultMathExpr.Create(mult.Exprs.Select(Create)).Reduce(options); //TODO: wrong?
+                case MultMathExpr mult: return MultMathExpr.Create(mult.Terms.Select(Create)).Reduce(options); //TODO: wrong?
                 case PowerMathExpr power: return PowerMathExpr.Create(power.Base, (-power.Exponent).Reduce(options));
             }
 

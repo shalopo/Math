@@ -23,12 +23,12 @@ namespace MathUtil
         public abstract NumericalConstMathExpr Reciprocate();
 
 
-        public static NumericalConstMathExpr Mult(IEnumerable<NumericalConstMathExpr> exprs)
+        public static NumericalConstMathExpr Mult(IEnumerable<NumericalConstMathExpr> terms)
         {
             checked
             {
-                var fractions = exprs.OfType<ConstFractionMathExpr>();
-                var exacts = exprs.OfType<ExactConstMathExpr>();
+                var fractions = terms.OfType<ConstFractionMathExpr>();
+                var exacts = terms.OfType<ExactConstMathExpr>();
 
                 if (fractions.Any() && exacts.All(exact => MathEvalUtil.IsWholeNumber(exact.Value)))
                 {
@@ -48,7 +48,7 @@ namespace MathUtil
                     }
                 }
 
-                return exprs.Aggregate(1.0, (agg, expr) => agg * expr.ToDouble());
+                return terms.Aggregate(1.0, (agg, expr) => agg * expr.ToDouble());
             }
         }
 
@@ -57,10 +57,10 @@ namespace MathUtil
             return Mult(new NumericalConstMathExpr[] { a, b });
         }
 
-        public static NumericalConstMathExpr Add(IEnumerable<NumericalConstMathExpr> exprs)
+        public static NumericalConstMathExpr Add(IEnumerable<NumericalConstMathExpr> terms)
         {
-            var fractions = exprs.OfType<ConstFractionMathExpr>();
-            var exacts = exprs.OfType<ExactConstMathExpr>();
+            var fractions = terms.OfType<ConstFractionMathExpr>();
+            var exacts = terms.OfType<ExactConstMathExpr>();
 
             if (fractions.Any() && exacts.All(exact => MathEvalUtil.IsWholeNumber(exact.Value)))
             {
@@ -80,7 +80,7 @@ namespace MathUtil
                 }
             }
 
-            return exprs.Aggregate(0.0, (agg, expr) => agg + expr.ToDouble());
+            return terms.Aggregate(0.0, (agg, expr) => agg + expr.ToDouble());
         }
 
         public static NumericalConstMathExpr Add(NumericalConstMathExpr a, NumericalConstMathExpr b)

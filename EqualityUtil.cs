@@ -8,12 +8,12 @@ namespace MathUtil
 {
     static class EqualityUtil
     {
-        private static HashSet<MathExpr> ToSet(IEnumerable<MathExpr> exprs)
+        private static HashSet<MathExpr> ToSet(IEnumerable<MathExpr> terms)
         {
-            var set = exprs.ToHashSet();
-            if (set.Count != exprs.Count())
+            var set = terms.ToHashSet();
+            if (set.Count != terms.Count())
             {
-                throw new UnreducedMathExprException(exprs);
+                throw new UnreducedMathExprException(terms);
             }
 
             return set;

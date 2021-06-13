@@ -14,12 +14,12 @@ namespace MathUtil
             MathExpr derivative = f.Definition;
             double factor = 1;
 
-            var exprs = new List<MathExpr>();
+            var terms = new List<MathExpr>();
 
             var @const = MathEvalUtil.EvalTransformVariables(derivative, var_with_input).Reduce(ReduceOptions.DEFAULT);
             if (!MathEvalUtil.IsZero(@const))
             {
-                exprs.Add(@const);
+                terms.Add(@const);
             }
 
             for (int term = 1; term <= num_derivatives && !MathEvalUtil.IsZero(derivative); term++)
@@ -33,13 +33,13 @@ namespace MathUtil
 
                 if (!MathEvalUtil.IsZero(reduced_expr))
                 {
-                    exprs.Add(reduced_expr);
+                    terms.Add(reduced_expr);
                 }
             }
 
             // Avoiding reduction of the whole add expression in order to prevent undesired reordering
 
-            var taylor = AddMathExpr.Create(exprs);
+            var taylor = AddMathExpr.Create(terms);
             return taylor;
         }
     }

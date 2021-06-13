@@ -36,14 +36,14 @@ namespace MathUtil
             {
                 redo = false;
 
-                var subExprs = (expr is AddMathExpr addExpr) ? addExpr.Exprs : new[] { expr };
+                var terms = (expr is AddMathExpr addExpr) ? addExpr.Terms : new[] { expr };
 
-                if (subExprs.Count < identity.AddExpr.Exprs.Count - 1)
+                if (terms.Count < identity.AddExpr.Terms.Count - 1)
                 {
                     return expr;
                 }
 
-                foreach (var addTerm in subExprs)
+                foreach (var addTerm in terms)
                 {
                     var multTerm = addTerm.AsMultTerm();
                     var match = identityMultTerm.Expr.Match(multTerm.Expr);
@@ -56,11 +56,11 @@ namespace MathUtil
                     var coefficient = (multTerm.Coefficient / identityMultTerm.Coefficient).Reduce(options);
 
                     var identityExprWithCoefficient = (AddMathExpr)AddMathExpr.Create(
-                        identity.AddExpr.Exprs.Select(t => (-coefficient * t).Reduce(options)));
+                        identity.AddExpr.Terms.Select(t => (-coefficient * t).Reduce(options)));
 
                     var transformedIdentity = identityExprWithCoefficient.Visit(match.Transformation);
 
-                    var adjustedExpr = AddReducer.Reduce(((AddMathExpr)(expr + transformedIdentity)).Exprs, options);
+                    var adjustedExpr = AddReducer.Reduce((AddMathExpr)(expr + transformedIdentity), options);
 
                     if (adjustedExpr.Weight < expr.Weight)
                     {

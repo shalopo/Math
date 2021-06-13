@@ -30,7 +30,7 @@ namespace MathUtil
 
             if (Expr is MultMathExpr mult)
             {
-                return MultMathExpr.Create(mult.Exprs.Prepend(Coefficient));
+                return MultMathExpr.Create(mult.Terms.Prepend(Coefficient));
             }
 
             return Coefficient * Expr;

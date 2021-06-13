@@ -8,17 +8,17 @@ namespace MathUtil
 {
     class AddReducer
     {
-        public static MathExpr Reduce(IEnumerable<MathExpr> exprs, ReduceOptions options)
+        public static MathExpr Reduce(IEnumerable<MathExpr> terms, ReduceOptions options)
         {
-            exprs = (from expr in exprs
+            terms = (from expr in terms
                      let expr_reduced = expr.Reduce(options)
                      where !MathEvalUtil.IsZero(expr_reduced)
-                     select expr_reduced is AddMathExpr add_expr ? add_expr.Exprs : new MathExpr[] { expr_reduced }
+                     select expr_reduced is AddMathExpr add_expr ? add_expr.Terms : new MathExpr[] { expr_reduced }
             ).SelectMany(s => s);
 
             var multiples = new Dictionary<MathExpr, List<MathExpr>>();
 
-            foreach (var expr in exprs)
+            foreach (var expr in terms)
             {
                 if (!(expr is NumericalConstMathExpr))
                 {
@@ -35,18 +35,18 @@ namespace MathUtil
                 }
             }
 
-            var @const = NumericalConstMathExpr.Add(exprs.OfType<NumericalConstMathExpr>());
+            var @const = NumericalConstMathExpr.Add(terms.OfType<NumericalConstMathExpr>());
 
-            exprs = (from item in multiples
+            terms = (from item in multiples
                      let expr = item.Key
                      let multiple = AddMathExpr.Create(item.Value).Reduce(options)
                      where !MathEvalUtil.IsZero(expr) && !MathEvalUtil.IsZero(multiple)
                      select MathEvalUtil.IsOne(expr) ? multiple :
                             MathEvalUtil.IsOne(multiple) ? expr : (multiple * expr).Reduce(options));
 
-            if (options.AllowReduceToConstComplex && exprs.Count() == 1)
+            if (options.AllowReduceToConstComplex && terms.Count() == 1)
             {
-                var expr = exprs.First();
+                var expr = terms.First();
                 if (expr.IsConst && (!(expr is ConstMathExpr) || expr.Equals(ImaginaryMathExpr.Instance)))
                 {
                     var complex = expr.ComplexEval();
@@ -57,10 +57,10 @@ namespace MathUtil
 
             if (!MathEvalUtil.IsZero(@const))
             {
-                exprs = exprs.Append(@const);
+                terms = terms.Append(@const);
             }
 
-            var reducedExpr = AddMathExpr.Create(exprs);
+            var reducedExpr = AddMathExpr.Create(terms);
 
             if (options.AllowSearchIdentities)
             {
