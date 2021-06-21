@@ -91,7 +91,7 @@ namespace MathUtil
         {
         }
 
-        protected override MathExpr DeriveSingle() => (ONE + SQR(x1)).Pow(MINUS_ONE);
+        protected override MathExpr DeriveSingle() => (ONE + x1.Pow(2)).Pow(MINUS_ONE);
 
         protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {
@@ -178,7 +178,7 @@ namespace MathUtil
         {
         }
 
-        protected override MathExpr DeriveSingle() => SQRT(ONE - SQR(x1)).Pow(MINUS_ONE);
+        protected override MathExpr DeriveSingle() => (ONE - x1.Pow(2)).Pow(-HALF);
 
         protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {
@@ -209,7 +209,7 @@ namespace MathUtil
         {
         }
 
-        protected override MathExpr DeriveSingle() => -SQRT(ONE - SQR(x1)).Pow(MINUS_ONE);
+        protected override MathExpr DeriveSingle() => -(ONE - x1.Pow(2)).Pow(-HALF);
 
         protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {

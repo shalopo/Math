@@ -1,4 +1,5 @@
-﻿ using System;
+﻿using MathUtil.Matrices;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -96,7 +97,8 @@ namespace MathUtil.Tensors
 
                 for (var targetVarIndex2 = 0; targetVarIndex2 <= targetVarIndex1; targetVarIndex2++)
                 {
-                    newTensor[targetVarIndex1, targetVarIndex2] = CalculateTransformation(targetVarIndex1, targetVarIndex2, jacobian);
+                    var transformedEntry = CalculateTransformation(targetVarIndex1, targetVarIndex2, jacobian);
+                    newTensor[targetVarIndex1, targetVarIndex2] = transformedEntry;
                 }
             }
 
@@ -111,7 +113,7 @@ namespace MathUtil.Tensors
             {
                 for (var sourceVarIndex2 = 0; sourceVarIndex2 < NumVariables; sourceVarIndex2++)
                 {
-                    var sourceMetricTensorEntry = this[sourceVarIndex1, sourceVarIndex2];
+                    var sourceMetricTensorEntry = this[sourceVarIndex1, sourceVarIndex2].Visit(jacobian.Transformation);
 
                     if (!MathEvalUtil.IsZero(sourceMetricTensorEntry))
                     {

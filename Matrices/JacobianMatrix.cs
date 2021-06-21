@@ -5,20 +5,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathUtil
+namespace MathUtil.Matrices
 {
-    public class JacobianMatrix : Matrix
+    public class JacobianMatrix : SquareMatrix
     {
-        private JacobianMatrix(int dimensions) : base(dimensions, dimensions)
+        public VariablesChangeTransformation Transformation { get; }
+
+        private JacobianMatrix(VariablesChangeTransformation transformation) : 
+            base(transformation.Sources.Count)
         {
+            if (transformation.Sources.Count != transformation.Targets.Count)
+            {
+                throw new InvalidOperationException("Invalid transformation");
+            }
+
+            Transformation = transformation;
         }
 
         public static JacobianMatrix Create(VariablesChangeTransformation transformation)
         {
-            Debug.Assert(transformation.Sources.Count == transformation.Targets.Count);
-
             var dimensions = transformation.Sources.Count;
-            var matrix = new JacobianMatrix(dimensions);
+            var matrix = new JacobianMatrix(transformation);
 
             for (int i = 0; i < dimensions; i++)
             {

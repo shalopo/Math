@@ -54,12 +54,12 @@
     <Compile Include="EqualityUtil.cs" />
     <Compile Include="ExactConstMathExpr.cs" />
     <Compile Include="ImaginaryMathExpr.cs" />
-    <Compile Include="JacobianMatrix.cs" />
+    <Compile Include="Matrices\JacobianMatrix.cs" />
     <Compile Include="KnownConstMathExpr.cs" />
     <Compile Include="MathExprMatch.cs" />
     <Compile Include="MathIdentity.cs" />
     <Compile Include="MathIdentityMatcher.cs" />
-    <Compile Include="Matrix.cs" />
+    <Compile Include="Matrices\SquareMatrix.cs" />
     <Compile Include="AdditiveTerm.cs" />
     <Compile Include="AddMathExpr.cs" />
     <Compile Include="DerivativeUtil.cs" />

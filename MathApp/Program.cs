@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MathUtil;
+using MathUtil.Matrices;
 using MathUtil.Tensors;
 using static MathUtil.GlobalMathDefs;
 using static MathUtil.MathEvalUtil;
@@ -12,7 +13,7 @@ namespace MathTest
 {
     class Program
     {
-        static void TestReduction(MathExpr expr)
+        public static void TestReduction(MathExpr expr)
         {
             Console.WriteLine(expr.ToString());
             Console.WriteLine("=>");
@@ -28,8 +29,14 @@ namespace MathTest
             var y = new MathVariable("y");
             var z = new MathVariable("z");
 
-            TestReduction(x.Pow(2) * SIN(y).Pow(2) + x.Pow(2) * COS(y).Pow(2));
-            TestReduction(x.Pow(2) * SIN(y).Pow(2) * SIN(z).Pow(2) + x.Pow(2) * SIN(y).Pow(2) * COS(z).Pow(2) + x.Pow(2) * COS(y).Pow(2));
+            //TestReduction(2 * (x + 1) - x);
+
+            //TestReduction(y.Pow(2) * (1 + x.Pow(2) / y.Pow(2)));
+            //TestReduction((1 + x.Pow(2) / y.Pow(2)) / (x.Pow(2) + y.Pow(2)));
+            //TestReduction(y.Pow(2) * (1 + (x / y).Pow(2)));
+
+            //TestReduction(x.Pow(2) * SIN(y).Pow(2) + x.Pow(2) * COS(y).Pow(2));
+            //TestReduction(x.Pow(2) * SIN(y).Pow(2) * SIN(z).Pow(2) + x.Pow(2) * SIN(y).Pow(2) * COS(z).Pow(2) + x.Pow(2) * COS(y).Pow(2));
 
             //TestReduction(3 * COS(x / 2).Pow(2) - SIN(x / 2).Pow(2) + 
             //              2 * SIN(2 * y).Pow(2) + 2 * COS(2 * y).Pow(2) +
@@ -38,8 +45,8 @@ namespace MathTest
             //TensorTestIdentity();
             //TensorTestPolar2d();
             //TensorTestPolar3d();
-            TensorTestPolar_nd();
-            TaylorTest();
+            //TensorTestPolar_nd();
+            //TaylorTest();
 
             Console.WriteLine();
             Console.WriteLine("done.");
@@ -53,14 +60,14 @@ namespace MathTest
             var y = new MathVariable("y");
             var z = new MathVariable("z");
 
-            var tensor = new MetricTensor(new MathVariable[] { t, x, y, z });
+            var tensor = new MetricTensor(new[] { t, x, y, z });
             tensor[t, t] = MINUS_ONE;
             tensor[x, x] = ONE;
             tensor[y, y] = ONE;
             tensor[z, z] = ONE;
             Console.WriteLine(tensor);
 
-            var transformation = new VariablesChangeTransformation(new MathVariable[] { t, x, y, z }, (t, t), (x, x), (y, y), (z, z));
+            var transformation = new VariablesChangeTransformation(new[] { t, x, y, z }, (t, t), (x, x), (y, y), (z, z));
 
             var triviallyTransformedTensor = tensor.ChangeCoordinates(transformation);
 
@@ -73,17 +80,25 @@ namespace MathTest
             var x = new MathVariable("x");
             var y = new MathVariable("y");
 
-            var tensor = MetricTensor.Identity(new MathVariable[] { x, y });
+            var tensor = MetricTensor.Identity(new[] { x, y });
             Console.WriteLine(tensor);
 
             var r = new MathVariable("r");
             var theta = new MathVariable("θ");
 
-            var transformation = new VariablesChangeTransformation(new MathVariable[] { r, theta }, (x, r * COS(theta)), (y, r * SIN(theta)));
+            var transformation = new VariablesChangeTransformation(new[] { r, theta }, (x, r * COS(theta)), (y, r * SIN(theta)));
             var polarTensor = tensor.ChangeCoordinates(transformation);
 
             Console.WriteLine(polarTensor.ToString());
             Console.WriteLine();
+
+            var inverseTransformation = new VariablesChangeTransformation(new[] { x, y }, (r, (x * x + y * y).Pow(HALF)), 
+                (theta, ARCTAN(y / x)));
+            var originalTensor = polarTensor.ChangeCoordinates(inverseTransformation);
+
+            Console.WriteLine(originalTensor);
+            Console.WriteLine();
+
         }
 
         public static void TensorTestPolar3d()
@@ -99,7 +114,7 @@ namespace MathTest
             var theta = new MathVariable("θ");
             var phi = new MathVariable("φ");
 
-            var transformation = new VariablesChangeTransformation(new MathVariable[] { r, theta, phi }, 
+            var transformation = new VariablesChangeTransformation(new[] { r, theta, phi }, 
                 (x, r * COS(phi) * SIN(theta)), (y, r * SIN(phi) * SIN(theta)), (z, r * COS(theta)));
             var polarTensor = tensor.ChangeCoordinates(transformation);
 
@@ -107,7 +122,7 @@ namespace MathTest
             Console.WriteLine();
         }
 
-        private static void TensorTestPolar_nd()
+        public static void TensorTestPolar_nd()
         {
             int n = 4;
             var variables = new MathVariable[n];
