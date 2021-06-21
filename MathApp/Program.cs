@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,9 +26,9 @@ namespace MathTest
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            var x = new MathVariable("x");
-            var y = new MathVariable("y");
-            var z = new MathVariable("z");
+            //var x = new MathVariable("x");
+            //var y = new MathVariable("y");
+            //var z = new MathVariable("z");
 
             //TestReduction(2 * (x + 1) - x);
 
@@ -43,14 +44,18 @@ namespace MathTest
             //              SIN(z).Pow(3) / SIN(z) + COS(z) * COS(z));
 
             //TensorTestIdentity();
-            //TensorTestPolar2d();
-            //TensorTestPolar3d();
+            TensorTestPolar2d();
+            TensorTestPolar3d();
             //TensorTestPolar_nd();
             //TaylorTest();
 
             Console.WriteLine();
             Console.WriteLine("done.");
-            Console.ReadLine();
+
+            if (Debugger.IsAttached)
+            {
+                Console.ReadLine();
+            }
         }
 
         public static void TensorTestIdentity()
@@ -60,11 +65,8 @@ namespace MathTest
             var y = new MathVariable("y");
             var z = new MathVariable("z");
 
-            var tensor = new MetricTensor(new[] { t, x, y, z });
+            var tensor = MetricTensor.CreateDefault(new[] { t, x, y, z });
             tensor[t, t] = MINUS_ONE;
-            tensor[x, x] = ONE;
-            tensor[y, y] = ONE;
-            tensor[z, z] = ONE;
             Console.WriteLine(tensor);
 
             var transformation = new VariablesChangeTransformation(new[] { t, x, y, z }, (t, t), (x, x), (y, y), (z, z));
@@ -80,7 +82,7 @@ namespace MathTest
             var x = new MathVariable("x");
             var y = new MathVariable("y");
 
-            var tensor = MetricTensor.Identity(new[] { x, y });
+            var tensor = MetricTensor.CreateDefault(new[] { x, y });
             Console.WriteLine(tensor);
 
             var r = new MathVariable("r");
@@ -92,13 +94,21 @@ namespace MathTest
             Console.WriteLine(polarTensor.ToString());
             Console.WriteLine();
 
-            var inverseTransformation = new VariablesChangeTransformation(new[] { x, y }, (r, (x * x + y * y).Pow(HALF)), 
-                (theta, ARCTAN(y / x)));
-            var originalTensor = polarTensor.ChangeCoordinates(inverseTransformation);
+            Console.WriteLine("Christoffels:");
+            Console.WriteLine(ChristoffelSymbols.Create(polarTensor));
 
-            Console.WriteLine(originalTensor);
-            Console.WriteLine();
+            //var inverseTransformation = new VariablesChangeTransformation(new[] { x, y }, (r, (x * x + y * y).Pow(HALF)), 
+            //    (theta, ARCTAN(y / x)));
+            //var originalTensor = polarTensor.ChangeCoordinates(inverseTransformation);
 
+            //Console.WriteLine(originalTensor);
+            //Console.WriteLine();
+
+            Console.WriteLine("ricci:");
+            var ricci = RicciTensor.Create(polarTensor);
+            Console.WriteLine(ricci);
+
+            Console.WriteLine($"ricci scalar: {ricci.Scalar()}");
         }
 
         public static void TensorTestPolar3d()
@@ -107,7 +117,7 @@ namespace MathTest
             var y = new MathVariable("y");
             var z = new MathVariable("z");
 
-            var tensor = MetricTensor.Identity(new MathVariable[] { x, y, z });
+            var tensor = MetricTensor.CreateDefault(new MathVariable[] { x, y, z });
             Console.WriteLine(tensor);
 
             var r = new MathVariable("r");
@@ -120,6 +130,15 @@ namespace MathTest
 
             Console.WriteLine(polarTensor.ToString());
             Console.WriteLine();
+
+            Console.WriteLine("Christoffels:");
+            Console.WriteLine(ChristoffelSymbols.Create(polarTensor));
+
+            Console.WriteLine("ricci:");
+            var ricci = RicciTensor.Create(polarTensor);
+            Console.WriteLine(ricci);
+
+            Console.WriteLine($"ricci scalar: {ricci.Scalar()}");
         }
 
         public static void TensorTestPolar_nd()
@@ -141,7 +160,7 @@ namespace MathTest
                 primedVariables[i] = new MathVariable($"φ{i}");
             }
              
-            var tensor = MetricTensor.Identity(variables);
+            var tensor = MetricTensor.CreateDefault(variables);
             Console.WriteLine(tensor);
 
             var mappings = new List<(MathVariable v, MathExpr transformed)>();

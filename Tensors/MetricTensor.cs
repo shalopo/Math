@@ -7,117 +7,93 @@ using System.Threading.Tasks;
 
 namespace MathUtil.Tensors
 {
-    public class MetricTensor : BaseTensor
+    public class MetricTensor
     {
-        public MetricTensor(MathVariable[] variables)
+        protected MetricTensor(VariableList variables, bool initializeDefaults)
         {
             Variables = variables;
-            VariableMapping = new Dictionary<MathVariable, int>(Variables.Length);
 
-            for (int i = 0; i < Variables.Length; i++)
-            {
-                VariableMapping[Variables[i]] = i;
-            }
+            Matrix = initializeDefaults ? SymmetricMatrix.CreateDefault(NumVariables) :
+                SymmetricMatrix.CreateUninitialized(NumVariables);
 
-            // symmetric - we only need the diagonal and below
-            Array = new MathExpr[NumVariables * (NumVariables + 1) / 2];
-
-            for (int i = 0; i < Array.Length; i++)
-            {
-                Array[i] = GlobalMathDefs.ZERO;
-            }
+            InverseMetric = new Lazy<MetricTensor>(() => Create(Variables, Matrix.Inverse()));
         }
 
-        public static MetricTensor Identity(MathVariable[] variables)
+        public static MetricTensor CreateDefault(VariableList variables)
         {
-            var tensor = new MetricTensor(variables);
+            return new MetricTensor(variables, initializeDefaults: true);
+        }
 
-            for (int i = 0; i < variables.Length; i++)
+        public static MetricTensor CreateUninitialized(VariableList variables)
+        {
+            return new MetricTensor(variables, initializeDefaults: false);
+        }
+
+        public static MetricTensor Create(VariableList variables, SymmetricMatrix matrix)
+        {
+            var tensor = CreateUninitialized(variables);
+
+            for (int row = 0; row < matrix.Size; row++)
             {
-                tensor[i, i] = GlobalMathDefs.ONE;
+                for (int col = 0; col <= row; col++)
+                {
+                    tensor[row, col] = matrix[row, col];
+                }
             }
 
             return tensor;
         }
 
-        private MathVariable[] Variables { get; set; }
-        private Dictionary<MathVariable, int> VariableMapping { get; set; }
-        private MathExpr[] Array { get; set; }
+        public VariableList Variables { get; }
+        private SymmetricMatrix Matrix { get; }
+        private Lazy<MetricTensor> InverseMetric { get; }
 
         int NumVariables => Variables.Length;
 
-        private int GetVariableIndex(MathVariable v)
+        public MathExpr this[MathVariable row, MathVariable col]
         {
-            return VariableMapping[v];
+            get => Matrix[Variables[row], Variables[col]];
+            set => Matrix[Variables[row], Variables[col]] = value;
         }
 
-        private int GetArrayIndex(MathVariable var1, MathVariable var2)
+        public MathExpr this[int row, int col]
         {
-            return GetArrayIndex(GetVariableIndex(var1), GetVariableIndex(var2));
+            get => Matrix[row, col];
+            set => Matrix[row, col] = value;
         }
-
-        private int GetArrayIndex(int varIndex1, int varIndex2)
-        {
-            // symmetric matrix - we only store the diagonal and below
-            var row = Math.Max(varIndex1, varIndex2);
-            var col = Math.Min(varIndex1, varIndex2);
-
-            var index = row * (row + 1) / 2 + col;
-            
-            return index;
-        }
-
-        public MathExpr this[int varIndex1, int varIndex2]
-        {
-            get => Array[GetArrayIndex(varIndex1, varIndex2)];
-            set => Array[GetArrayIndex(varIndex1, varIndex2)] = value;
-        }
-
-        public MathExpr this[MathVariable u, MathVariable v]
-        {
-            get => Array[GetArrayIndex(u, v)];
-            set => Array[GetArrayIndex(u, v)] = value;
-        }
-
-        //internal override MathExpr Visit(IMathExprTransformer transformer)
-        //{
-        //    var transformation = new VariablesChangeTransformation();
-        //    return ChangeCoordinates(transformation);
-        //}
 
         public MetricTensor ChangeCoordinates(VariablesChangeTransformation transformation)
         {
-            var newTensor = new MetricTensor(transformation.Targets.ToArray());
+            var newTensor = CreateUninitialized(transformation.Targets.ToArray());
 
             var jacobian = JacobianMatrix.Create(transformation);
 
-            for (var targetVarIndex1 = 0; targetVarIndex1 < NumVariables; targetVarIndex1++)
+            // diagonal and below
+            for (var row = 0; row < NumVariables; row++)
             {
-                // diagonal and below
-
-                for (var targetVarIndex2 = 0; targetVarIndex2 <= targetVarIndex1; targetVarIndex2++)
+                for (var col = 0; col <= row; col++)
                 {
-                    var transformedEntry = CalculateTransformation(targetVarIndex1, targetVarIndex2, jacobian);
-                    newTensor[targetVarIndex1, targetVarIndex2] = transformedEntry;
+                    var transformedEntry = CalculateTransformation(row, col, jacobian);
+                    newTensor[row, col] = transformedEntry;
                 }
             }
 
             return newTensor;
         }
 
-        private MathExpr CalculateTransformation(int targetVarIndex1, int targetVarIndex2, JacobianMatrix jacobian)
+        private MathExpr CalculateTransformation(int targetRow, int targetCol, JacobianMatrix jacobian)
         {
             List<MathExpr> terms = new List<MathExpr>();
 
-            for (var sourceVarIndex1 = 0; sourceVarIndex1 < NumVariables; sourceVarIndex1++)
+            for (var sourceRow = 0; sourceRow < NumVariables; sourceRow++)
             {
-                for (var sourceVarIndex2 = 0; sourceVarIndex2 < NumVariables; sourceVarIndex2++)
+                for (var sourceCol = 0; sourceCol < NumVariables; sourceCol++)
                 {
-                    var sourceMetricTensorEntry = this[sourceVarIndex1, sourceVarIndex2].Visit(jacobian.Transformation);
+                    var sourceMetricTensorEntry = this[sourceRow, sourceCol].Visit(jacobian.Transformation);
 
                     if (!MathEvalUtil.IsZero(sourceMetricTensorEntry))
                     {
-                        var term = sourceMetricTensorEntry * jacobian[sourceVarIndex1, targetVarIndex1] * jacobian[sourceVarIndex2, targetVarIndex2];
+                        var term = sourceMetricTensorEntry * jacobian[sourceRow, targetRow] * jacobian[sourceCol, targetCol];
                         terms.Add(term);
                     }
                 }
@@ -133,15 +109,15 @@ namespace MathUtil.Tensors
 
             List<MathExpr> terms = new List<MathExpr>();
 
-            for (int varIndex1 = 0; varIndex1 < NumVariables; varIndex1++)
+            for (int row = 0; row < NumVariables; row++)
             {
-                for (int varIndex2 = 0; varIndex2 <= varIndex1; varIndex2++)
+                for (int col = 0; col <= row; col++)
                 {
-                    var metricTensorEntry = this[varIndex1, varIndex2];
+                    var metricTensorEntry = this[row, col];
 
                     if (!MathEvalUtil.IsZero(metricTensorEntry))
                     {
-                        var term = metricTensorEntry * (Variables[varIndex1].Delta * Variables[varIndex2].Delta);
+                        var term = metricTensorEntry * (Variables[row].Delta * Variables[col].Delta);
                         term = term.Reduce(ReduceOptions.DEFAULT);
                         terms.Add(term);
                     }
@@ -151,6 +127,11 @@ namespace MathUtil.Tensors
             sb.Append(AddMathExpr.Create(terms));
 
             return sb.ToString();
+        }
+
+        public MetricTensor Inverse()
+        {
+            return InverseMetric.Value;
         }
 
     }

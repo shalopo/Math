@@ -6,26 +6,37 @@ using System.Threading.Tasks;
 
 namespace MathUtil.Matrices
 {
-    public class SquareMatrix
+    public class SquareMatrix : ISquareMatrix
     {
         protected SquareMatrix(int size)
         {
             Size = size;
             cells = new MathExpr[Size, Size];
-
-            for (int row = 0; row < Size; row++)
-            {
-                for (int col = 0; col < Size; col++)
-                {
-                    cells[row, col] = row == col ? GlobalMathDefs.ONE : GlobalMathDefs.ZERO;
-                }
-            }
         }
 
         public int Size { get; }
         private readonly MathExpr[,] cells;
 
-        public static SquareMatrix Create(int size) => new SquareMatrix(size);
+
+        public static SquareMatrix CreateUninitialized(int size)
+        {
+            return new SquareMatrix(size);
+        }
+
+        public static SquareMatrix CreateDefault(int size)
+        {
+            var matrix = new SquareMatrix(size);
+
+            for (int row = 0; row < size; row++)
+            {
+                for (int col = 0; col < size; col++)
+                {
+                    matrix[row, col] = row == col ? GlobalMathDefs.ONE : GlobalMathDefs.ZERO;
+                }
+            }
+
+            return matrix;
+        }
 
         public MathExpr this[int row, int col]
         {
@@ -60,60 +71,6 @@ namespace MathUtil.Matrices
             return matrix * ReciprocalMathExpr.Create(scalar);
         }
 
-        private MathExpr MinorDeterminant(int removeRow, int removeCol)
-        {
-            var minor = new SquareMatrix(Size - 1);
-
-            for (int row = 0; row < Size; row++)
-            {
-                if (row == removeRow)
-                {
-                    continue;
-                }
-
-                for (int col = 0; col < Size; col++)
-                {
-                    if (col == removeCol)
-                    {
-                        continue;
-                    }
-
-                    minor[row < removeRow ? row : row - 1, col < removeCol ? col : col - 1] = cells[row, col];
-                }
-            }
-
-            return minor.Determinant();
-        }
-
-        public MathExpr Determinant()
-        {
-            if (Size == 2)
-            {
-                return cells[0, 0] * cells[1, 1] - cells[0, 1] * cells[1, 0];
-            }
-            else if (Size == 1)
-            {
-                return cells[0, 0];
-            }
-            else if (Size == 0)
-            {
-                return GlobalMathDefs.ONE;
-            }
-
-            var terms = new List<MathExpr>();
-
-            int sign = 1;
-
-            for (int col = 0; col < Size; col++)
-            {
-                terms.Add(sign * cells[0, col] * MinorDeterminant(0, col));
-
-                sign = -sign;
-            }
-
-            return AddMathExpr.Create(terms).Reduce(ReduceOptions.DEFAULT);
-        }
-
         public SquareMatrix Adjugate()
         {
             var adjugate = new SquareMatrix(Size);
@@ -127,7 +84,7 @@ namespace MathUtil.Matrices
                 for (int col = 0; col < Size; col++)
                 {
                     //transposed
-                    adjugate[col, row] = (sign * MinorDeterminant(row, col)).Reduce(ReduceOptions.DEFAULT);
+                    adjugate[col, row] = (sign * this.MinorDeterminant(row, col)).Reduce(ReduceOptions.DEFAULT);
 
                     sign = -sign;
                 }
@@ -140,27 +97,12 @@ namespace MathUtil.Matrices
 
         public SquareMatrix Inverse()
         {
-            var adjugate = Adjugate();
-            var determinant = Determinant();
-
-            return adjugate / determinant;
+            return Adjugate() / this.Determinant();
         }
 
         public override string ToString()
         {
-            var sb = new StringBuilder();
-
-            for (int row = 0; row < Size; row++)
-            {
-                for (int col = 0; col < Size; col++)
-                {
-                    sb.Append(cells[row, col]).Append(" ");
-                }
-
-                sb.AppendLine();
-            }
-
-            return sb.ToString();
+            return ISquareMatrixExtensions.ToString(this);
         }
 
     }
