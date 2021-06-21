@@ -43,12 +43,12 @@ namespace MathUtil.Tensors
                     foreach (var alpha in variables)
                     {
                         terms.Add(christoffels[alpha, rowCovar, colCovar].Derive(alpha));
-                        terms.Add(christoffels[alpha, rowCovar, alpha].Derive(colCovar));
+                        terms.Add(-christoffels[alpha, rowCovar, alpha].Derive(colCovar));
 
                         foreach (var beta in variables)
                         {
                             terms.Add(christoffels[alpha, rowCovar, colCovar] * christoffels[beta, alpha, beta]);
-                            terms.Add(christoffels[beta, rowCovar, alpha] * christoffels[alpha, colCovar, beta]);
+                            terms.Add(-christoffels[beta, rowCovar, alpha] * christoffels[alpha, colCovar, beta]);
                         }
                     }
 

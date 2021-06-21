@@ -44,8 +44,10 @@ namespace MathTest
             //              SIN(z).Pow(3) / SIN(z) + COS(z) * COS(z));
 
             //TensorTestIdentity();
-            TensorTestPolar2d();
-            TensorTestPolar3d();
+            //TensorTestPolar2d();
+            //TensorTest2Sphere();
+            //TensorTestPolar3d();
+            TensorTest3Sphere();
             //TensorTestPolar_nd();
             //TaylorTest();
 
@@ -77,7 +79,7 @@ namespace MathTest
             Console.WriteLine();
         }
 
-        public static void TensorTestPolar2d()
+        public static void TensorTest2Ball()
         {
             var x = new MathVariable("x");
             var y = new MathVariable("y");
@@ -103,15 +105,41 @@ namespace MathTest
 
             //Console.WriteLine(originalTensor);
             //Console.WriteLine();
+        }
+
+        public static void TensorTest2Sphere()
+        {
+            // parameter (constant)
+            var r = new MathVariable("r");
+
+            var theta = new MathVariable("θ");
+            var phi = new MathVariable("φ");
+
+            var metric = MetricTensor.CreateDefault(new[] { theta, phi });
+            metric[theta, theta] = r.Pow(2);
+            metric[phi, phi] = r.Pow(2) * SIN(theta).Pow(2);
+
+            Console.WriteLine(metric);
+            Console.WriteLine();
+
+            Console.WriteLine("Christoffels:");
+            Console.WriteLine(ChristoffelSymbols.Create(metric));
+
+            //var inverseTransformation = new VariablesChangeTransformation(new[] { x, y }, (r, (x * x + y * y).Pow(HALF)), 
+            //    (theta, ARCTAN(y / x)));
+            //var originalTensor = polarTensor.ChangeCoordinates(inverseTransformation);
+
+            //Console.WriteLine(originalTensor);
+            //Console.WriteLine();
 
             Console.WriteLine("ricci:");
-            var ricci = RicciTensor.Create(polarTensor);
+            var ricci = RicciTensor.Create(metric);
             Console.WriteLine(ricci);
 
             Console.WriteLine($"ricci scalar: {ricci.Scalar()}");
         }
 
-        public static void TensorTestPolar3d()
+        public static void TensorTest3Ball()
         {
             var x = new MathVariable("x");
             var y = new MathVariable("y");
@@ -133,9 +161,30 @@ namespace MathTest
 
             Console.WriteLine("Christoffels:");
             Console.WriteLine(ChristoffelSymbols.Create(polarTensor));
+        }
+
+        public static void TensorTest3Sphere()
+        {
+            // parameter (constant)
+            var r = new MathVariable("r");
+
+            var theta = new MathVariable("θ");
+            var phi = new MathVariable("φ");
+            var lambda = new MathVariable("λ");
+
+            var metric = MetricTensor.CreateDefault(new MathVariable[] { theta, phi, lambda });
+            metric[theta, theta] = r.Pow(2);
+            metric[phi, phi] = r.Pow(2) * SIN(theta).Pow(2);
+            metric[lambda, lambda] = r.Pow(2) * SIN(theta).Pow(2) * SIN(phi).Pow(2);
+
+            Console.WriteLine(metric);
+            Console.WriteLine();
+
+            Console.WriteLine("Christoffels:");
+            Console.WriteLine(ChristoffelSymbols.Create(metric));
 
             Console.WriteLine("ricci:");
-            var ricci = RicciTensor.Create(polarTensor);
+            var ricci = RicciTensor.Create(metric);
             Console.WriteLine(ricci);
 
             Console.WriteLine($"ricci scalar: {ricci.Scalar()}");
