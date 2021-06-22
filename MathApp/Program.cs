@@ -14,40 +14,21 @@ namespace MathTest
 {
     class Program
     {
-        public static void TestReduction(MathExpr expr)
-        {
-            Console.WriteLine(expr.ToString());
-            Console.WriteLine("=>");
-            Console.WriteLine(expr.Reduce(ReduceOptions.DEFAULT));
-            Console.WriteLine();
-        }
+        static MathVariable x = new MathVariable("x");
+        static MathVariable y = new MathVariable("y");
+        static MathVariable z = new MathVariable("z");
 
         static void Main()
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            //var x = new MathVariable("x");
-            //var y = new MathVariable("y");
-            //var z = new MathVariable("z");
-
-            //TestReduction(2 * (x + 1) - x);
-
-            //TestReduction(y.Pow(2) * (1 + x.Pow(2) / y.Pow(2)));
-            //TestReduction((1 + x.Pow(2) / y.Pow(2)) / (x.Pow(2) + y.Pow(2)));
-            //TestReduction(y.Pow(2) * (1 + (x / y).Pow(2)));
-
-            //TestReduction(x.Pow(2) * SIN(y).Pow(2) + x.Pow(2) * COS(y).Pow(2));
-            //TestReduction(x.Pow(2) * SIN(y).Pow(2) * SIN(z).Pow(2) + x.Pow(2) * SIN(y).Pow(2) * COS(z).Pow(2) + x.Pow(2) * COS(y).Pow(2));
-
-            //TestReduction(3 * COS(x / 2).Pow(2) - SIN(x / 2).Pow(2) + 
-            //              2 * SIN(2 * y).Pow(2) + 2 * COS(2 * y).Pow(2) +
-            //              SIN(z).Pow(3) / SIN(z) + COS(z) * COS(z));
-
+            Console.WriteLine(1 / COS(x) * SIN(x));
+            //TestReductions();
             //TensorTestIdentity();
             //TensorTestPolar2d();
             //TensorTest2Sphere();
             //TensorTestPolar3d();
-            TensorTest3Sphere();
+            //TensorTest3Sphere();
             //TensorTestPolar_nd();
             //TaylorTest();
 
@@ -60,12 +41,33 @@ namespace MathTest
             }
         }
 
+        public static void TestReductions()
+        {
+            TestReduction(x * (x + 1) - x.Pow(2));
+
+            TestReduction(y.Pow(2) * (1 + x.Pow(2) / y.Pow(2)));
+            TestReduction((1 + x.Pow(2) / y.Pow(2)) / (x.Pow(2) + y.Pow(2)));
+            TestReduction(y.Pow(2) * (1 + (x / y).Pow(2)));
+
+            TestReduction(x.Pow(2) * SIN(y).Pow(2) + x.Pow(2) * COS(y).Pow(2));
+            TestReduction(x.Pow(2) * SIN(y).Pow(2) * SIN(z).Pow(2) + x.Pow(2) * SIN(y).Pow(2) * COS(z).Pow(2) + x.Pow(2) * COS(y).Pow(2));
+
+            TestReduction(3 * COS(x / 2).Pow(2) - SIN(x / 2).Pow(2) +
+                          2 * SIN(2 * y).Pow(2) + 2 * COS(2 * y).Pow(2) +
+                          SIN(z).Pow(3) / SIN(z) + COS(z) * COS(z));
+        }
+
+        public static void TestReduction(MathExpr expr)
+        {
+            Console.WriteLine(expr.ToString());
+            Console.WriteLine("=>");
+            Console.WriteLine(expr.Reduce(ReduceOptions.DEFAULT));
+            Console.WriteLine();
+        }
+
         public static void TensorTestIdentity()
         {
             var t = new MathVariable("t");
-            var x = new MathVariable("x");
-            var y = new MathVariable("y");
-            var z = new MathVariable("z");
 
             var tensor = MetricTensor.CreateDefault(new[] { t, x, y, z });
             tensor[t, t] = MINUS_ONE;
@@ -81,9 +83,6 @@ namespace MathTest
 
         public static void TensorTest2Ball()
         {
-            var x = new MathVariable("x");
-            var y = new MathVariable("y");
-
             var tensor = MetricTensor.CreateDefault(new[] { x, y });
             Console.WriteLine(tensor);
 
@@ -141,10 +140,6 @@ namespace MathTest
 
         public static void TensorTest3Ball()
         {
-            var x = new MathVariable("x");
-            var y = new MathVariable("y");
-            var z = new MathVariable("z");
-
             var tensor = MetricTensor.CreateDefault(new MathVariable[] { x, y, z });
             Console.WriteLine(tensor);
 
@@ -235,8 +230,6 @@ namespace MathTest
 
         public static void TaylorTest()
         {
-            var x = new MathVariable("x");
-
             var f = new ExpandableMathFunctionDef("f",
             //SIN(-x + 1).Pow(2) * SIN(x + 1)
             //4 * ARCTAN(-x)

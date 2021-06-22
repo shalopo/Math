@@ -14,6 +14,8 @@ namespace MathUtil
 
             var constTerm = NumericalConstMathExpr.Add(terms.OfType<NumericalConstMathExpr>());
 
+            terms = DistributeMultTerms(terms, options);
+
             terms = CollectLikeTerms(terms, options);
 
             if (options.AllowReduceToConstComplex)
@@ -48,12 +50,34 @@ namespace MathUtil
 
         private static IEnumerable<MathExpr> ReduceTerms(IEnumerable<MathExpr> terms, ReduceOptions options)
         {
-            terms = (from expr in terms
+            return (from expr in terms
                      let exprReduced = expr.Reduce(options)
                      where !MathEvalUtil.IsZero(exprReduced)
                      select exprReduced is AddMathExpr addExpr ? addExpr.Terms : new[] { exprReduced }
             ).SelectMany(s => s);
-            return terms;
+        }
+
+        private static IEnumerable<MathExpr> DistributeMultTerms(IEnumerable<MathExpr> terms, ReduceOptions options)
+        {
+            return terms.Select(expr => (expr is MultMathExpr multExpr) ? 
+                                TryDistribute(multExpr, options) : 
+                                new[] { expr })
+                .SelectMany(s => s);
+        }
+
+        private static IEnumerable<MathExpr> TryDistribute(MultMathExpr expr, ReduceOptions options)
+        {
+            var addTerms = expr.Terms.OfType<AddMathExpr>();
+
+            if (addTerms.Count() != 1)
+            {
+                return new[] { expr };
+            }
+
+            var addTerm = addTerms.First();
+            var restOfTerms = MultMathExpr.Create(expr.Terms.Where(term => term != addTerm));
+
+            return addTerm.Select(term => (term * restOfTerms).Reduce(options));
         }
 
         private static IEnumerable<MathExpr> CollectLikeTerms(IEnumerable<MathExpr> terms, ReduceOptions options)
