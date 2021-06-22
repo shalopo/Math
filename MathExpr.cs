@@ -55,6 +55,11 @@ namespace MathUtil
             return complex.Real;
         }
 
+        internal char ToStringInner()
+        {
+            throw new NotImplementedException();
+        }
+
         internal virtual AdditiveTerm AsAdditiveTerm() => new AdditiveTerm(this, ONE);
         internal virtual PowerMathExpr AsPowerExpr() => new PowerMathExpr(this, ONE);
 
@@ -66,7 +71,7 @@ namespace MathUtil
         public static MathExpr operator -(MathExpr a) => MINUS_ONE * a;
         public static MathExpr operator -(MathExpr a, MathExpr b) => AddMathExpr.Create(a, -b);
         public static MathExpr operator *(MathExpr a, MathExpr b) => MultMathExpr.Create(a, b);
-        public static MathExpr operator /(MathExpr a, MathExpr b) => a * ReciprocalMathExpr.Create(b);
+        public static MathExpr operator /(MathExpr a, MathExpr b) => a * b.Pow(MINUS_ONE);
 
         // the ^ operator does not fit due to non-matching order of operations
         public MathExpr Pow(MathExpr exponent) => PowerMathExpr.Create(this,exponent);

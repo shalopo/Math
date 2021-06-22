@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using static MathUtil.GlobalMathDefs;
 using static MathUtil.MathEvalUtil;
@@ -43,7 +44,6 @@ namespace MathUtil
     {
         public PowerMathExpr(MathExpr @base, MathExpr exponent) => (Base, Exponent) = (@base, exponent);
         public static MathExpr Create(MathExpr @base, MathExpr exponent) => IsOne(exponent) ? @base : new PowerMathExpr(@base, exponent);
-        //TODO: -1 should be reciprocal
 
         internal override bool RequiresPowScoping => true;
 
@@ -51,7 +51,15 @@ namespace MathUtil
         public MathExpr Exponent { get; }
 
 
-        public override string ToString() => $"{Base.ToPowScopedString()}^{Exponent.ToPowScopedString()}";
+        public override string ToString()
+        {
+            if (Exponent.Equals(MINUS_ONE))
+            {
+                return $"1/{Base.ToPowScopedString()}";
+            }
+
+            return $"{Base.ToPowScopedString()}^{Exponent.ToPowScopedString()}";
+        }
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => PowerMathExpr.Create(
             Base.Visit(transformer), 
@@ -59,23 +67,23 @@ namespace MathUtil
 
         protected override MathExpr ReduceImpl(ReduceOptions options)
         {
-            var base_reduced = Base.Reduce(options);
-            var exponent_reduced = Exponent.Reduce(options);
+            var baseReduced = Base.Reduce(options);
+            var exponentReduced = Exponent.Reduce(options);
 
             //TODO: bug with 0^0
-            if (IsZero(exponent_reduced) || IsOne(base_reduced))
+            if (IsZero(exponentReduced) || IsOne(baseReduced))
             {
                 return ONE;
             }
 
-            if (IsOne(exponent_reduced))
+            if (IsOne(exponentReduced))
             {
-                return base_reduced;
+                return baseReduced;
             }
 
-            if (base_reduced == I && IsWholeNumber(exponent_reduced))
+            if (baseReduced == I && IsWholeNumber(exponentReduced))
             {
-                switch (Math.Abs(Convert.ToInt64(((ExactConstMathExpr)exponent_reduced).Value)) % 4)
+                switch (Math.Abs(Convert.ToInt64(((ExactConstMathExpr)exponentReduced).Value)) % 4)
                 {
                     case 0: return ONE;
                     case 1: return I;
@@ -85,27 +93,27 @@ namespace MathUtil
                 }
             }
 
-            if (IsZero(base_reduced) && exponent_reduced is NumericalConstMathExpr numerical_exponent)
+            if (IsZero(baseReduced) && exponentReduced is NumericalConstMathExpr numericalExponent)
             {
-                if (numerical_exponent.IsPositive)
+                if (numericalExponent.IsPositive)
                 {
                     return ZERO;
                 }
                 else
                 {
-                    throw new UndefinedMathBehavior($"Divide by zero, exponent:{numerical_exponent}");
+                    throw new UndefinedMathBehavior($"Divide by zero, exponent:{numericalExponent}");
                 }
             }
 
-            if (exponent_reduced is ExactConstMathExpr exponent_exact)
+            if (exponentReduced is ExactConstMathExpr exponentExact)
             {
-                if (base_reduced is ExactConstMathExpr base_exact &&
+                if (baseReduced is ExactConstMathExpr base_exact &&
                     IsWholeNumber(base_exact.Value) && Math.Abs(base_exact.Value) <= 1024 &&
-                    IsWholeNumber(exponent_exact.Value) && Math.Abs(exponent_exact.Value) <= 20)
+                    IsWholeNumber(exponentExact.Value) && Math.Abs(exponentExact.Value) <= 20)
                 {
                     try
                     {
-                        double pow = Math.Pow(base_exact.Value, exponent_exact.Value);
+                        double pow = Math.Pow(base_exact.Value, exponentExact.Value);
                         if (IsWholeNumber(pow) && pow <= 1024 * 1024)
                         {
                             return Convert.ToInt64(pow);
@@ -116,32 +124,40 @@ namespace MathUtil
                     }
                 }
 
-                var term = base_reduced.AsAdditiveTerm();
+                var term = baseReduced.AsAdditiveTerm();
 
                 if (!term.Coefficient.IsPositive)
                 {
-                    if (IsEven(exponent_exact.Value))
+                    if (IsEven(exponentExact.Value))
                     {
-                        return Create((-base_reduced).Reduce(options), exponent_reduced);
+                        return Create((-baseReduced).Reduce(options), exponentReduced);
                     }
-                    else if (IsOdd(exponent_exact.Value))
+                    else if (IsOdd(exponentExact.Value))
                     {
-                        return -Create((-base_reduced).Reduce(options), exponent_reduced);
+                        return -Create((-baseReduced).Reduce(options), exponentReduced);
                     }
                 }
             }
 
-            if (base_reduced is ConstFractionMathExpr base_fraction)
+            if (baseReduced is ConstFractionMathExpr base_fraction)
             {
-                return (Create(base_fraction.Top, exponent_reduced) / Create(base_fraction.Bottom, exponent_reduced)).Reduce(options);
+                return (Create(base_fraction.Top, exponentReduced) / Create(base_fraction.Bottom, exponentReduced)).Reduce(options);
             }
 
-            if (base_reduced is PowerMathExpr base_power)
+            if (baseReduced is PowerMathExpr basePower)
             {
-                return Create(base_power.Base, (base_power.Exponent * exponent_reduced).Reduce(options));
+                return Create(basePower.Base, (basePower.Exponent * exponentReduced).Reduce(options));
             }
 
-            return Create(base_reduced, exponent_reduced);
+            if (baseReduced is MultMathExpr multBase)
+            {
+                if (exponentReduced.Equals(MINUS_ONE))
+                {
+                    return MultMathExpr.Create(multBase.Select(term => term.Pow(exponentReduced).Reduce(ReduceOptions.LIGHT)));
+                }
+            }
+
+            return Create(baseReduced, exponentReduced);
         }
 
         internal override double Weight => Base.Weight + Exponent.Weight;
@@ -172,7 +188,7 @@ namespace MathUtil
 
             if (IsZero(exponentDerived))
             {
-                return Exponent * baseDerived * Create(Base, (Exponent - ONE).Reduce(ReduceOptions.DEFAULT));
+                return Exponent * baseDerived * Create(Base, (Exponent - ONE).Reduce(ReduceOptions.LIGHT));
             }
 
             additionTerms.Add(exponentDerived * LN(Base));
@@ -187,7 +203,8 @@ namespace MathUtil
 
         internal override PowerMathExpr AsPowerExpr() => this;
 
-        public PowerMathExpr Reciprocate() => new PowerMathExpr(Base, (-Exponent).Reduce(ReduceOptions.DEFAULT));
+        //TODO: undesired reduction - need to reduce only the minus
+        public MathExpr Reciprocate() => Create(Base, (-Exponent).Reduce(ReduceOptions.LIGHT));
 
         internal override MathExprMatch Match(MathExpr expr)
         {

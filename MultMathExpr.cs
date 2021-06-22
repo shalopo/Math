@@ -33,23 +33,43 @@ namespace MathUtil
                 return AsAdditiveTerm().ToString();
             }
 
-            var sb = new StringBuilder(Terms[0].ToMultScopedString());
+            var negativePowers = Terms.OfType<PowerMathExpr>().Where(term => !term.Exponent.AsAdditiveTerm().Coefficient.IsPositive);
+            var positivePowers = Terms.Where(term => !negativePowers.Contains(term));
 
-            foreach (var expr in Terms.Skip(1))
+            var sb = new StringBuilder();
+
+            sb.Append(JoinString(positivePowers));
+
+            if (negativePowers.Any())
             {
-                if (expr is ReciprocalMathExpr reciprocal)
+                if (!positivePowers.Any())
                 {
-                    sb.Append("/");
-                    sb.Append(reciprocal.Expr.ToPowScopedString());
+                    sb.Append("1");
                 }
-                else
+
+                sb.Append("/");
+
+                bool wrap = negativePowers.Count() > 1;
+
+                if (wrap)
                 {
-                    sb.Append("*");
-                    sb.Append(expr.ToMultScopedString());
+                    sb.Append("(");
+                }
+
+                sb.Append(JoinString(negativePowers.Select(term => term.Reciprocate())));
+
+                if (wrap)
+                {
+                    sb.Append(")");
                 }
             }
 
             return sb.ToString();
+        }
+
+        private static string JoinString(IEnumerable<MathExpr> terms)
+        {
+            return string.Join("*", terms.Select(term => term.ToMultScopedString()));
         }
 
         internal override MathExpr Derive(MathVariable v) => AddMathExpr.Create(

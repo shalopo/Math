@@ -78,7 +78,7 @@ namespace MathUtil.Matrices
 
         public static SymmetricMatrix operator /(SymmetricMatrix matrix, MathExpr scalar)
         {
-            return matrix * ReciprocalMathExpr.Create(scalar);
+            return matrix * scalar.Pow(GlobalMathDefs.MINUS_ONE);
         }
 
         public SymmetricMatrix Adjugate()

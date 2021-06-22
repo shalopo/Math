@@ -33,9 +33,7 @@ namespace MathUtil
             terms = (from item in powers
                      let @base = item.Key
                      let exponent = AddMathExpr.Create(item.Value).Reduce(options)
-                     select (exponent is NumericalConstMathExpr exponent_numerical && !exponent_numerical.IsPositive) ?
-                        ReciprocalMathExpr.Create(PowerMathExpr.Create(@base, exponent_numerical.Negate())).Reduce(options) :
-                        PowerMathExpr.Create(@base, exponent).Reduce(options));
+                     select PowerMathExpr.Create(@base, exponent).Reduce(options));
 
             var coefficient = NumericalConstMathExpr.Mult(terms.OfType<NumericalConstMathExpr>());
 
@@ -48,7 +46,7 @@ namespace MathUtil
 
             //slupu: const * i => ConstComplex
 
-            if (!coefficient.Equals(GlobalMathDefs.ONE))
+            if (!MathEvalUtil.IsOne(coefficient))
             {
                 terms = terms.Prepend(coefficient);
             }

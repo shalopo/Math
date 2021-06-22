@@ -22,15 +22,14 @@ namespace MathTest
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            Console.WriteLine(1 / COS(x) * SIN(x));
-            //TestReductions();
-            //TensorTestIdentity();
-            //TensorTestPolar2d();
-            //TensorTest2Sphere();
-            //TensorTestPolar3d();
-            //TensorTest3Sphere();
-            //TensorTestPolar_nd();
-            //TaylorTest();
+            TestReductions();
+            TensorTestIdentity();
+            TensorTest2Ball();
+            TensorTest2Sphere();
+            TensorTest3Ball();
+            TensorTest3Sphere();
+            TensorTestPolar_nd();
+            TaylorTest();
 
             Console.WriteLine();
             Console.WriteLine("done.");
@@ -43,6 +42,12 @@ namespace MathTest
 
         public static void TestReductions()
         {
+            TestReduction((-x) / (-y));
+            TestReduction(x / (-y));
+
+            TestReduction(x / (-2 * y));
+            TestReduction((x / y).Pow(MINUS_ONE));
+
             TestReduction(x * (x + 1) - x.Pow(2));
 
             TestReduction(y.Pow(2) * (1 + x.Pow(2) / y.Pow(2)));
@@ -98,12 +103,12 @@ namespace MathTest
             Console.WriteLine("Christoffels:");
             Console.WriteLine(ChristoffelSymbols.Create(polarTensor));
 
-            //var inverseTransformation = new VariablesChangeTransformation(new[] { x, y }, (r, (x * x + y * y).Pow(HALF)), 
-            //    (theta, ARCTAN(y / x)));
-            //var originalTensor = polarTensor.ChangeCoordinates(inverseTransformation);
+            var inverseTransformation = new VariablesChangeTransformation(new[] { x, y }, (r, (x * x + y * y).Pow(HALF)),
+                (theta, ARCTAN(y / x)));
+            var originalTensor = polarTensor.ChangeCoordinates(inverseTransformation);
 
-            //Console.WriteLine(originalTensor);
-            //Console.WriteLine();
+            Console.WriteLine(originalTensor);
+            Console.WriteLine();
         }
 
         public static void TensorTest2Sphere()

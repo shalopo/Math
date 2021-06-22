@@ -68,7 +68,7 @@ namespace MathUtil.Matrices
 
         public static SquareMatrix operator /(SquareMatrix matrix, MathExpr scalar)
         {
-            return matrix * ReciprocalMathExpr.Create(scalar);
+            return matrix * scalar.Pow(GlobalMathDefs.MINUS_ONE);
         }
 
         public SquareMatrix Adjugate()
