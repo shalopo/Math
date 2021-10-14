@@ -86,6 +86,8 @@ namespace MathTest
 
         public static void TestReductions()
         {
+            TestReduction(1 / I);
+
             TestReduction(1 + 2 * (x + 1));
 
             TestReduction((-x) / (-y));
@@ -298,7 +300,7 @@ namespace MathTest
             //SIN(-x + 1).Pow(2) * SIN(x + 1)
             //4 * ARCTAN(-x)
             //E.Pow(x)
-            E.Pow(2 * x * I)        //TODO: there is some serious error here
+            E.Pow(2 * x * I)
             //SIN(x).Pow(2)
             //1/(1-I)
             //1/(1-x/4)

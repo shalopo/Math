@@ -83,7 +83,14 @@ namespace MathUtil
 
             if (baseReduced == I && IsWholeNumber(exponentReduced))
             {
-                return (Math.Abs(Convert.ToInt64(((ExactConstMathExpr)exponentReduced).Value)) % 4) switch
+                long quarter = (Convert.ToInt64(((ExactConstMathExpr)exponentReduced).Value)) % 4;
+
+                if (quarter < 0)
+                {
+                    quarter += 4;
+                }
+
+                return quarter switch
                 {
                     0 => ONE,
                     1 => I,
