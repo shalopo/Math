@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MathUtil.Parsing
+namespace MathUtil
 {
     public class VariableCollection : IEnumerable<MathVariable>
     {

@@ -23,7 +23,7 @@ namespace MathTest
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            //TestInput();
+            TestInput();
             TestReductions();
             //TensorTestIdentity();
             //TensorTest2Ball();
@@ -71,8 +71,7 @@ namespace MathTest
         {
             try
             {
-                var context = new MathParseContext(new VariableCollection());
-                return MathParser.Parse(input, context);
+                return MathParser.Parse(input);
             }
             catch (MathParseException ex)
             {
@@ -300,7 +299,7 @@ namespace MathTest
             //SIN(-x + 1).Pow(2) * SIN(x + 1)
             //4 * ARCTAN(-x)
             //E.Pow(x)
-            E.Pow(2 * x * I)
+            E.Pow(2 * x * I)    
             //SIN(x).Pow(2)
             //1/(1-I)
             //1/(1-x/4)
