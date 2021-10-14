@@ -12,9 +12,9 @@ namespace MathUtil
         {
             terms = ReduceTerms(terms, options);
 
-            var constTerm = NumericalConstMathExpr.Add(terms.OfType<NumericalConstMathExpr>());
-
             terms = DistributeMultTerms(terms, options);
+            
+            var constTerm = NumericalConstMathExpr.Add(terms.OfType<NumericalConstMathExpr>());
 
             terms = CollectLikeTerms(terms, options);
 

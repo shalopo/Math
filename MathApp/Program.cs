@@ -86,7 +86,6 @@ namespace MathTest
 
         public static void TestReductions()
         {
-            //TODO: Serious basic bug here!!!
             TestReduction(1 + 2 * (x + 1));
 
             TestReduction((-x) / (-y));
