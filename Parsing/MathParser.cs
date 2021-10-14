@@ -1,19 +1,20 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace MathUtil.Parsing
 {
     public class MathParseContext
     {
-        public MathParseContext(VariableCollection variables) => Variables = variables;
+        public MathParseContext(VariableCollection variables = null) => Variables = variables ?? new VariableCollection();
 
         public VariableCollection Variables { get; }
     }
 
     public class MathParser
     {
-        public static MathExpr Parse(string input, MathParseContext context)
+        public static MathExpr Parse(string input, MathParseContext context = null)
         {
-            return new MathParser(input, context).DoParse();
+            return new MathParser(input, context ?? new MathParseContext()).DoParse();
         }
 
         private MathParser(string input, MathParseContext context) => m_tokenizer = new MathTokenizer(input, context);
@@ -133,6 +134,15 @@ namespace MathUtil.Parsing
             {
                 TokenTag.OPEN_BRACKET => ReadClause(),
                 TokenTag.OPERAND => (m_tokenizer.Pop() as OperandToken).Expr,
+                TokenTag.OP => new Func<MathExpr>(() => {
+                    if ((token as OpToken).Op != OpType.MINUS)
+                    {
+                        throw new MathParseException($"Unexpected op");
+                    }
+
+                    m_tokenizer.Pop(); 
+                    return -ReadNearestTerm(); 
+                })(),
                 TokenTag.NONE => throw new MathParseException($"Unexpected termination"),
                 _ => throw new MathParseException($"Unexpected input")
             };

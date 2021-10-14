@@ -100,6 +100,8 @@ namespace MathUtil
                 };
             }
 
+            // TODO: e^(i*pi*n)
+
             if (IsZero(baseReduced) && exponentReduced is NumericalConstMathExpr numericalExponent)
             {
                 if (numericalExponent.IsPositive)

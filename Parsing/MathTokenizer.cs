@@ -12,7 +12,7 @@ namespace MathUtil.Parsing
 
         private static readonly Regex S_RGX_TOKEN = new Regex(
             @"\G\s*(?:" +
-            @"(?<num>[0-9][0-9,]*(?:\.[0-9]+)?)|" + //TODO: issue with clauses starting with a negative number
+            @"(?<num>[0-9][0-9,]*(?:\.[0-9]+)?)|" +
             @"(?<op>[+\-*/^])|" +
             @"(?<const>[eiπ]|pi)|" +
             @"(?<var>[a-zA-z]+[0-9]*)|" +
