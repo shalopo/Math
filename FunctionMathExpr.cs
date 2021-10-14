@@ -59,6 +59,7 @@ namespace MathUtil
         public ExpandableMathFunctionDef(string name, MathExpr definition) : base(name) => Definition = definition;
 
         public MathExpr Definition { get; }
+        protected virtual bool PreferNonExpandedForm => false;
 
         public override string ToString() => Definition.ToString();
 
@@ -76,8 +77,7 @@ namespace MathUtil
 
         protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {
-            var evaled = EvalCall(input);
-            return (evaled.Weight <= input.Weight) ? evaled : null;
+            return PreferNonExpandedForm ? null : EvalCall(input);
         }
     }
 

@@ -8,9 +8,11 @@ using static MathUtil.MathEvalUtil;
 
 namespace MathUtil
 {
-    class SinFunctionDef : SimpleMathFunctionDef
+    sealed class SinFunctionDef : SimpleMathFunctionDef
     {
         public SinFunctionDef() : base("sin") { }
+
+        private static readonly MathExpr SIN_QUARTER_PI = new ExactConstMathExpr(2).Pow(-new ExactConstMathExpr(1) / 2);
 
         protected override MathExpr DeriveSingle() => COS(x1);
 
@@ -31,13 +33,13 @@ namespace MathUtil
                 switch (Convert.ToInt64(exact.Value) % 8)
                 {
                     case 0: return ZERO;
-                    case 1: return HALF * SQRT(2);
+                    case 1: return SIN_QUARTER_PI;
                     case 2: return ONE;
-                    case 3: return HALF * SQRT(2);
+                    case 3: return SIN_QUARTER_PI;
                     case 4: return ZERO;
-                    case 5: return -HALF * SQRT(2);
+                    case 5: return -SIN_QUARTER_PI;
                     case 6: return MINUS_ONE;
-                    case 7: return -HALF * SQRT(2);
+                    case 7: return -SIN_QUARTER_PI;
                 }
             }
 
@@ -47,7 +49,7 @@ namespace MathUtil
         public override double ExactEval(double input) => Math.Sin(input);
     }
 
-    class CosFunctionDef : SimpleMathFunctionDef
+    sealed class CosFunctionDef : SimpleMathFunctionDef
     {
         public CosFunctionDef() : base("cos") { }
         
@@ -71,21 +73,25 @@ namespace MathUtil
         public override double ExactEval(double input) => Math.Cos(input);
     }
 
-    class TanFunctionDef : ExpandableMathFunctionDef
+    sealed class TanFunctionDef : ExpandableMathFunctionDef
     {
         public TanFunctionDef() : base("tan", SIN(x1) / COS(x1))
         {
         }
+
+        protected override bool PreferNonExpandedForm => true;
     }
 
-    class CotFunctionDef : ExpandableMathFunctionDef
+    sealed class CotFunctionDef : ExpandableMathFunctionDef
     {
         public CotFunctionDef() : base("cot", COS(x1) / SIN(x1))
         {
         }
+
+        protected override bool PreferNonExpandedForm => true;
     }
 
-    class ArcTanFunctionDef : SimpleMathFunctionDef
+    sealed class ArcTanFunctionDef : SimpleMathFunctionDef
     {
         public ArcTanFunctionDef() : base("arctan")
         {
@@ -116,7 +122,7 @@ namespace MathUtil
         public override double ExactEval(double input) => Math.Atan(input);
     }
 
-    class ArcTan2FunctionDef : MathFunctionDef
+    sealed class ArcTan2FunctionDef : MathFunctionDef
     {
         public ArcTan2FunctionDef() : base("arctan2")
         {
@@ -172,7 +178,7 @@ namespace MathUtil
         public override MathExpr Derive(MathVariable v) => throw new NotImplementedException("Derivative of arctan2 is not implemented");
     }
 
-    class ArcSinFunctionDef : SimpleMathFunctionDef
+    sealed class ArcSinFunctionDef : SimpleMathFunctionDef
     {
         public ArcSinFunctionDef() : base("arcsin")
         {
@@ -203,7 +209,7 @@ namespace MathUtil
         public override double ExactEval(double input) => Math.Asin(input);
     }
 
-    class ArcCosFunctionDef : SimpleMathFunctionDef
+    sealed class ArcCosFunctionDef : SimpleMathFunctionDef
     {
         public ArcCosFunctionDef() : base("arccos")
         {

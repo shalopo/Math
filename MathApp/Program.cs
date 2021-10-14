@@ -23,8 +23,8 @@ namespace MathTest
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            TestInput();
-            //TestReductions();
+            //TestInput();
+            TestReductions();
             //TensorTestIdentity();
             //TensorTest2Ball();
             //TensorTest2Sphere();
@@ -108,6 +108,17 @@ namespace MathTest
                           SIN(z).Pow(3) / SIN(z) + COS(z) * COS(z));
 
             TestReduction(ZERO.Pow(198713));
+
+            TestReduction(SIN(PI / 4) * TWO.Pow(HALF) * 2);
+            TestReduction((SQRT(x) / x).Pow(-2) - SQR(x) / x);
+            TestReduction(1 / COT(x) - SIN(x) / COS(x)); //TODO: should be zero
+
+            //TODO: fix the identity searching to not rely on adding
+            TestReduction(TAN(x) * COS(x));
+            TestReduction(TAN(x) * COT(x));
+
+            //TODO: does not reduce
+            TestReduction(SIN(2 * x) - SIN(x) * COS(x));
         }
 
         public static void TestReduction(MathExpr expr)
@@ -287,7 +298,7 @@ namespace MathTest
             //SIN(-x + 1).Pow(2) * SIN(x + 1)
             //4 * ARCTAN(-x)
             //E.Pow(x)
-            E.Pow(2 * x * I)
+            E.Pow(2 * x * I)        //TODO: there is some serious error here
             //SIN(x).Pow(2)
             //1/(1-I)
             //1/(1-x/4)

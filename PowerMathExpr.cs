@@ -30,12 +30,12 @@ namespace MathUtil
         public override double ExactEval(double input) => Math.Log(input);
     }
 
-    class SqrFunctionDef : ExpandableMathFunctionDef
+    sealed class SqrFunctionDef : ExpandableMathFunctionDef
     {
         public SqrFunctionDef() : base("sqr", x1.Pow(TWO)) { }
     }
 
-    class SqrtFunctionDef : ExpandableMathFunctionDef
+    sealed class SqrtFunctionDef : ExpandableMathFunctionDef
     {
         public SqrtFunctionDef() : base("sqrt", x1.Pow(HALF)) { }
     }
