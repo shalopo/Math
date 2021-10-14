@@ -14,8 +14,8 @@ namespace MathUtil.Parsing
             @"\G\s*(?:" +
             @"(?<num>[0-9][0-9,]*(?:\.[0-9]+)?)|" + //TODO: issue with clauses starting with a negative number
             @"(?<op>[+\-*/^])|" +
-            @"(?<var>[a-zA-z]+[0-9]*)|" +
             @"(?<const>[eiπ]|pi)|" +
+            @"(?<var>[a-zA-z]+[0-9]*)|" +
             @"(?<bracket>[()])" +
             @")\s*", 
             RegexOptions.Compiled);
