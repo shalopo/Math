@@ -16,13 +16,13 @@ namespace MathUtil
 
         public static MathExpr Create(IEnumerable<MathExpr> terms)
         {
-            switch (terms.Count())
+            return (terms.Count()) switch
             {
-                case 0: return GlobalMathDefs.ZERO;
-                case 1: return terms.First();
-                default: return new AddMathExpr(terms.SelectMany(expr => (expr is AddMathExpr addExpr)?  
-                                                addExpr.Terms : new[]{ expr }));
-            }
+                0 => GlobalMathDefs.ZERO,
+                1 => terms.First(),
+                _ => new AddMathExpr(terms.SelectMany(expr => (expr is AddMathExpr addExpr) ?
+                         addExpr.Terms : new[] { expr })),
+            };
         }
 
         internal override bool RequiresMultScoping => true;

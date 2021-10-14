@@ -83,14 +83,14 @@ namespace MathUtil
 
             if (baseReduced == I && IsWholeNumber(exponentReduced))
             {
-                switch (Math.Abs(Convert.ToInt64(((ExactConstMathExpr)exponentReduced).Value)) % 4)
+                return (Math.Abs(Convert.ToInt64(((ExactConstMathExpr)exponentReduced).Value)) % 4) switch
                 {
-                    case 0: return ONE;
-                    case 1: return I;
-                    case 2: return MINUS_ONE;
-                    case 3: return -I;
-                    default: throw new Exception("Invalid quarter");
-                }
+                    0 => ONE,
+                    1 => I,
+                    2 => MINUS_ONE,
+                    3 => -I,
+                    _ => throw new Exception("Invalid quarter"),
+                };
             }
 
             if (IsZero(baseReduced) && exponentReduced is NumericalConstMathExpr numericalExponent)

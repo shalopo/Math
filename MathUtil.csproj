@@ -9,6 +9,7 @@
     <RootNamespace>MathUtil</RootNamespace>
     <AssemblyName>MathUtil</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -55,6 +56,8 @@
     <Compile Include="EqualityUtil.cs" />
     <Compile Include="ExactConstMathExpr.cs" />
     <Compile Include="ImaginaryMathExpr.cs" />
+    <Compile Include="Parsing\MathParseException.cs" />
+    <Compile Include="Parsing\MathParser.cs" />
     <Compile Include="Matrices\ISquareMatrix.cs" />
     <Compile Include="Matrices\JacobianMatrix.cs" />
     <Compile Include="KnownConstMathExpr.cs" />
@@ -73,6 +76,9 @@
     <Compile Include="Matrices\SymmetricMatrix.cs" />
     <Compile Include="MultReducer.cs" />
     <Compile Include="NumericalConstMathExpr.cs" />
+    <Compile Include="Parsing\MathToken.cs" />
+    <Compile Include="Parsing\MathTokenizer.cs" />
+    <Compile Include="VariableCollection.cs" />
     <Compile Include="PowerTerm.cs" />
     <Compile Include="ReduceOptions.cs" />
     <Compile Include="Tensors\ChristoffelSymbols.cs" />

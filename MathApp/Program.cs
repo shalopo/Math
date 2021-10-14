@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MathUtil;
 using MathUtil.Matrices;
+using MathUtil.Parsing;
 using MathUtil.Tensors;
 using static MathUtil.GlobalMathDefs;
 using static MathUtil.MathEvalUtil;
@@ -14,22 +15,23 @@ namespace MathTest
 {
     class Program
     {
-        static MathVariable x = new MathVariable("x");
-        static MathVariable y = new MathVariable("y");
-        static MathVariable z = new MathVariable("z");
+        static readonly MathVariable x = new MathVariable("x");
+        static readonly MathVariable y = new MathVariable("y");
+        static readonly MathVariable z = new MathVariable("z");
 
         static void Main()
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            TestReductions();
-            TensorTestIdentity();
-            TensorTest2Ball();
-            TensorTest2Sphere();
-            TensorTest3Ball();
-            TensorTest3Sphere();
-            TensorTestPolar_nd();
-            TaylorTest();
+            TestInput();
+            //TestReductions();
+            //TensorTestIdentity();
+            //TensorTest2Ball();
+            //TensorTest2Sphere();
+            //TensorTest3Ball();
+            //TensorTest3Sphere();
+            //TensorTestPolar_nd();
+            //TaylorTest();
 
             Console.WriteLine();
             Console.WriteLine("done.");
@@ -40,8 +42,53 @@ namespace MathTest
             }
         }
 
+        public static void TestInput()
+        {
+            while (true)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Enter expression:");
+                var input = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    continue;
+                }
+
+                var expr = Parse(input);
+
+                if (expr == null)
+                {
+                    continue;
+                }
+
+                Console.WriteLine(expr);
+                Console.WriteLine(expr.Reduce(ReduceOptions.DEFAULT));
+            }
+        }
+
+        private static MathExpr Parse(string input)
+        {
+            try
+            {
+                var context = new MathParseContext(new VariableCollection());
+                return MathParser.Parse(input, context);
+            }
+            catch (MathParseException ex)
+            {
+                Console.Write(new string(' ', ex.Offset));
+                Console.WriteLine("^");
+
+                Console.WriteLine(ex);
+                return null;
+            }
+        }
+
         public static void TestReductions()
         {
+            //TODO: Serious basic bug here!!!
+            TestReduction(1 + 2 * (x + 1));
+
             TestReduction((-x) / (-y));
             TestReduction(x / (-y));
 
@@ -60,6 +107,8 @@ namespace MathTest
             TestReduction(3 * COS(x / 2).Pow(2) - SIN(x / 2).Pow(2) +
                           2 * SIN(2 * y).Pow(2) + 2 * COS(2 * y).Pow(2) +
                           SIN(z).Pow(3) / SIN(z) + COS(z) * COS(z));
+
+            TestReduction(ZERO.Pow(198713));
         }
 
         public static void TestReduction(MathExpr expr)

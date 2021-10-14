@@ -15,13 +15,13 @@ namespace MathUtil
 
         public static MathExpr Create(IEnumerable<MathExpr> terms)
         {
-            switch (terms.Count())
+            return (terms.Count()) switch
             {
-                case 0: return GlobalMathDefs.ONE;
-                case 1: return terms.First();
-                default: return new MultMathExpr(terms.SelectMany(expr => (expr is MultMathExpr multExpr) ?
-                                                 multExpr.Terms : new[]{ expr }));
-            }
+                0 => GlobalMathDefs.ONE,
+                1 => terms.First(),
+                _ => new MultMathExpr(terms.SelectMany(expr => (expr is MultMathExpr multExpr) ?
+                           multExpr.Terms : new[] { expr })),
+            };
         }
 
         internal override bool RequiresPowScoping => true;
@@ -92,6 +92,7 @@ namespace MathUtil
 
         internal override AdditiveTerm AsAdditiveTerm()
         {
+            //TODO: causes pre-mature calculations
             var coefficient = NumericalConstMathExpr.Mult(Terms.OfType<NumericalConstMathExpr>());
             return new AdditiveTerm(Create(Terms.Where(expr => !(expr is NumericalConstMathExpr))), coefficient);
         }
