@@ -15,10 +15,10 @@ namespace MathUtil.Parsing
             @"(?<num>[0-9][0-9,]*(?:\.[0-9]+)?)|" +
             @"(?<op>[+\-*/^])|" +
             @"(?<const>[eiπ]|pi)|" +
-            @"(?<var>[a-zA-z]+[0-9]*)|" +
+            @"(?<var>[a-z]+[0-9]*)|" +
             @"(?<bracket>[()])" +
             @")\s*", 
-            RegexOptions.Compiled);
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static readonly string[] S_GROUP_NAMES = S_RGX_TOKEN.GetGroupNames().
             Where(n => !int.TryParse(n, out var i)).ToArray();
@@ -134,7 +134,7 @@ namespace MathUtil.Parsing
         
         private OperandToken ParseConst(string input)
         {
-            return new OperandToken(input switch
+            return new OperandToken(input.ToLower() switch
             {
                 "e" => GlobalMathDefs.E,
                 "pi" => GlobalMathDefs.PI,
