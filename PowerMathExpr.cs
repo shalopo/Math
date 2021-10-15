@@ -148,16 +148,6 @@ namespace MathUtil
                 }
             }
 
-            if (baseReduced is ConstFractionMathExpr base_fraction)
-            {
-                return (Create(base_fraction.Top, exponentReduced) / Create(base_fraction.Bottom, exponentReduced)).Reduce(options);
-            }
-
-            if (baseReduced is PowerMathExpr basePower)
-            {
-                return Create(basePower.Base, (basePower.Exponent * exponentReduced).Reduce(options));
-            }
-
             if (exponentReduced.Equals(MINUS_ONE))
             {
                 if (baseReduced is MultMathExpr multBase)
@@ -168,7 +158,23 @@ namespace MathUtil
                 {
                     return ConstFractionMathExpr.Create(top: 1, bottom: baseExact.AsWholeNumber.Value);
                 }
+            }
 
+            if (baseReduced is ConstFractionMathExpr base_fraction)
+            {
+                if (exponentReduced is NumericalConstMathExpr expNumerical && !expNumerical.IsPositive)
+                {
+                    return Create(base_fraction.Reciprocate(), expNumerical.Negate());
+                }
+                else
+                {
+                    return (Create(base_fraction.Top, exponentReduced) / Create(base_fraction.Bottom, exponentReduced));
+                }
+            }
+
+            if (baseReduced is PowerMathExpr basePower)
+            {
+                return Create(basePower.Base, (basePower.Exponent * exponentReduced).Reduce(options));
             }
 
             return Create(baseReduced, exponentReduced);
