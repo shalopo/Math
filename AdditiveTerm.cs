@@ -40,6 +40,8 @@ namespace MathUtil
 
         private string ToStringInner(bool added)
         {
+            //TODO: this does too much. All it should do is deide whether to add +- and a space
+
             bool isNegative = !Coefficient.IsPositive && !MathEvalUtil.IsZero(Coefficient);
 
             NumericalConstMathExpr positive_coefficient = isNegative ? Coefficient.Negate() : Coefficient;

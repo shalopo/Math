@@ -23,7 +23,7 @@ namespace MathTest
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            //TestReductions();
+            TestReductions();
             //TensorTestIdentity();
             //TensorTest2Ball();
             //TensorTest2Sphere();
@@ -88,6 +88,7 @@ namespace MathTest
                 }
 
                 Console.WriteLine();
+                Console.WriteLine();
             }
         }
 
@@ -148,7 +149,10 @@ namespace MathTest
             //TODO: does not reduce
             TestReduction(SIN(2 * x) - SIN(x) * COS(x));
 
-            TestReduction(FOUR * ONE / TWO);
+            TestReduction(1 / (x - x / 2));
+
+            //TODO: prints funny
+            TestReduction(6 / x);
         }
 
         public static void TestReduction(MathExpr expr)

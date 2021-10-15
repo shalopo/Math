@@ -69,7 +69,7 @@ namespace MathUtil
 
         private static string JoinString(IEnumerable<MathExpr> terms)
         {
-            return string.Join("*", terms.Select(term => term.ToMultScopedString()));
+            return string.Join("*", terms.Select(term => term.ToPowScopedString()));
         }
 
         internal override MathExpr Derive(MathVariable v) => AddMathExpr.Create(
