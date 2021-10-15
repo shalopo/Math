@@ -158,12 +158,17 @@ namespace MathUtil
                 return Create(basePower.Base, (basePower.Exponent * exponentReduced).Reduce(options));
             }
 
-            if (baseReduced is MultMathExpr multBase)
+            if (exponentReduced.Equals(MINUS_ONE))
             {
-                if (exponentReduced.Equals(MINUS_ONE))
+                if (baseReduced is MultMathExpr multBase)
                 {
                     return MultMathExpr.Create(multBase.Select(term => term.Pow(exponentReduced).Reduce(ReduceOptions.LIGHT)));
                 }
+                else if (baseReduced is ExactConstMathExpr baseExact && baseExact.IsWholeNumber)
+                {
+                    return ConstFractionMathExpr.Create(top: 1, bottom: baseExact.AsWholeNumber.Value);
+                }
+
             }
 
             return Create(baseReduced, exponentReduced);

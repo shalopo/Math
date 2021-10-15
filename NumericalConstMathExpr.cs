@@ -25,6 +25,11 @@ namespace MathUtil
 
         public static NumericalConstMathExpr Mult(IEnumerable<NumericalConstMathExpr> terms)
         {
+            if (terms.Count() == 1)
+            {
+                return terms.First();
+            }
+
             checked
             {
                 var fractions = terms.OfType<ConstFractionMathExpr>();

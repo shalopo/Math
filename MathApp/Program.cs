@@ -23,15 +23,15 @@ namespace MathTest
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            TestInput();
-            TestReductions();
+            //TestReductions();
             //TensorTestIdentity();
             //TensorTest2Ball();
             //TensorTest2Sphere();
             //TensorTest3Ball();
             //TensorTest3Sphere();
             //TensorTestPolar_nd();
-            //TaylorTest();
+            TaylorTest();
+            TestInput();
 
             Console.WriteLine();
             Console.WriteLine("done.");
@@ -119,6 +119,8 @@ namespace MathTest
 
             //TODO: does not reduce
             TestReduction(SIN(2 * x) - SIN(x) * COS(x));
+
+            TestReduction(FOUR * ONE / TWO);
         }
 
         public static void TestReduction(MathExpr expr)
@@ -298,8 +300,8 @@ namespace MathTest
             //SIN(-x + 1).Pow(2) * SIN(x + 1)
             //4 * ARCTAN(-x)
             //E.Pow(x)
-            E.Pow(2 * x * I)    
-            //SIN(x).Pow(2)
+            //E.Pow(2 * x * I)    
+            SIN(x).Pow(2)
             //1/(1-I)
             //1/(1-x/4)
             //(-1+2*I).Pow(3-5*I)
@@ -313,7 +315,7 @@ namespace MathTest
 
             var base_input = 0;
             var eval_at = PI / 8;
-            int taylor_derivatives = 20;
+            int taylor_derivatives = 10;
 
             f = f.Reduce(ReduceOptions.DEFAULT.With(allowSearchIdentities: false));
 
