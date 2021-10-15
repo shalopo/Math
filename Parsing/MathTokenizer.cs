@@ -15,7 +15,7 @@ namespace MathUtil.Parsing
             @"(?<num>[0-9][0-9,]*(?:\.[0-9]+)?)|" +
             @"(?<op>[+\-*/^])|" +
             @"(?<const>[eiπ]|pi)|" +
-            @"(?<var>[a-z]+[0-9]*)|" +
+            @"(?<var>[a-z][0-9]*)|" +
             @"(?<bracket>[()])" +
             @")\s*", 
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
