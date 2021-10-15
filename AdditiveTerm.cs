@@ -59,10 +59,11 @@ namespace MathUtil
             {
                 if (fraction_coefficient.Top == 1)
                 {
-                    return $"{coefficient_sign}{space}{Expr.ToMultScopedString()}/{fraction_coefficient.Bottom}";
+                    return $"{coefficient_sign}{space}{Expr.ToMultScopedString()}/{fraction_coefficient.BottomAsString}";
                 }
 
-                return $"{coefficient_sign}{space}{fraction_coefficient.Top}*{Expr.ToMultScopedString()}/{fraction_coefficient.Bottom}";
+                return $"{coefficient_sign}{space}{fraction_coefficient.TopAsString}*" +
+                       $"{Expr.ToMultScopedString()}/{fraction_coefficient.BottomAsString}";
             }
             else
             {

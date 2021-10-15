@@ -45,7 +45,7 @@ namespace MathUtil
             return 1.0 / Value;
         }
 
-        public override string ToString() => Value.ToString();
+        public override string ToString() => string.Format("{0:#,##0.###############}", Value);
 
         public override bool Equals(object obj)
         {

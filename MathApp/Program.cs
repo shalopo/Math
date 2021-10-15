@@ -46,14 +46,14 @@ namespace MathTest
         {
             while (true)
             {
-                Console.WriteLine();
                 Console.WriteLine("Enter expression:");
-                var input = Console.ReadLine();
+                string input;
 
-                if (string.IsNullOrWhiteSpace(input))
+                do
                 {
-                    continue;
+                    input = Console.ReadLine();
                 }
+                while (string.IsNullOrWhiteSpace(input));
 
                 var (expr, variables) = Parse(input);
 
@@ -66,23 +66,28 @@ namespace MathTest
                 {
                     expr = expr.Reduce(ReduceOptions.DEFAULT);
 
-                    Console.WriteLine(expr);
-
                     if (variables.Count() == 1)
                     {
                         var v = variables.First();
 
                         ExpandTaylor(new ExpandableMathFunctionDef("f", expr, v));
                     }
-                    else if (variables.Count() > 1)
+                    else
                     {
-                        Console.WriteLine("Too many variables");
+                        Console.WriteLine(expr);
+
+                        if (variables.Count() > 1)
+                        {
+                            Console.WriteLine("Too many variables");
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                 }
+
+                Console.WriteLine();
             }
         }
 
@@ -352,14 +357,8 @@ namespace MathTest
             Console.WriteLine($"{f.Signature} = {f}");
             Console.WriteLine();
 
-            var complex_eval = ComplexEvalWith(f.Definition, (arg, base_input));
-            Console.WriteLine($"{f.Name}({base_input}) = {complex_eval}");
-
-            Console.WriteLine();
-
             var taylor = TaylorExpansionUtil.Expand(f, num_derivatives, arg, base_input);
-            Console.WriteLine();
-            Console.WriteLine($"taylor series of {f.Signature} around {base_input} = {taylor}");
+            Console.WriteLine($"{f.Signature} ~= {taylor}");
             Console.WriteLine();
 
             var taylor_evaled = NumericalEvalWith(taylor, (arg, eval_at));
@@ -367,11 +366,9 @@ namespace MathTest
             Console.WriteLine($"{f.Name}({eval_at}) via taylor series ~= {taylor_exact_evaled}");
 
             var direct_exact_eval = ComplexEvalWith(f.Definition, (arg, eval_at));
-            Console.WriteLine();
             Console.WriteLine($"{f.Name}({eval_at}) via direct = {direct_exact_eval}");
 
             var err = ComplexEval(taylor_exact_evaled - direct_exact_eval).Size;
-            Console.WriteLine();
             Console.WriteLine($"err = {err}");
         }
     }

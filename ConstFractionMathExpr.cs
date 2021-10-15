@@ -32,7 +32,9 @@ namespace MathUtil
         public override NumericalConstMathExpr Negate() => new ConstFractionMathExpr(-Top, Bottom);
         public override NumericalConstMathExpr Reciprocate() => new ConstFractionMathExpr(Bottom, Top);
 
-        public override string ToString() => $"{Top}/{Bottom}";
+        public override string ToString() => $"{TopAsString}/{BottomAsString}";
+        public string TopAsString => $"{Top:n0}";
+        public string BottomAsString => $"{Bottom:n0}";
 
         public override bool IsPositive => (Math.Sign(Top) * Math.Sign(Bottom) > 0);
 

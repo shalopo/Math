@@ -41,7 +41,7 @@ namespace MathUtil
                     {
                         checked
                         {
-                            long top = exacts.Aggregate(1L, (agg, exact) => agg * Convert.ToInt64(exact.ToDouble())) *
+                            long top = exacts.Aggregate(1L, (agg, exact) => agg * exact.AsWholeNumber.Value) *
                                         fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Top);
                             long bottom = fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Bottom);
 
