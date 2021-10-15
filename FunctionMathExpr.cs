@@ -56,23 +56,27 @@ namespace MathUtil
 
     public class ExpandableMathFunctionDef : MathFunctionDef
     {
-        public ExpandableMathFunctionDef(string name, MathExpr definition) : base(name) => Definition = definition;
+        public ExpandableMathFunctionDef(string name, MathExpr definition, MathVariable arg = null) : base(name) => 
+            (Definition, Arg) = (definition, arg ?? x1);
+
+        public MathVariable Arg { get; }
 
         public MathExpr Definition { get; }
         protected virtual bool PreferNonExpandedForm => false;
 
         public override string ToString() => Definition.ToString();
+        public string Signature => $"{Name}({Arg})";
 
         public override MathExpr Derive(MathVariable v) => Definition.Derive(v);
 
         public ExpandableMathFunctionDef Reduce(ReduceOptions options) => 
-            new ExpandableMathFunctionDef(Name, Definition.Reduce(options));
+            new ExpandableMathFunctionDef(Name, Definition.Reduce(options), Arg);
 
         public override ConstComplexMathExpr ComplexEval(ConstComplexMathExpr input) => EvalCall(input).ComplexEval();
 
         private MathExpr EvalCall(MathExpr input)
         {
-            return Definition.Visit(new VariablesEvalTransformation((x1, input))).Reduce(ReduceOptions.DEFAULT);
+            return Definition.Visit(new VariablesEvalTransformation((Arg, input))).Reduce(ReduceOptions.DEFAULT);
         }
 
         protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)

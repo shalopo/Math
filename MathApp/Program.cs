@@ -30,7 +30,7 @@ namespace MathTest
             //TensorTest3Ball();
             //TensorTest3Sphere();
             //TensorTestPolar_nd();
-            TaylorTest();
+            //TaylorTest();
             TestInput();
 
             Console.WriteLine();
@@ -55,22 +55,45 @@ namespace MathTest
                     continue;
                 }
 
-                var expr = Parse(input);
+                var (expr, variables) = Parse(input);
 
                 if (expr == null)
                 {
                     continue;
                 }
 
-                Console.WriteLine(expr.Reduce(ReduceOptions.DEFAULT));
+                try
+                {
+                    expr = expr.Reduce(ReduceOptions.DEFAULT);
+
+                    Console.WriteLine(expr);
+
+                    if (variables.Count() == 1)
+                    {
+                        var v = variables.First();
+
+                        ExpandTaylor(new ExpandableMathFunctionDef("f", expr, v));
+                    }
+                    else if (variables.Count() > 1)
+                    {
+                        Console.WriteLine("Too many variables");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
         }
 
-        private static MathExpr Parse(string input)
+        private static (MathExpr, VariableCollection) Parse(string input)
         {
             try
             {
-                return MathParser.Parse(input);
+                var variables = new VariableCollection();
+                var context = new MathParseContext(variables);
+
+                return (MathParser.Parse(input, context), variables);
             }
             catch (MathParseException ex)
             {
@@ -78,7 +101,7 @@ namespace MathTest
                 Console.WriteLine("^");
 
                 Console.WriteLine(ex);
-                return null;
+                return (null, null);
             }
         }
 
@@ -296,12 +319,13 @@ namespace MathTest
 
         public static void TaylorTest()
         {
-            var f = new ExpandableMathFunctionDef("f",
+            ExpandTaylor(new ExpandableMathFunctionDef("f", 
             //SIN(-x + 1).Pow(2) * SIN(x + 1)
             //4 * ARCTAN(-x)
             //E.Pow(x)
             //E.Pow(2 * x * I)    
-            SIN(x).Pow(2)
+            //SIN(x).Pow(2)
+            E.Pow(7 * x) //TODO: some serious error here
             //1/(1-I)
             //1/(1-x/4)
             //(-1+2*I).Pow(3-5*I)
@@ -311,42 +335,40 @@ namespace MathTest
             //E.Pow(I * x) / (COS(x) + I * SIN(x))
             //SIN(2 * x) / 2 * SIN(x) * COS(x)
             //(27 + x).Pow(ONE / 3)
-            );
+            , x));
+        }
 
-            var base_input = 0;
-            var eval_at = PI / 8;
-            int taylor_derivatives = 10;
+        private static void ExpandTaylor(ExpandableMathFunctionDef f, MathExpr eval_at = null, MathExpr base_input = null, 
+            int num_derivatives = 20)
+        {
+            base_input ??= ZERO;
+            eval_at ??= ONE;
+
+            var arg = f.Arg;
 
             f = f.Reduce(ReduceOptions.DEFAULT.With(allowSearchIdentities: false));
 
             Console.WriteLine();
-            Console.WriteLine($"f(x) = {f}");
+            Console.WriteLine($"{f.Signature} = {f}");
             Console.WriteLine();
 
-            var complex_eval = ComplexEvalWith(f.Definition, (x, base_input));
-            Console.WriteLine($"f(0) = {complex_eval}");
+            var complex_eval = ComplexEvalWith(f.Definition, (arg, base_input));
+            Console.WriteLine($"{f.Name}({base_input}) = {complex_eval}");
 
             Console.WriteLine();
 
-            //int derivative_number = 1;
-            //var derived = DerivativeUtil.Derive(f.Definition, x, derivative_number);
-            //Console.WriteLine($"d^{derivative_number} f / dx^{derivative_number}  = {derived}");
-            //Console.WriteLine();
-            //Console.WriteLine($"derived(0) = {EvalReduce(derived, (x, base_input))}");
-            //Console.WriteLine();
-
-            var taylor = TaylorExpansionUtil.Expand(f, taylor_derivatives, x, base_input);
+            var taylor = TaylorExpansionUtil.Expand(f, num_derivatives, arg, base_input);
             Console.WriteLine();
-            Console.WriteLine($"taylor series of f(x) around {base_input} = {taylor}");
+            Console.WriteLine($"taylor series of {f.Signature} around {base_input} = {taylor}");
             Console.WriteLine();
 
-            var taylor_evaled = NumericalEvalWith(taylor, (x, eval_at));
+            var taylor_evaled = NumericalEvalWith(taylor, (arg, eval_at));
             var taylor_exact_evaled = ComplexEval(taylor_evaled);
-            Console.WriteLine($"f({eval_at}) via taylor series ~= {taylor_evaled} = {taylor_exact_evaled}");
+            Console.WriteLine($"{f.Name}({eval_at}) via taylor series ~= {taylor_exact_evaled}");
 
-            var direct_exact_eval = ComplexEvalWith(f.Definition, (x, eval_at));
+            var direct_exact_eval = ComplexEvalWith(f.Definition, (arg, eval_at));
             Console.WriteLine();
-            Console.WriteLine($"f({eval_at}) via direct = {direct_exact_eval}");
+            Console.WriteLine($"{f.Name}({eval_at}) via direct = {direct_exact_eval}");
 
             var err = ComplexEval(taylor_exact_evaled - direct_exact_eval).Size;
             Console.WriteLine();

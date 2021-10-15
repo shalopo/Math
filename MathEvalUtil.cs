@@ -66,14 +66,14 @@ namespace MathUtil
         public static double CalcDistanceSquared(double dx, double dy) => dx * dx + dy * dy;
         public static double CalcDistance(double dx, double dy) => Math.Sqrt(CalcDistanceSquared(dx, dy));
 
-        internal static MathExpr EvalTransformVariables(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
+        public static MathExpr Transform(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
             return expr.Visit(new VariablesEvalTransformation(values)); 
         }
 
         public static MathExpr NumericalEvalWith(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
-            var evaled = EvalTransformVariables(expr, values);
+            var evaled = Transform(expr, values);
             return evaled.Reduce(ReduceOptions.DEFAULT);
         }
 
@@ -84,7 +84,7 @@ namespace MathUtil
 
         public static ConstComplexMathExpr ComplexEvalWith(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
-            var evaled = EvalTransformVariables(expr, values);
+            var evaled = Transform(expr, values);
             return ComplexEval(evaled);
         }
     }
