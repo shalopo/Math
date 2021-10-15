@@ -71,43 +71,39 @@ namespace MathUtil.Parsing
             return expr;
         }
         
-        private MathExpr ReadFullTerm()
+        private MathExpr ReadFullTerm(MathExpr firstTerm = null)
         {
-            var expr = ReadNearestTerm();
+            var expr = firstTerm ?? ReadNearestTerm();
 
             OpToken opToken;
 
             while ((opToken = PeepOpToken()) != null)
             {
-                var new_expr = opToken.Op switch
-                {
-                    OpType.PLUS => expr,
-                    OpType.MINUS => expr,
-                    OpType.MULTIPLY => expr * ConsumeOpAndReadNext(opToken),
-                    OpType.DIVIDE => expr / ConsumeOpAndReadNext(opToken),
-                    OpType.POWER => expr.Pow(ConsumeOpAndReadNext(opToken)),
-                    _ => throw new MathParseException($"Unexpected input")
-                };
-
-                if (new_expr == expr)
+                if (opToken.Op == OpType.PLUS || opToken.Op == OpType.MINUS)
                 {
                     return expr;
                 }
 
-                expr = new_expr;
-            }
-
-            return expr;
-
-            MathExpr ConsumeOpAndReadNext(OpToken opToken)
-            {
                 if (!opToken.IsVirtual)
                 {
                     m_tokenizer.Pop();
                 }
 
-                return ReadNearestTerm();
+                var next_operand = ReadNearestTerm();
+                
+                bool right_associative = PeepOpToken()?.Op == OpType.POWER;
+
+                if (right_associative)
+                {
+                    next_operand = ReadFullTerm(next_operand);
+                }
+
+                expr = right_associative ? 
+                    ReadFullTerm(opToken.Apply(expr, next_operand)) :
+                    opToken.Apply(expr, ReadFullTerm(firstTerm: next_operand));
             }
+
+            return expr;
         }
 
         private OpToken PeepOpToken()

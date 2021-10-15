@@ -31,6 +31,19 @@ namespace MathUtil.Parsing
         public OpType Op { get; }
         public bool IsVirtual { get; set; } = false;
 
+        public MathExpr Apply(MathExpr a, MathExpr b)
+        {
+            return Op switch
+            {
+                OpType.PLUS => a + b,
+                OpType.MINUS => a - b,
+                OpType.MULTIPLY => a * b,
+                OpType.DIVIDE => a / b,
+                OpType.POWER => a.Pow(b),
+                _ => throw new MathParseException($"Unexpected input")
+            };
+        }
+
         public static OpToken PLUS = new OpToken(OpType.PLUS);
         public static OpToken MINUS = new OpToken(OpType.MINUS);
         public static OpToken MULTIPLY = new OpToken(OpType.MULTIPLY);
@@ -41,6 +54,7 @@ namespace MathUtil.Parsing
 
     enum OpType
     {
+        NONE,
         PLUS,
         MINUS,
         MULTIPLY,
