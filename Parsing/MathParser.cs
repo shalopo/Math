@@ -147,7 +147,7 @@ namespace MathUtil.Parsing
                     if (expr is FunctionCallMathExpr call)
                     {
                         var func = call.Func;
-                        var input = ReadClause();
+                        var input = ReadNearestTerm();
                         return func.Call(input);
                     }
 

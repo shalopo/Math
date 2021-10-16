@@ -40,8 +40,8 @@ namespace MathUtil
         public static MathFuncCaller ARCSIN = RegisterFunc(new ArcSinFunctionDef());
         public static MathFuncCaller ARCCOS = RegisterFunc(new ArcCosFunctionDef());
         public static MathFuncCaller LN = RegisterFunc(new LnFunctionDef());
-        public static MathFuncCaller SQR = RegisterFunc(new SqrFunctionDef());
         public static MathFuncCaller SQRT = RegisterFunc(new SqrtFunctionDef());
+        public static MathFuncCaller SQR = RegisterFunc(new SqrFunctionDef());
 
     }
 }
