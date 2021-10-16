@@ -10,8 +10,9 @@ namespace MathUtil
     {
         private static HashSet<MathExpr> ToSet(IEnumerable<MathExpr> terms)
         {
-            var set = terms.ToHashSet();
-            if (set.Count != terms.Count())
+            var set = new HashSet<MathExpr>(terms);
+
+            if (set.Count() != terms.Count())
             {
                 throw new UnreducedMathExprException(terms);
             }

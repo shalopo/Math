@@ -76,18 +76,18 @@ namespace MathTest
                     {
                         Console.WriteLine(expr);
 
-                        if (variables.Count() == 0)
+                        if (variables.Any())
+                        {
+                            Console.WriteLine("Too many variables");
+                        }
+                        else
                         {
                             var eval = ComplexEval(expr);
 
                             if (!eval.Equals(expr))
-                            { 
+                            {
                                 Console.WriteLine(eval);
                             }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Too many variables");
                         }
                     }
                 }
