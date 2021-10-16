@@ -23,7 +23,7 @@ namespace MathTest
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            TestReductions();
+            //TestReductions();
             //TensorTestIdentity();
             //TensorTest2Ball();
             //TensorTest2Sphere();
@@ -76,7 +76,16 @@ namespace MathTest
                     {
                         Console.WriteLine(expr);
 
-                        if (variables.Count() > 1)
+                        if (variables.Count() == 0)
+                        {
+                            var eval = ComplexEval(expr);
+
+                            if (!eval.Equals(expr))
+                            { 
+                                Console.WriteLine(eval);
+                            }
+                        }
+                        else
                         {
                             Console.WriteLine("Too many variables");
                         }
@@ -153,6 +162,14 @@ namespace MathTest
 
             //TODO: prints funny
             TestReduction(6 / x);
+
+            TestReduction(x / (x + y) + y / (x + y));
+
+            //TODO: does not reduce
+            TestReduction(2 * x / (x + y) + 2 * y / (x + y));
+
+            //TODO: needs to reduce to 1/cos(x)^2
+            TestReduction(1 + SIN(x).Pow(2) / COS(x).Pow(2));
         }
 
         public static void TestReduction(MathExpr expr)
@@ -348,7 +365,7 @@ namespace MathTest
         }
 
         private static void ExpandTaylor(ExpandableMathFunctionDef f, MathExpr eval_at = null, MathExpr base_input = null, 
-            int num_derivatives = 20)
+            int max_derivatives = 20, int max_seconds = 2)
         {
             base_input ??= ZERO;
             eval_at ??= ONE;
@@ -361,7 +378,7 @@ namespace MathTest
             Console.WriteLine($"{f.Signature} = {f}");
             Console.WriteLine();
 
-            var taylor = TaylorExpansionUtil.Expand(f, num_derivatives, arg, base_input);
+            var taylor = TaylorExpansionUtil.Expand(f, max_derivatives, arg, base_input, max_seconds);
             Console.WriteLine($"{f.Signature} ~= {taylor}");
             Console.WriteLine();
 

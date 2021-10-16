@@ -21,6 +21,11 @@ namespace MathUtil
             AdditiveTerms = AddExpr.Select(term => term.AsAdditiveTerm()).ToArray();
         }
 
+        public override string ToString()
+        {
+            return $"{Expr} = 0";
+        }
+
         internal AddMathExpr AddExpr { get; }
         internal AdditiveTerm[] AdditiveTerms { get; }
 

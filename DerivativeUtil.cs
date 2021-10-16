@@ -10,14 +10,25 @@ namespace MathUtil
     {
         public static MathExpr Derive(MathExpr expr, MathVariable v, int num_derivatives = 1)
         {
-            var sub = expr;
-
-            for (int i = 0; i < num_derivatives; i++)
+            if (num_derivatives == 0)
             {
-                sub = sub.Derive(v).Reduce(ReduceOptions.DEFAULT);
+                return expr;
             }
 
-            return sub;
+            if (num_derivatives < 0)
+            {
+                throw new ArgumentException(nameof(num_derivatives));
+            }
+
+            expr = expr.Derive(v);
+
+            for (int i = 1; i < num_derivatives; i++)
+            {
+                expr = expr.Reduce(ReduceOptions.DEFAULT);
+                expr = expr.Derive(v);
+            }
+
+            return expr;
         }
 
     }

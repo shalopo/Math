@@ -16,8 +16,8 @@ namespace MathUtil
 
             return new List<MathIdentity> {
                 new MathIdentity(SIN(x).Pow(TWO) + COS(x).Pow(TWO) - ONE),
-                new MathIdentity(SIN(x)/COS(x) - TAN(x)),
-                new MathIdentity(COS(x)/SIN(x) - COT(x)),
+                new MathIdentity(TAN(x) - SIN(x)/COS(x)),
+                new MathIdentity(COT(x) - COS(x)/SIN(x)),
                 new MathIdentity(SIN(TWO * x) - TWO * SIN(x) * COS(x)),
                 new MathIdentity(COS(TWO * x) + TWO * SIN(x).Pow(TWO) - ONE),
                 new MathIdentity(COS(TWO * x) - TWO * COS(x).Pow(TWO) + ONE),
