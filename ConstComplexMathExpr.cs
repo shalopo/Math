@@ -36,9 +36,8 @@ namespace MathUtil
 
         public override bool Equals(object obj)
         {
-            return obj is ConstComplexMathExpr expr &&
-                   Real.Equals(expr.Real) &&
-                   Imag.Equals(expr.Imag);
+            return (obj is ConstComplexMathExpr expr && Real.Equals(expr.Real) && Imag.Equals(expr.Imag)) || 
+                   (IsZero(Imag) &&  obj is ExactConstMathExpr exact &&  exact.Equals(Real));
         }
 
         public override int GetHashCode()

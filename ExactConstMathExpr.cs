@@ -49,8 +49,13 @@ namespace MathUtil
 
         public override bool Equals(object obj)
         {
-            return obj is ExactConstMathExpr expr &&
-                   Value == expr.Value;
+            if (obj is ExactConstMathExpr expr)
+            {
+                return (Value == expr.Value);
+            }
+
+            // Being the lowest form of expressions, it can leave it to higher forms to determine whether they are equal
+            return obj.Equals(this); 
         }
 
         public override int GetHashCode()
