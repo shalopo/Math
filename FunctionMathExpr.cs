@@ -67,7 +67,17 @@ namespace MathUtil
         public override string ToString() => Definition.ToString();
         public string Signature => $"{Name}({Arg})";
 
-        public override MathExpr Derive(MathVariable v) => Definition.Derive(v);
+        public sealed override MathExpr Derive(MathVariable v)
+        {
+            if (v != Arg)
+            { 
+                return GlobalMathDefs.ZERO;
+            }
+
+            return CustomDerive() ?? Definition.Derive(v);
+        }
+
+        protected virtual MathExpr CustomDerive() => null;
 
         public ExpandableMathFunctionDef Reduce(ReduceOptions options) => 
             new ExpandableMathFunctionDef(Name, Definition.Reduce(options), Arg);

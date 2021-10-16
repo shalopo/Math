@@ -80,6 +80,8 @@ namespace MathUtil
         }
 
         protected override bool PreferNonExpandedForm => true;
+
+        protected override MathExpr CustomDerive() => COS(x1).Pow(MINUS_TWO);
     }
 
     sealed class CotFunctionDef : ExpandableMathFunctionDef
@@ -89,6 +91,8 @@ namespace MathUtil
         }
 
         protected override bool PreferNonExpandedForm => true;
+
+        protected override MathExpr CustomDerive() => -SIN(x1).Pow(MINUS_TWO);
     }
 
     sealed class ArcTanFunctionDef : SimpleMathFunctionDef

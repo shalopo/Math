@@ -12,11 +12,12 @@ namespace MathUtil.Parsing
 
         private static readonly Regex S_RGX_TOKEN = new Regex(
             @"\G\s*(?:" +
-            @"(?<num>[0-9][0-9,]*(?:\.[0-9]+)?)|" +
+            @"(?<bracket>[()])|" +
             @"(?<op>[+\-*/^])|" +
+            @"(?<num>[0-9][0-9,]*(?:\.[0-9]+)?)|" +
+            @$"(?<func>{string.Join("|", GlobalMathDefs.Functions.Keys)})|" +
             @"(?<const>[eiπ]|pi)|" +
-            @"(?<var>[a-z][0-9]*)|" +
-            @"(?<bracket>[()])" +
+            @"(?<var>[a-z][0-9]*)" +
             @")\s*", 
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -84,19 +85,18 @@ namespace MathUtil.Parsing
 
                     return groupName switch
                     {
+                        "bracket" => ParseBracket(value),
                         "op" => ParseOp(value),
-                        "var" => ParseVar(value),
                         "num" => ParseNumber(value),
                         "const" => ParseConst(value),
-                        "bracket" => ParseBracket(value),
-                        //TODO: "function" => ParseFunctionCall(value), 
+                        "var" => ParseVar(value),
+                        "func" => ParseFunc(value),
                         _ => null
                     };
                 }
             }
 
-            throw new MathParseException("Failed to parse due to internal error", 
-                                         new NotImplementedException($"No matching group"));
+            throw new MathParseException("Internal error", new NotImplementedException($"No matching group"));
         }
 
         private OpToken ParseOp(string input)
@@ -147,6 +147,18 @@ namespace MathUtil.Parsing
         private OperandToken ParseVar(string input)
         {
             return new OperandToken(m_context.Variables.GetOrAdd(input));
+        }
+
+        private OperandToken ParseFunc(string input)
+        {
+            var name = input.ToLower();
+
+            if (GlobalMathDefs.Functions.TryGetValue(name, out MathFunctionDef f))
+            {
+                return new OperandToken(f.Call(new MathVariable("_")));
+            }
+
+            throw new MathParseException("Internal error", new NotImplementedException($"No matching function"));
         }
 
         public int CurrentOffset => m_current_offset;

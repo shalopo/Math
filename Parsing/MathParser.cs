@@ -59,6 +59,8 @@ namespace MathUtil.Parsing
                 };
             }
 
+            //TODO: 1/xy should be parsed as: 1/(x*y), but 1/2x => (1/2)*x  because 2 is a number
+
             var close_token = m_tokenizer.Peep();
 
             if (close_token.Tag != expected_close)
@@ -71,9 +73,15 @@ namespace MathUtil.Parsing
             return expr;
         }
         
-        private MathExpr ReadFullTerm(MathExpr firstTerm = null)
+        private MathExpr ReadFullTerm()
         {
-            var expr = firstTerm ?? ReadNearestTerm();
+            if (PeepOpToken()?.Op == OpType.MINUS)
+            {
+                m_tokenizer.Pop();
+                return -ReadFullTerm();
+            }
+
+            var expr = ReadConsecutivePowers();
 
             OpToken opToken;
 
@@ -89,21 +97,25 @@ namespace MathUtil.Parsing
                     m_tokenizer.Pop();
                 }
 
-                var next_operand = ReadNearestTerm();
-                
-                bool right_associative = PeepOpToken()?.Op == OpType.POWER;
-
-                if (right_associative)
-                {
-                    next_operand = ReadFullTerm(next_operand);
-                }
-
-                expr = right_associative ? 
-                    ReadFullTerm(opToken.Apply(expr, next_operand)) :
-                    opToken.Apply(expr, ReadFullTerm(firstTerm: next_operand));
+                expr = opToken.Apply(expr, ReadConsecutivePowers());
             }
 
             return expr;
+        }
+
+        private MathExpr ReadConsecutivePowers()
+        {
+            var expr = ReadNearestTerm();
+
+            if (PeepOpToken()?.Op == OpType.POWER)
+            {
+                m_tokenizer.Pop();
+                return expr.Pow(ReadConsecutivePowers());
+            }
+            else
+            {
+                return expr;
+            }
         }
 
         private OpToken PeepOpToken()
@@ -126,22 +138,25 @@ namespace MathUtil.Parsing
         {
             var token = m_tokenizer.Peep();
 
-            return token.Tag switch
+            switch (token.Tag)
             {
-                TokenTag.OPEN_BRACKET => ReadClause(),
-                TokenTag.OPERAND => (m_tokenizer.Pop() as OperandToken).Expr,
-                TokenTag.OP => new Func<MathExpr>(() => {
-                    if ((token as OpToken).Op != OpType.MINUS)
+                case TokenTag.OPEN_BRACKET: return ReadClause();
+                case TokenTag.OPERAND: 
+                    var expr = (m_tokenizer.Pop() as OperandToken).Expr;
+
+                    if (expr is FunctionCallMathExpr call)
                     {
-                        throw new MathParseException($"Unexpected op");
+                        var func = call.Func;
+                        var input = ReadClause();
+                        return func.Call(input);
                     }
 
-                    m_tokenizer.Pop(); 
-                    return -ReadNearestTerm(); 
-                })(),
-                TokenTag.NONE => throw new MathParseException($"Unexpected termination"),
-                _ => throw new MathParseException($"Unexpected input")
-            };
+                    return expr;
+
+                case TokenTag.OP: throw new MathParseException($"Unexpected op");
+                case TokenTag.NONE: throw new MathParseException($"Unexpected termination");
+                default: throw new MathParseException($"Unexpected input");
+            }
         }
 
         readonly MathTokenizer m_tokenizer;
