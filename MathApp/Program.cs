@@ -15,9 +15,9 @@ namespace MathTest
 {
     class Program
     {
-        static readonly MathVariable x = new MathVariable("x");
-        static readonly MathVariable y = new MathVariable("y");
-        static readonly MathVariable z = new MathVariable("z");
+        static readonly MathVariable x = new("x");
+        static readonly MathVariable y = new("y");
+        static readonly MathVariable z = new("z");
 
         static void Main()
         {

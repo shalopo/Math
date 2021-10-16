@@ -11,7 +11,7 @@ namespace MathUtil
     {
         public MathIdentity(MathExpr expr)
         {
-            if (!(expr is AddMathExpr addExpr))
+            if (expr is not AddMathExpr addExpr)
             {
                 throw new NotImplementedException("Expression not supported");
             }
@@ -34,7 +34,7 @@ namespace MathUtil
 
     public static class MathIdentityManager
     {
-        private static readonly List<MathIdentity> identities = new List<MathIdentity>();
+        private static readonly List<MathIdentity> identities = new();
 
         public static IReadOnlyCollection<MathIdentity> Identities => identities;
 

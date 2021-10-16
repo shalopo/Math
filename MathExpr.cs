@@ -61,8 +61,8 @@ namespace MathUtil
             throw new NotImplementedException();
         }
 
-        internal virtual AdditiveTerm AsAdditiveTerm() => new AdditiveTerm(this, ONE);
-        internal virtual PowerMathExpr AsPowerExpr() => new PowerMathExpr(this, ONE);
+        internal virtual AdditiveTerm AsAdditiveTerm() => new(this, ONE);
+        internal virtual PowerMathExpr AsPowerExpr() => new(this, ONE);
 
         internal abstract MathExpr Visit(IMathExprTransformer transformer);
 

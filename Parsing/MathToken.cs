@@ -12,7 +12,7 @@ namespace MathUtil.Parsing
 
         public TokenTag Tag { get; }
 
-        public static readonly MathToken END = new MathToken(TokenTag.NONE);
+        public static readonly MathToken END = new(TokenTag.NONE);
     }
 
     enum TokenTag
@@ -44,12 +44,12 @@ namespace MathUtil.Parsing
             };
         }
 
-        public static OpToken PLUS = new OpToken(OpType.PLUS);
-        public static OpToken MINUS = new OpToken(OpType.MINUS);
-        public static OpToken MULTIPLY = new OpToken(OpType.MULTIPLY);
-        public static OpToken MULTIPLY_VIRTUAL = new OpToken(OpType.MULTIPLY) { IsVirtual = true };
-        public static OpToken DIVIDE = new OpToken(OpType.DIVIDE);
-        public static OpToken POWER = new OpToken(OpType.POWER);
+        public static OpToken PLUS = new(OpType.PLUS);
+        public static OpToken MINUS = new(OpType.MINUS);
+        public static OpToken MULTIPLY = new(OpType.MULTIPLY);
+        public static OpToken MULTIPLY_VIRTUAL = new(OpType.MULTIPLY) { IsVirtual = true };
+        public static OpToken DIVIDE = new(OpType.DIVIDE);
+        public static OpToken POWER = new(OpType.POWER);
     }
 
     enum OpType
@@ -66,8 +66,8 @@ namespace MathUtil.Parsing
     {
         private BracketToken(bool open) : base(open ? TokenTag.OPEN_BRACKET : TokenTag.CLOSE_BRACKET) { }
 
-        public static BracketToken OPEN = new BracketToken(true);
-        public static BracketToken CLOSE = new BracketToken(false);
+        public static BracketToken OPEN = new(true);
+        public static BracketToken CLOSE = new(false);
     }
 
     class OperandToken : MathToken

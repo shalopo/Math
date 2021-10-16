@@ -12,7 +12,7 @@ namespace MathUtil
     {
         public ExactConstMathExpr(double value) => Value = value;
 
-        public static implicit operator ExactConstMathExpr(double value) => new ExactConstMathExpr(value);
+        public static implicit operator ExactConstMathExpr(double value) => new(value);
 
         public double Value { get; }
 

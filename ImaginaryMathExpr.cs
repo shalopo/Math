@@ -13,7 +13,7 @@ namespace MathUtil
         {
         }
 
-        public static ImaginaryMathExpr Instance = new ImaginaryMathExpr();
+        public static ImaginaryMathExpr Instance = new();
 
         internal override double Weight => 1;
 

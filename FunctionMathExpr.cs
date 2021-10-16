@@ -30,7 +30,7 @@ namespace MathUtil
         
         public static implicit operator Func<MathExpr, MathExpr>(MathFunctionDef func) => func.Call;
 
-        public static MathVariable x1 = new MathVariable("x");
+        public static MathVariable x1 = new("x");
     }
 
     abstract class SimpleMathFunctionDef : MathFunctionDef
@@ -79,8 +79,7 @@ namespace MathUtil
 
         protected virtual MathExpr CustomDerive() => null;
 
-        public ExpandableMathFunctionDef Reduce(ReduceOptions options) => 
-            new ExpandableMathFunctionDef(Name, Definition.Reduce(options), Arg);
+        public ExpandableMathFunctionDef Reduce(ReduceOptions options) => new(Name, Definition.Reduce(options), Arg);
 
         public override ConstComplexMathExpr ComplexEval(ConstComplexMathExpr input) => EvalCall(input).ComplexEval();
 
@@ -148,7 +147,7 @@ namespace MathUtil
 
         internal override MathExprMatch Match(MathExpr expr)
         {
-            if (!(expr is FunctionCallMathExpr callExpr))
+            if (expr is not FunctionCallMathExpr callExpr)
             {
                 return null;
             }

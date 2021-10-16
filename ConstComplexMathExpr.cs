@@ -14,7 +14,7 @@ namespace MathUtil
             (Real, Imag, AddExpr) = (real, imag, AddReducer.Reduce((AddMathExpr)(real + imag * I), 
                 ReduceOptions.DEFAULT.With(allowReduceToConstComplex: false)));
 
-        public static ConstComplexMathExpr Create(NumericalConstMathExpr real, NumericalConstMathExpr imag) => new ConstComplexMathExpr(real, imag);
+        public static ConstComplexMathExpr Create(NumericalConstMathExpr real, NumericalConstMathExpr imag) => new(real, imag);
 
         public static ConstComplexMathExpr CreatePolar(double size, double phase) => Create(size * Math.Cos(phase), size * Math.Sin(phase));
 

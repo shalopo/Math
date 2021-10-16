@@ -83,7 +83,7 @@ namespace MathUtil.Tensors
 
         private MathExpr CalculateTransformation(int targetRow, int targetCol, JacobianMatrix jacobian)
         {
-            List<MathExpr> terms = new List<MathExpr>();
+            List<MathExpr> terms = new();
 
             for (var sourceRow = 0; sourceRow < NumVariables; sourceRow++)
             {
@@ -107,7 +107,7 @@ namespace MathUtil.Tensors
             // This should be an add expression
             var sb = new StringBuilder("ds^2 = ");
 
-            List<MathExpr> terms = new List<MathExpr>();
+            List<MathExpr> terms = new();
 
             for (int row = 0; row < NumVariables; row++)
             {

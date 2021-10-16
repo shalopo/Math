@@ -32,6 +32,6 @@ namespace MathUtil
         public IEnumerator<MathVariable> GetEnumerator() => m_dict.Values.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-        private readonly Dictionary<string, MathVariable> m_dict = new Dictionary<string, MathVariable>();
+        private readonly Dictionary<string, MathVariable> m_dict = new();
     }
 }

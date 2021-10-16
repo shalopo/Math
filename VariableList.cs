@@ -20,7 +20,7 @@ namespace MathUtil
             }
         }
 
-        public static implicit operator VariableList(MathVariable[] variables) => new VariableList(variables);
+        public static implicit operator VariableList(MathVariable[] variables) => new(variables);
 
         private MathVariable[] Variables { get; }
         private Dictionary<MathVariable, int> VariableIndices { get; }

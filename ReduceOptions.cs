@@ -8,14 +8,14 @@ namespace MathUtil
 {
     public struct ReduceOptions
     {
-        public static ReduceOptions LIGHT = new ReduceOptions
+        public static ReduceOptions LIGHT = new()
         {
             AllowSearchIdentities = false,
             AllowReduceToConstComplex = false,
             AllowCommonFactorSearch = false,
         };
 
-        public static ReduceOptions DEFAULT = new ReduceOptions
+        public static ReduceOptions DEFAULT = new()
         {
             AllowSearchIdentities = true,
             AllowReduceToConstComplex = true,

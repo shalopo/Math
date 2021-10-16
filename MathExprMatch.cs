@@ -13,7 +13,7 @@ namespace MathUtil
             Transformation = transformation;
         }
 
-        public static readonly MathExprMatch IDENTICAL = new MathExprMatch(VariablesTransformation.TRIVIAL);
+        public static readonly MathExprMatch IDENTICAL = new(VariablesTransformation.TRIVIAL);
 
         public VariablesTransformation Transformation { get; private set; }
     }

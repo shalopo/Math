@@ -10,19 +10,19 @@ namespace MathUtil
 
     public static class GlobalMathDefs
     {
-        public static readonly ExactConstMathExpr ZERO = new ExactConstMathExpr(0);
-        public static readonly ExactConstMathExpr ONE = new ExactConstMathExpr(1);
-        public static readonly ExactConstMathExpr TWO = new ExactConstMathExpr(2);
-        public static readonly ExactConstMathExpr FOUR = new ExactConstMathExpr(4);
-        public static readonly ExactConstMathExpr MINUS_ONE = new ExactConstMathExpr(-1);
-        public static readonly ExactConstMathExpr MINUS_TWO = new ExactConstMathExpr(-2);
+        public static readonly ExactConstMathExpr ZERO = new(0);
+        public static readonly ExactConstMathExpr ONE = new(1);
+        public static readonly ExactConstMathExpr TWO = new(2);
+        public static readonly ExactConstMathExpr FOUR = new(4);
+        public static readonly ExactConstMathExpr MINUS_ONE = new(-1);
+        public static readonly ExactConstMathExpr MINUS_TWO = new(-2);
         public static readonly ConstFractionMathExpr HALF = ConstFractionMathExpr.Create(1, 2);
         public static readonly ConstFractionMathExpr QUARTER = ConstFractionMathExpr.Create(1, 4);
-        public static readonly KnownConstMathExpr E = new KnownConstMathExpr("e", Math.E);
-        public static readonly KnownConstMathExpr PI = new KnownConstMathExpr("π", Math.PI);
+        public static readonly KnownConstMathExpr E = new("e", Math.E);
+        public static readonly KnownConstMathExpr PI = new("π", Math.PI);
         public static readonly ImaginaryMathExpr I = ImaginaryMathExpr.Instance;
 
-        private static readonly Dictionary<string, MathFunctionDef> s_functions = new Dictionary<string, MathFunctionDef>();
+        private static readonly Dictionary<string, MathFunctionDef> s_functions = new();
         public static IReadOnlyDictionary<string, MathFunctionDef> Functions => s_functions;
 
         private static MathFunctionDef RegisterFunc(MathFunctionDef f)

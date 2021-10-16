@@ -36,7 +36,7 @@ namespace MathUtil
             return Coefficient * Expr;
         }
 
-        public static AdditiveTerm operator -(AdditiveTerm term) => new AdditiveTerm(term.Expr, term.Coefficient.Negate());
+        public static AdditiveTerm operator -(AdditiveTerm term) => new(term.Expr, term.Coefficient.Negate());
 
         private string ToStringInner(bool added)
         {

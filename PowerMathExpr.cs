@@ -228,7 +228,7 @@ namespace MathUtil
 
         internal override MathExprMatch Match(MathExpr expr)
         {
-            if (!(expr is PowerMathExpr powerExpr))
+            if (expr is not PowerMathExpr powerExpr)
             {
                 return null;
             }

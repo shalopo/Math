@@ -15,7 +15,7 @@ namespace MathUtil
             Transformations = new ReadOnlyDictionary<MathVariable, MathExpr>(transformations.ToDictionary(t => t.v, t => t.transformed));
         }
 
-        public static readonly VariablesTransformation TRIVIAL = new VariablesTransformation();
+        public static readonly VariablesTransformation TRIVIAL = new();
 
         public MathExpr Transform(MathVariable v) => Transformations.TryGetValue(v, out MathExpr expr) ? expr : v;
 

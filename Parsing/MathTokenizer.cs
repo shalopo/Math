@@ -10,7 +10,7 @@ namespace MathUtil.Parsing
     {
         public MathTokenizer(string input, MathParseContext context) => (m_input, m_context) = (input, context);
 
-        private static readonly Regex S_RGX_TOKEN = new Regex(
+        private static readonly Regex S_RGX_TOKEN = new(
             @"\G\s*(?:" +
             @"(?<bracket>[()])|" +
             @"(?<op>[+\-*/^])|" +
