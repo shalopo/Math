@@ -23,7 +23,7 @@ namespace MathTest
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            //TestReductions();
+            TestReductions();
             //TensorTestIdentity();
             //TensorTest2Ball();
             //TensorTest2Sphere();
@@ -122,54 +122,54 @@ namespace MathTest
 
         public static void TestReductions()
         {
-            TestReduction(1 / I);
+            TestReduction("1/i");
 
-            TestReduction(1 + 2 * (x + 1));
+            TestReduction("1 + 2(x + 1)");
 
-            TestReduction((-x) / (-y));
-            TestReduction(x / (-y));
+            TestReduction("(-x)/(-y)");
+            TestReduction("x/(-y)");
 
-            TestReduction(x / (-2 * y));
-            TestReduction((x / y).Pow(MINUS_ONE));
+            TestReduction("x/(-2y)");
+            TestReduction("1/(x/y)");
 
-            TestReduction(x * (x + 1) - x.Pow(2));
+            TestReduction("x(x + 1) - x^2");
 
-            TestReduction(y.Pow(2) * (1 + x.Pow(2) / y.Pow(2)));
-            TestReduction((1 + x.Pow(2) / y.Pow(2)) / (x.Pow(2) + y.Pow(2)));
-            TestReduction(y.Pow(2) * (1 + (x / y).Pow(2)));
+            TestReduction("y^2*(1 + x^2/y^2)");
+            TestReduction("(1 + x^2/y^2)/(x^2 + y^2)");
+            TestReduction("y^2*(1 + (x/y)^2)");
 
-            TestReduction(x.Pow(2) * SIN(y).Pow(2) + x.Pow(2) * COS(y).Pow(2));
-            TestReduction(x.Pow(2) * SIN(y).Pow(2) * SIN(z).Pow(2) + x.Pow(2) * SIN(y).Pow(2) * COS(z).Pow(2) + x.Pow(2) * COS(y).Pow(2));
+            TestReduction("x^2*sin(y)^2 + x^2*cos(y)^2");
+            TestReduction("x^2sin(y)^2sin(z)^2 + x^2sin(y)^2cos(z)^2 + x^2cos(y)^2");
 
-            TestReduction(3 * COS(x / 2).Pow(2) - SIN(x / 2).Pow(2) +
-                          2 * SIN(2 * y).Pow(2) + 2 * COS(2 * y).Pow(2) +
-                          SIN(z).Pow(3) / SIN(z) + COS(z) * COS(z));
+            TestReduction("3cos(x/2)^2 - sin(x/2)^2 + " +
+                          "2sin(2y)^2 + 2cos(2y)^2 + " +
+                          "sin(z)^3/sin(z) + cos(z)cos(z)");
 
-            TestReduction(ZERO.Pow(198713));
+            TestReduction("0^198713");
 
-            TestReduction(SIN(PI / 4) * TWO.Pow(HALF) * 2);
-            TestReduction((SQRT(x) / x).Pow(-2) - SQR(x) / x);
-            TestReduction(1 / COT(x) - SIN(x) / COS(x)); //TODO: should be zero
+            TestReduction("sin(pi/4)sqrt(2)*2");
+            TestReduction("(sqrt(x)/x)^(-2) - sqr(x)/x");
+            TestReduction("1/cot(x) - sin(x)/cos(x)"); //TODO: should be zero
 
             //TODO: fix the identity searching to not rely on adding
-            TestReduction(TAN(x) * COS(x));
-            TestReduction(TAN(x) * COT(x));
+            TestReduction("tan(x)cos(x)");
+            TestReduction("tan(x)cot(x)");
 
             //TODO: does not reduce
-            TestReduction(SIN(2 * x) - SIN(x) * COS(x));
+            TestReduction("sin(2x) - sin(x)cos(x)");
 
-            TestReduction(1 / (x - x / 2));
+            TestReduction("1/(x - x/2)");
 
             //TODO: prints funny
-            TestReduction(6 / x);
+            TestReduction("6/x");
 
-            TestReduction(x / (x + y) + y / (x + y));
+            TestReduction("x/(x + y) + y/(x + y)");
 
             //TODO: does not reduce
-            TestReduction(2 * x / (x + y) + 2 * y / (x + y));
+            TestReduction("2x/(x + y) + 2y/(x + y)");
 
             //TODO: needs to reduce to 1/cos(x)^2
-            TestReduction(1 + SIN(x).Pow(2) / COS(x).Pow(2));
+            TestReduction("1 + sin(x)^2/cos(x)^2");
         }
 
         public static void TestReduction(MathExpr expr)

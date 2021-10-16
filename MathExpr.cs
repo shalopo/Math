@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathUtil.Parsing;
+using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
@@ -66,6 +67,7 @@ namespace MathUtil
         internal abstract MathExpr Visit(IMathExprTransformer transformer);
 
         public static implicit operator MathExpr(double value) => new ExactConstMathExpr(value);
+        public static implicit operator MathExpr(string value) => MathParser.Parse(value);
 
         public static MathExpr operator +(MathExpr a, MathExpr b) => AddMathExpr.Create(a, b);
         public static MathExpr operator -(MathExpr a) => MINUS_ONE * a;
