@@ -12,29 +12,17 @@ namespace MathUtil
         {
             terms = ReduceTerms(terms, options);
 
+            terms = CollectConsts(terms);
+
+            if (terms.Count() <= 1)
+            {
+                return AddMathExpr.Create(terms);
+            }
+
             terms = DistributeMultTerms(terms, options);
-            
-            var constTerm = NumericalConstMathExpr.Add(terms.OfType<NumericalConstMathExpr>());
-
-            terms = CollectLikeTerms(terms, options);
-
-            if (options.AllowReduceToConstComplex)
-            {
-                var constComplex = TryReduceToConstComplex(terms, constTerm);
-
-                if (constComplex != null)
-                {
-                    return constComplex;
-                }
-            }
-
-            if (!MathEvalUtil.IsZero(constTerm))
-            {
-                terms = terms.Append(constTerm);
-            }
 
             var reducedExpr = AddMathExpr.Create(terms);
-            
+
             if (options.AllowCommonFactorSearch && reducedExpr is AddMathExpr addExpr)
             {
                 reducedExpr = CommonFactorReducer.Reduce(addExpr.Terms, options);
@@ -46,6 +34,54 @@ namespace MathUtil
             }
 
             return reducedExpr;
+        }
+
+        private static IEnumerable<MathExpr> CollectConsts(IEnumerable<MathExpr> terms)
+        {
+            var leftoverTerms = new List<MathExpr>();
+
+            List<ConstComplexMathExpr> complexes = new();
+            List<NumericalConstMathExpr> numericals = new();
+
+            foreach (var term in terms)
+            {
+                if (term is NumericalConstMathExpr numericalTerm)
+                {
+                    numericals.Add(numericalTerm);
+                }
+                else if (term is ConstComplexMathExpr complextTerm)
+                {
+                    complexes.Add(complextTerm);
+                }
+                else
+                {
+                    leftoverTerms.Add(term);
+                }
+            }
+
+            var numericalSum = NumericalConstMathExpr.Add(numericals);
+
+            if (complexes.Count == 0)
+            {
+                if (!MathEvalUtil.IsZero(numericalSum))
+                {
+                    leftoverTerms.Add(numericalSum);
+                }
+                    
+                return leftoverTerms;
+            }
+
+            complexes.Add(ConstComplexMathExpr.Create(numericalSum, GlobalMathDefs.ZERO));
+
+            var complexSum = ConstComplexMathExpr.Add(complexes);
+
+            if (!complexSum.Equals(ConstComplexMathExpr.ZERO_COMPLEX))
+            {
+                // Avoid adding zeroes
+                leftoverTerms.Add(complexSum.ReducedAddExpr is AddMathExpr ? complexSum : complexSum.ReducedAddExpr);
+            }   
+            
+            return leftoverTerms;
         }
 
         private static IEnumerable<MathExpr> ReduceTerms(IEnumerable<MathExpr> terms, ReduceOptions options)
@@ -78,64 +114,6 @@ namespace MathUtil
             var restOfTerms = MultMathExpr.Create(expr.Terms.Where(term => term != addTerm));
 
             return addTerm.Select(term => (term * restOfTerms).Reduce(options));
-        }
-
-        private static IEnumerable<MathExpr> CollectLikeTerms(IEnumerable<MathExpr> terms, ReduceOptions options)
-        {
-            var multiples = CollectMultiples(terms);
-            terms = AggregateMultiples(options, multiples);
-            return terms;
-        }
-
-        private static Dictionary<MathExpr, List<MathExpr>> CollectMultiples(IEnumerable<MathExpr> terms)
-        {
-            var multiples = new Dictionary<MathExpr, List<MathExpr>>();
-
-            foreach (var expr in terms)
-            {
-                if (!(expr is NumericalConstMathExpr))
-                {
-                    var term = expr.AsAdditiveTerm();
-
-                    if (multiples.ContainsKey(term.Expr))
-                    {
-                        multiples[term.Expr].Add(term.Coefficient);
-                    }
-                    else
-                    {
-                        multiples.Add(term.Expr, new List<MathExpr> { term.Coefficient });
-                    }
-                }
-            }
-
-            return multiples;
-        }
-
-        private static IEnumerable<MathExpr> AggregateMultiples(ReduceOptions options, Dictionary<MathExpr, List<MathExpr>> multiples)
-        {
-            return (from item in multiples
-                    let expr = item.Key
-                    let multiple = AddMathExpr.Create(item.Value).Reduce(options)
-                    where !MathEvalUtil.IsZero(expr) && !MathEvalUtil.IsZero(multiple)
-                    select MathEvalUtil.IsOne(expr) ? multiple :
-                           MathEvalUtil.IsOne(multiple) ? expr : (multiple * expr).Reduce(options));
-        }
-
-        private static MathExpr TryReduceToConstComplex(IEnumerable<MathExpr> terms, NumericalConstMathExpr constTerm)
-        {
-            if (terms.Count() == 1)
-            {
-                var expr = terms.First();
-                if (expr.IsConst && (!(expr is ConstMathExpr) || expr.Equals(ImaginaryMathExpr.Instance)))
-                {
-                    var complex = expr.ComplexEval();
-                    var real_part = (constTerm + complex.Real).RealEval();
-
-                    return complex.HasImagPart ? ConstComplexMathExpr.Create(real_part, complex.Imag) : (MathExpr)real_part;
-                }
-            }
-
-            return null;
         }
 
     }

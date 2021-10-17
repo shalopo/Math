@@ -11,30 +11,22 @@ namespace MathUtil
         public static ReduceOptions LIGHT = new()
         {
             AllowSearchIdentities = false,
-            AllowReduceToConstComplex = false,
             AllowCommonFactorSearch = false,
         };
 
         public static ReduceOptions DEFAULT = new()
         {
             AllowSearchIdentities = true,
-            AllowReduceToConstComplex = true,
             AllowCommonFactorSearch = true,
         };
 
-        public ReduceOptions With(bool? allowSearchIdentities = null, bool? allowReduceToConstComplex = null,
-            bool? allowCommonFactorSearch = null)
+        public ReduceOptions With(bool? allowSearchIdentities = null, bool? allowCommonFactorSearch = null)
         {
             ReduceOptions newOptions = this;
 
             if (allowSearchIdentities.HasValue)
             {
                 newOptions.AllowSearchIdentities = allowSearchIdentities.Value;
-            }
-
-            if (allowReduceToConstComplex.HasValue)
-            {
-                newOptions.AllowReduceToConstComplex = allowReduceToConstComplex.Value;
             }
 
             if (allowCommonFactorSearch.HasValue)
@@ -46,7 +38,6 @@ namespace MathUtil
         }
 
         public bool AllowSearchIdentities { get; private set; }
-        public bool AllowReduceToConstComplex { get; private set; }
         public bool AllowCommonFactorSearch { get; private set; }
     }
 }

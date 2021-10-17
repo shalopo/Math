@@ -11,8 +11,19 @@ namespace MathUtil
     public sealed class ConstComplexMathExpr : ConstMathExpr
     {
         private ConstComplexMathExpr(NumericalConstMathExpr real, NumericalConstMathExpr imag) =>
-            (Real, Imag, AddExpr) = (real, imag, AddReducer.Reduce((AddMathExpr)(real + imag * I), 
-                ReduceOptions.DEFAULT.With(allowReduceToConstComplex: false)));
+            (Real, Imag, ReducedAddExpr) = (real, imag, ToAddExpr(real, imag));
+
+        private static MathExpr ToAddExpr(NumericalConstMathExpr real, NumericalConstMathExpr imag)
+        {
+            if (IsZero(imag))
+            {
+                return real;
+            }
+
+            var imag_with_i = IsOne(imag) ? I : imag * I;
+
+            return IsZero(real) ? imag_with_i : AddMathExpr.Create(real, imag_with_i);
+        }
 
         public static ConstComplexMathExpr Create(NumericalConstMathExpr real, NumericalConstMathExpr imag) => new(real, imag);
 
@@ -20,15 +31,15 @@ namespace MathUtil
 
         public NumericalConstMathExpr Real { get; }
         public NumericalConstMathExpr Imag { get; }
-        MathExpr AddExpr { get; }
+        public MathExpr ReducedAddExpr { get; }
 
         public bool HasImagPart => !(IsZero(Imag));
         public bool HasRealPart => !(IsZero(Real));
 
-        internal override double Weight => AddExpr.Weight;
-        internal override bool RequiresMultScoping => AddExpr.RequiresMultScoping;
-        internal override bool RequiresPowScoping => AddExpr.RequiresPowScoping;
-        public override string ToString() => AddExpr.ToString();
+        internal override double Weight => ReducedAddExpr.Weight;
+        internal override bool RequiresMultScoping => ReducedAddExpr.RequiresMultScoping;
+        internal override bool RequiresPowScoping => ReducedAddExpr.RequiresPowScoping;
+        public override string ToString() => ReducedAddExpr.ToString();
 
         internal override ConstComplexMathExpr ComplexEval() => this;
 
