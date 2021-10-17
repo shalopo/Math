@@ -170,7 +170,6 @@ namespace Test
         [InlineData(typeof(LnFunctionDef))]
         [InlineData(typeof(SqrtFunctionDef))]
         [InlineData(typeof(SqrFunctionDef))]
-        
         public void TestFunction(Type funcType)
         {
             var func = (MathFunctionDef)funcType.GetConstructor(Type.EmptyTypes).Invoke(null);

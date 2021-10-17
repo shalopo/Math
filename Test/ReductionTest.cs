@@ -11,7 +11,7 @@ namespace Test
 {
     public class ReductionTest
     {
-        private static void AssertReducedEqual(string expected_str, string actual_str, bool avoid_reducing_expected = false)
+        private static void AssertReducedEqual(string expected_str, string actual_str)
         {
             var reduceOptions = ReduceOptions.DEFAULT;
 

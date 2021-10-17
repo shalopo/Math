@@ -10,35 +10,30 @@ namespace MathUtil
     {
         class ExprPowers
         {
-            public ExprPowers()
-            {
-                Powers = new Dictionary<MathExpr, long>();
-            }
-
-            public Dictionary<MathExpr, long> Powers { get; }
+            public Dictionary<int, long> Powers { get; } = new(); // by originating term index
 
             public long MaxCommonExponent => Powers.Values.Min();
 
-            public void Add(MathExpr originatingTerm, long exponent)
+            public void Add(int originatingTermIndex, long exponent)
             {
-                if (Powers.ContainsKey(originatingTerm))
+                if (Powers.ContainsKey(originatingTermIndex))
                 {
-                    Powers[originatingTerm] += exponent;
+                    Powers[originatingTermIndex] += exponent;
                 }
                 else
                 {
-                    Powers[originatingTerm] = exponent;
+                    Powers[originatingTermIndex] = exponent;
                 }
             }
         }
 
 
-        IEnumerable<MathExpr> _terms;
+        IReadOnlyList<MathExpr> _terms;
         Dictionary<MathExpr, ExprPowers> _factors;
         readonly ReduceOptions _options;
         readonly ReduceOptions _optionsLight;
 
-        CommonFactorReducer(IEnumerable<MathExpr> terms, ReduceOptions options)
+        CommonFactorReducer(IReadOnlyList<MathExpr> terms, ReduceOptions options)
         {
             _terms = terms;
 
@@ -46,7 +41,7 @@ namespace MathUtil
             _optionsLight = _options.With(allowCommonFactorSearch: false, allowSearchIdentities: false);
         }
 
-        public static MathExpr Reduce(IEnumerable<MathExpr> terms, ReduceOptions options)
+        public static MathExpr Reduce(IReadOnlyList<MathExpr> terms, ReduceOptions options)
         {
             return new CommonFactorReducer(terms, options).DoReduce();
         }
@@ -87,8 +82,9 @@ namespace MathUtil
         {
             _factors = new Dictionary<MathExpr, ExprPowers>();
 
-            foreach (var term in _terms)
+            for (int termIndex = 0; termIndex < _terms.Count(); termIndex++)
             {
+                var term = _terms[termIndex];
                 var additiveTerm = term.AsAdditiveTerm();
 
                 var multTerms = (additiveTerm.Expr is MultMathExpr multExpr) ? multExpr.Terms : new[] { additiveTerm.Expr };
@@ -106,7 +102,7 @@ namespace MathUtil
                             _factors[powerTerm.Base] = powers;
                         }
 
-                        powers.Add(term, exactExponent.AsWholeNumber.Value);
+                        powers.Add(termIndex, exactExponent.AsWholeNumber.Value);
                     }
                 }
             }
@@ -138,7 +134,7 @@ namespace MathUtil
             return (commonFactor * innerExpr).Reduce(_optionsLight);
         }
 
-        private IEnumerable<MathExpr> SearchSpeculatively()
+        private IReadOnlyList<MathExpr> SearchSpeculatively()
         {
             //TODO: in descending order
 
@@ -146,7 +142,8 @@ namespace MathUtil
             {
                 var factorPowerExpr = PowerMathExpr.Create(factor.Key, factor.Value.MaxCommonExponent);
                 
-                var dividedTerms = factor.Value.Powers.Keys.Select(term => (term / factorPowerExpr).Reduce(_optionsLight));
+                var dividedTerms = factor.Value.Powers.Keys.
+                    Select(termIndex => (_terms[termIndex] / factorPowerExpr).Reduce(_optionsLight));
                 
                 var preReducedInnerExpr = AddMathExpr.Create(dividedTerms);
                 var innerExpr = preReducedInnerExpr.Reduce(_options);
@@ -160,7 +157,7 @@ namespace MathUtil
                 
                 var newTerms = innerTerms.Select(term => (factorPowerExpr * term).Reduce(_optionsLight)).ToList();
 
-                newTerms.AddRange(_terms.Where(term => !factor.Value.Powers.ContainsKey(term)));
+                newTerms.AddRange(_terms.Where((_, termIndex) => !factor.Value.Powers.ContainsKey(termIndex)));
 
                 return newTerms;
             }
