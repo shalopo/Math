@@ -35,8 +35,8 @@ namespace MathUtil
         public static MathFuncCaller COS = RegisterFunc(new CosFunctionDef());
         public static MathFuncCaller TAN = RegisterFunc(new TanFunctionDef());
         public static MathFuncCaller COT = RegisterFunc(new CotFunctionDef());
-        public static MathFuncCaller ARCTAN = RegisterFunc(new ArcTanFunctionDef());
         public static MathFuncCaller ARCTAN2 = RegisterFunc(new ArcTan2FunctionDef());
+        public static MathFuncCaller ARCTAN = RegisterFunc(new ArcTanFunctionDef());
         public static MathFuncCaller ARCSIN = RegisterFunc(new ArcSinFunctionDef());
         public static MathFuncCaller ARCCOS = RegisterFunc(new ArcCosFunctionDef());
         public static MathFuncCaller LN = RegisterFunc(new LnFunctionDef());

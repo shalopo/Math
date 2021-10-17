@@ -6,7 +6,7 @@ using static MathUtil.MathEvalUtil;
 
 namespace MathUtil
 {
-    class LnFunctionDef : SimpleMathFunctionDef
+    sealed class LnFunctionDef : SimpleMathFunctionDef
     {
         public LnFunctionDef() : base("ln") { }
 
@@ -40,7 +40,7 @@ namespace MathUtil
         public SqrtFunctionDef() : base("sqrt", x1.Pow(HALF)) { }
     }
 
-    class PowerMathExpr : MathExpr
+    sealed class PowerMathExpr : MathExpr
     {
         public PowerMathExpr(MathExpr @base, MathExpr exponent) => (Base, Exponent) = (@base, exponent);
         public static MathExpr Create(MathExpr @base, MathExpr exponent) => IsOne(exponent) ? @base : new PowerMathExpr(@base, exponent);
@@ -186,9 +186,9 @@ namespace MathUtil
 
         public override bool Equals(object obj)
         {
-            return obj is PowerMathExpr expr &&
-                   EqualityComparer<MathExpr>.Default.Equals(Base, expr.Base) &&
-                   EqualityComparer<MathExpr>.Default.Equals(Exponent, expr.Exponent);
+            return obj is PowerMathExpr expr && 
+                   Base.Equals(expr.Base) &&
+                   Exponent.Equals(expr.Exponent);
         }
 
         public override int GetHashCode()

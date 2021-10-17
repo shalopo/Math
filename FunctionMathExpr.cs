@@ -20,17 +20,19 @@ namespace MathUtil
         public MathExpr Call(MathExpr input) => new FunctionCallMathExpr(this, input);
 
         public override string ToString() => Name;
-        
+        public override bool Equals(object obj) => obj is MathFunctionDef funcExpr && funcExpr.Name == Name;
+        public override int GetHashCode() => 539060726 + Name.GetHashCode();
+
         public MathExpr TryReduce(MathExpr input, ReduceOptions options) => 
             TryReduceImpl(input, options.With(allowCommonFactorSearch: false, allowSearchIdentities: false));
 
         protected virtual MathExpr TryReduceImpl(MathExpr input, ReduceOptions options) => null;
 
         public abstract ConstComplexMathExpr ComplexEval(ConstComplexMathExpr ComplexEval);
-        
+
         public static implicit operator Func<MathExpr, MathExpr>(MathFunctionDef func) => func.Call;
 
-        public static MathVariable x1 = new("x");
+        public static MathVariable x1 = new("X");
     }
 
     abstract class SimpleMathFunctionDef : MathFunctionDef
@@ -119,8 +121,8 @@ namespace MathUtil
         public override bool Equals(object obj)
         {
             return obj is FunctionCallMathExpr expr &&
-                   EqualityComparer<MathFunctionDef>.Default.Equals(Func, expr.Func) &&
-                   EqualityComparer<MathExpr>.Default.Equals(Input, expr.Input);
+                   Func.Equals(expr.Func) &&
+                   Input.Equals(expr.Input);
         }
 
         public override int GetHashCode()
