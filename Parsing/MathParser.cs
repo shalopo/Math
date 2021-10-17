@@ -43,7 +43,7 @@ namespace MathUtil.Parsing
                 m_tokenizer.Pop();
             }
 
-            var expr = ReadFullTerm();
+            var expr = ReadTerm();
 
             while (m_tokenizer.Peep().Tag != TokenTag.NONE && m_tokenizer.Peep().Tag != TokenTag.CLOSE_BRACKET)
             {
@@ -53,8 +53,8 @@ namespace MathUtil.Parsing
 
                 expr = opToken.Op switch
                 {
-                    OpType.PLUS => expr + ReadFullTerm(),
-                    OpType.MINUS => expr - ReadFullTerm(),
+                    OpType.PLUS => expr + ReadTerm(),
+                    OpType.MINUS => expr - ReadTerm(),
                     _ => throw new MathParseException($"Unexpected input")
                 };
             }
@@ -73,15 +73,21 @@ namespace MathUtil.Parsing
             return expr;
         }
         
-        private MathExpr ReadFullTerm()
+        private MathExpr ReadTerm()
         {
-            if (PeepOpToken()?.Op == OpType.MINUS)
+            bool minus = (PeepOpToken()?.Op == OpType.MINUS);
+
+            if (minus)
             {
                 m_tokenizer.Pop();
-                return -ReadFullTerm();
             }
 
-            var expr = ReadConsecutivePowers();
+            var expr = ReadAssociativeRight();
+
+            if (minus)
+            {
+                expr = expr is NumericalConstMathExpr numerical ? numerical.Negate() : -expr;
+            }
 
             OpToken opToken;
 
@@ -97,20 +103,20 @@ namespace MathUtil.Parsing
                     m_tokenizer.Pop();
                 }
 
-                expr = opToken.Apply(expr, ReadConsecutivePowers());
+                expr = opToken.Apply(expr, ReadAssociativeRight());
             }
 
             return expr;
         }
 
-        private MathExpr ReadConsecutivePowers()
+        private MathExpr ReadAssociativeRight()
         {
             var expr = ReadNearestTerm();
 
             if (PeepOpToken()?.Op == OpType.POWER)
             {
                 m_tokenizer.Pop();
-                return expr.Pow(ReadConsecutivePowers());
+                return expr.Pow(ReadAssociativeRight());
             }
             else
             {
