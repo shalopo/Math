@@ -33,6 +33,8 @@ namespace MathUtil
                 return AsAdditiveTerm().ToString();
             }
 
+            //TODO: 2/x is printed as 2*1/x
+
             var negativePowers = Terms.OfType<PowerMathExpr>().Where(term => !term.Exponent.AsAdditiveTerm().Coefficient.IsPositive);
             var positivePowers = Terms.Where(term => !negativePowers.Contains(term));
 

@@ -11,6 +11,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MathUtil.csproj" />
+    <ProjectReference Include="..\MathUtil\MathUtil.csproj" />
   </ItemGroup>
 </Project>

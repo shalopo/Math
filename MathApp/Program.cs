@@ -15,15 +15,10 @@ namespace MathTest
 {
     class Program
     {
-        static readonly MathVariable x = new("x");
-        static readonly MathVariable y = new("y");
-        static readonly MathVariable z = new("z");
-
         static void Main()
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            TestReductions();
             //TensorTestIdentity();
             //TensorTest2Ball();
             //TensorTest2Sphere();
@@ -120,69 +115,12 @@ namespace MathTest
             }
         }
 
-        public static void TestReductions()
-        {
-            TestReduction("1/i");
-
-            TestReduction("1 + 2(x + 1)");
-
-            TestReduction("(-x)/(-y)");
-            TestReduction("x/(-y)");
-
-            TestReduction("x/(-2y)");
-            TestReduction("1/(x/y)");
-
-            TestReduction("x(x + 1) - x^2");
-
-            TestReduction("y^2*(1 + x^2/y^2)");
-            TestReduction("(1 + x^2/y^2)/(x^2 + y^2)");
-            TestReduction("y^2*(1 + (x/y)^2)");
-
-            TestReduction("x^2*sin(y)^2 + x^2*cos(y)^2");
-            TestReduction("x^2sin(y)^2sin(z)^2 + x^2sin(y)^2cos(z)^2 + x^2cos(y)^2");
-
-            TestReduction("3cos(x/2)^2 - sin(x/2)^2 + " +
-                          "2sin(2y)^2 + 2cos(2y)^2 + " +
-                          "sin(z)^3/sin(z) + cos(z)cos(z)");
-
-            TestReduction("0^198713");
-
-            TestReduction("sin(pi/4)sqrt(2)*2");
-            TestReduction("(sqrt(x)/x)^(-2) - sqr(x)/x");
-            TestReduction("1/cot(x) - sin(x)/cos(x)"); //TODO: should be zero
-
-            //TODO: fix the identity searching to not rely on adding
-            TestReduction("tan(x)cos(x)");
-            TestReduction("tan(x)cot(x)");
-
-            //TODO: does not reduce
-            TestReduction("sin(2x) - sin(x)cos(x)");
-
-            TestReduction("1/(x - x/2)");
-
-            //TODO: prints funny
-            TestReduction("6/x");
-
-            TestReduction("x/(x + y) + y/(x + y)");
-
-            //TODO: does not reduce
-            TestReduction("2x/(x + y) + 2y/(x + y)");
-
-            //TODO: needs to reduce to 1/cos(x)^2
-            TestReduction("1 + sin(x)^2/cos(x)^2");
-        }
-
-        public static void TestReduction(MathExpr expr)
-        {
-            Console.WriteLine(expr.ToString());
-            Console.WriteLine("=>");
-            Console.WriteLine(expr.Reduce(ReduceOptions.DEFAULT));
-            Console.WriteLine();
-        }
-
         public static void TensorTestIdentity()
         {
-            var t = new MathVariable("t");
+            MathVariable x = new("x");
+            MathVariable y = new("y");
+            MathVariable z = new("z");
+            MathVariable t = new("t");
 
             var tensor = MetricTensor.CreateDefault(new[] { t, x, y, z });
             tensor[t, t] = MINUS_ONE;
@@ -198,11 +136,14 @@ namespace MathTest
 
         public static void TensorTest2Ball()
         {
+            MathVariable x = new("x");
+            MathVariable y = new("y");
+            MathVariable z = new("z");
+            MathVariable r = new("r");
+            MathVariable theta = new("θ");
+
             var tensor = MetricTensor.CreateDefault(new[] { x, y });
             Console.WriteLine(tensor);
-
-            var r = new MathVariable("r");
-            var theta = new MathVariable("θ");
 
             var transformation = new VariablesChangeTransformation(new[] { r, theta }, (x, r * COS(theta)), (y, r * SIN(theta)));
             var polarTensor = tensor.ChangeCoordinates(transformation);
@@ -239,13 +180,6 @@ namespace MathTest
             Console.WriteLine("Christoffels:");
             Console.WriteLine(ChristoffelSymbols.Create(metric));
 
-            //var inverseTransformation = new VariablesChangeTransformation(new[] { x, y }, (r, (x * x + y * y).Pow(HALF)), 
-            //    (theta, ARCTAN(y / x)));
-            //var originalTensor = polarTensor.ChangeCoordinates(inverseTransformation);
-
-            //Console.WriteLine(originalTensor);
-            //Console.WriteLine();
-
             Console.WriteLine("ricci:");
             var ricci = RicciTensor.Create(metric);
             Console.WriteLine(ricci);
@@ -255,12 +189,15 @@ namespace MathTest
 
         public static void TensorTest3Ball()
         {
-            var tensor = MetricTensor.CreateDefault(new MathVariable[] { x, y, z });
-            Console.WriteLine(tensor);
+            MathVariable x = new("x");
+            MathVariable y = new("y");
+            MathVariable z = new("z");
+            MathVariable r = new("r");
+            MathVariable theta = new("θ");
+            MathVariable phi = new("φ");
 
-            var r = new MathVariable("r");
-            var theta = new MathVariable("θ");
-            var phi = new MathVariable("φ");
+            var tensor = MetricTensor.CreateDefault(new[] { x, y, z });
+            Console.WriteLine(tensor);
 
             var transformation = new VariablesChangeTransformation(new[] { r, theta, phi }, 
                 (x, r * COS(phi) * SIN(theta)), (y, r * SIN(phi) * SIN(theta)), (z, r * COS(theta)));
@@ -276,13 +213,12 @@ namespace MathTest
         public static void TensorTest3Sphere()
         {
             // parameter (constant)
-            var r = new MathVariable("r");
+            MathVariable r = new("r");
+            MathVariable theta = new("θ");
+            MathVariable phi = new("φ");
+            MathVariable lambda = new("λ");
 
-            var theta = new MathVariable("θ");
-            var phi = new MathVariable("φ");
-            var lambda = new MathVariable("λ");
-
-            var metric = MetricTensor.CreateDefault(new MathVariable[] { theta, phi, lambda });
+            var metric = MetricTensor.CreateDefault(new[] { theta, phi, lambda });
             metric[theta, theta] = r.Pow(2);
             metric[phi, phi] = r.Pow(2) * SIN(theta).Pow(2);
             metric[lambda, lambda] = r.Pow(2) * SIN(theta).Pow(2) * SIN(phi).Pow(2);
@@ -345,6 +281,8 @@ namespace MathTest
 
         public static void TaylorTest()
         {
+            var x = ExpandableMathFunctionDef.x1;
+
             ExpandTaylor(new ExpandableMathFunctionDef("f", 
             //SIN(-x + 1).Pow(2) * SIN(x + 1)
             //4 * ARCTAN(-x)
@@ -379,6 +317,7 @@ namespace MathTest
             Console.WriteLine();
 
             var taylor = TaylorExpansionUtil.Expand(f, max_derivatives, arg, base_input, max_seconds);
+            Console.WriteLine();
             Console.WriteLine($"{f.Signature} ~= {taylor}");
             Console.WriteLine();
 

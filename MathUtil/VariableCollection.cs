@@ -13,9 +13,39 @@ namespace MathUtil
         {
         }
 
+        public VariableCollection AsReadOnly()
+        {
+            VariableCollection newCollection = new();
+            
+            foreach (var v in this)
+            {
+                newCollection.Add(v);
+            }
+
+            newCollection.IsReadOnly = true;
+
+            return newCollection;
+        }
+
         public void Add(MathVariable v)
         {
             m_dict[v.Name] = v;
+        }
+
+        public bool Contains(string name) => m_dict.ContainsKey(name);
+
+        public MathVariable this[string name]
+        {
+            get => m_dict[name];
+            set
+            {
+                if (IsReadOnly)
+                {
+                    throw new InvalidOperationException("Variable collection is readonly");
+                }
+
+                m_dict[name] = value;
+            }
         }
 
         public MathVariable GetOrAdd(string name)
@@ -23,7 +53,7 @@ namespace MathUtil
             if (!m_dict.TryGetValue(name, out MathVariable v))
             {
                 v = new MathVariable(name);
-                m_dict[name] = v;
+                this[name] = v;
             }
 
             return v;
@@ -33,5 +63,7 @@ namespace MathUtil
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
         private readonly Dictionary<string, MathVariable> m_dict = new();
+
+        public bool IsReadOnly { get; private set; }
     }
 }
