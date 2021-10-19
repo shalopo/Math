@@ -20,8 +20,7 @@ namespace MathUtil
             {
                 0 => GlobalMathDefs.ZERO,
                 1 => terms.First(),
-                _ => new AddMathExpr(terms.SelectMany(expr => (expr is AddMathExpr addExpr) ?
-                         addExpr.Terms : new[] { expr })),
+                _ => new AddMathExpr(terms)
             };
         }
 

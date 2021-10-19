@@ -195,7 +195,7 @@ namespace Test
             var expected_expr = x.Pow((x + y - z - 3) * z / 2.5);
 
             AssertParse(expected_expr, "x^((x+y-z-3)*z/2.5)", v);
-            AssertParse(expected_expr, "x ^ (  (x + y - z - 3 ) * ( z / 2.5))   ", v);
+            AssertParse(expected_expr, "x ^ (  (x + y - z - 3 ) *  z / 2.5)   ", v);
         }
 
         [Fact]

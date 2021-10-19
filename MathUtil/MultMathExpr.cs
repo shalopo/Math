@@ -19,8 +19,7 @@ namespace MathUtil
             {
                 0 => GlobalMathDefs.ONE,
                 1 => terms.First(),
-                _ => new MultMathExpr(terms.SelectMany(expr => (expr is MultMathExpr multExpr) ?
-                           multExpr.Terms : new[] { expr })),
+                _ => new MultMathExpr(terms)
             };
         }
 

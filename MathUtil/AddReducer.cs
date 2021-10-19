@@ -12,6 +12,8 @@ namespace MathUtil
         {
             terms = ReduceTerms(terms, options);
 
+            terms = terms.SelectMany(expr => (expr is AddMathExpr addExpr) ? addExpr.Terms : new[] { expr });
+
             terms = CollectConsts(terms);
 
             if (terms.Count() <= 1)
