@@ -7,9 +7,14 @@ namespace MathUtil
 {
     class MultMathExpr : MathExpr, IEnumerable<MathExpr>
     {
-        private MultMathExpr(IEnumerable<MathExpr> terms) => Terms = terms.ToList().AsReadOnly();
+        private MultMathExpr(IEnumerable<MathExpr> terms)
+        {
+            Terms = terms.ToList();
+            _coefficient = NumericalConstMathExpr.Mult(Terms.OfType<NumericalConstMathExpr>());
+        }
 
         public IReadOnlyList<MathExpr> Terms { get; }
+        private readonly NumericalConstMathExpr _coefficient;
 
         public static MathExpr Create(params MathExpr[] terms) => Create(terms.AsEnumerable());
 
@@ -27,19 +32,27 @@ namespace MathUtil
 
         public override string ToString()
         {
-            if (Terms.OfType<NumericalConstMathExpr>().Any())
-            {
-                return AsAdditiveTerm().ToString();
+            var terms = Terms.ToList();
+
+            // If the expression is not reduced, keep the order as given
+            if (IsReduced)
+            { 
+                terms.Sort((term1, term2) => term1.Weight.CompareTo(term2.Weight));
             }
 
-            //TODO: 2/x is printed as 2*1/x
+            return ToStringInner(terms);
+        }
 
-            var negativePowers = Terms.OfType<PowerMathExpr>().Where(term => !term.Exponent.AsAdditiveTerm().Coefficient.IsPositive);
-            var positivePowers = Terms.Where(term => !negativePowers.Contains(term));
+        private static string ToStringInner(IReadOnlyList<MathExpr> terms)
+        {
+            var positivePowers = terms.Where(term => term is not PowerMathExpr).ToList();
+            positivePowers.AddRange(terms.OfType<PowerMathExpr>().Where(term => !term.Exponent.Coefficient.IsNegative));
+
+            var negativePowers = terms.OfType<PowerMathExpr>().Where(term => term.Exponent.Coefficient.IsNegative);
 
             var sb = new StringBuilder();
 
-            sb.Append(JoinString(positivePowers));
+            sb.Append(JoinPositivePowers(positivePowers));
 
             if (negativePowers.Any())
             {
@@ -57,7 +70,7 @@ namespace MathUtil
                     sb.Append("(");
                 }
 
-                sb.Append(JoinString(negativePowers.Select(term => term.Reciprocate())));
+                sb.Append(JoinNegativePowers(negativePowers.Select(term => term.Reciprocate())));
 
                 if (wrap)
                 {
@@ -68,9 +81,51 @@ namespace MathUtil
             return sb.ToString();
         }
 
-        private static string JoinString(IEnumerable<MathExpr> terms)
+        private static string JoinPositivePowers(IEnumerable<MathExpr> terms)
         {
-            return string.Join("*", terms.Select(term => term.ToMultScopedString()));
+            StringBuilder sb = new();
+
+            if (terms.Any() && terms.First() is NumericalConstMathExpr numeric)
+            {
+                if (numeric.Equals(GlobalMathDefs.ONE))
+                {
+                    if (terms.Count() == 1)
+                    {
+                        sb.Append("1");
+                    }
+                }
+                else if (numeric.Equals(GlobalMathDefs.MINUS_ONE))
+                {
+                    sb.Append(terms.Count() > 1 ? "-" : "-1");
+                }
+                else
+                {
+                    if (numeric.IsNegative)
+                    {
+                        sb.Append("-").Append(numeric.Negate().ToString());
+                    }
+                    else
+                    {
+                        sb.Append(numeric.ToString());
+                    }
+
+                    if (terms.Count() > 1)
+                    {
+                        sb.Append("*");
+                    }
+                }
+
+                terms = terms.Skip(1);
+            }
+
+            sb.Append(string.Join("*", terms.Select(term => term.ToMultScopedString())));
+
+            return sb.ToString();
+        }
+
+        private static string JoinNegativePowers(IEnumerable<MathExpr> terms)
+        {
+            return string.Join("*", terms.Select(term => term.ToPowScopedString()));
         }
 
         internal override MathExpr Derive(MathVariable v) => AddMathExpr.Create(
@@ -91,12 +146,7 @@ namespace MathUtil
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => Create(Terms.Select(expr => expr.Visit(transformer)));
 
-        internal override AdditiveTerm AsAdditiveTerm()
-        {
-            //TODO: causes pre-mature calculations
-            var coefficient = NumericalConstMathExpr.Mult(Terms.OfType<NumericalConstMathExpr>());
-            return new AdditiveTerm(Create(Terms.Where(expr => !(expr is NumericalConstMathExpr))), coefficient);
-        }
+        internal override NumericalConstMathExpr Coefficient => _coefficient;
 
         public override bool Equals(object other) => (other is MultMathExpr other_mult) && EqualityUtil.Equals(Terms, other_mult.Terms);
         public override int GetHashCode() => EqualityUtil.GetHashCode(Terms, 407977119);

@@ -117,23 +117,24 @@ namespace Test
             AssertParse(1 - x, "1 + -x", new() { x });
         }
 
-        [Fact]
-        public void TestErrors()
+        [Theory]
+        [InlineData("")]
+        [InlineData("()")]
+        [InlineData("1-+2")]
+        [InlineData("1**2")]
+        [InlineData("1*/2")]
+        [InlineData("--2")]
+        [InlineData("1 + --x")]
+        [InlineData("2(")]
+        [InlineData("2(x + 1")]
+        [InlineData("2(x + 1) - 3((x + 1) / x + 2")]
+        [InlineData(")")]
+        [InlineData("2)")]
+        [InlineData("2(x + 1))")]
+        [InlineData("2((x + 1)/3) + 1) + 2")]
+        public void TestErrors(string input)
         {
-            AssertParseError("");
-            AssertParseError("()");
-            AssertParseError("1-+2");
-            AssertParseError("1**2");
-            AssertParseError("1*/2");
-            AssertParseError("--2");
-            AssertParseError("1 + --x");
-            AssertParseError("2(");
-            AssertParseError("2(x + 1");
-            AssertParseError("2(x + 1) - 3((x + 1) / x + 2");
-            AssertParseError(")");
-            AssertParseError("2)");
-            AssertParseError("2(x + 1))");
-            AssertParseError("2((x + 1)/3) + 1) + 2");
+            AssertParseError(input);
         }
 
         [Theory]

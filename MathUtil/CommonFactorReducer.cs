@@ -12,6 +12,8 @@ namespace MathUtil
         {
             public Dictionary<int, long> Powers { get; } = new(); // by originating term index
 
+            //TODO: This is like finding the greatest common "factor" but in an additive way:
+            // A*e^(x+2) + B*e^(2x+1)  => e^(x+1)*(A*e + B*e^x)
             public long MaxCommonExponent => Powers.Values.Min();
 
             public void Add(int originatingTermIndex, long exponent)
@@ -33,26 +35,31 @@ namespace MathUtil
         readonly ReduceOptions _options;
         readonly ReduceOptions _optionsLight;
 
-        CommonFactorReducer(IReadOnlyList<MathExpr> terms, ReduceOptions options)
+        CommonFactorReducer(IEnumerable<MathExpr> terms, ReduceOptions options)
         {
-            _terms = terms;
+            _terms = terms.ToList();
 
             _options = options;
             _optionsLight = _options.With(allowCommonFactorSearch: false, allowSearchIdentities: false);
         }
 
-        public static MathExpr Reduce(IReadOnlyList<MathExpr> terms, ReduceOptions options)
+        public static IEnumerable<MathExpr> Reduce(IEnumerable<MathExpr> terms, ReduceOptions options)
         {
-            return new CommonFactorReducer(terms, options).DoReduce();
+            var result = new CommonFactorReducer(terms, options).DoReduce();
+
+            return result is AddMathExpr addExpr ? addExpr.Terms : new[] { result };
         }
 
         private MathExpr DoReduce()
         {
-            bool redo;
+            bool anyChanges = false;
 
             do
             {
-                redo = false;
+                if (_terms.All(term => term.IsConst))
+                {
+                    break;
+                }
 
                 MapFactors();
 
@@ -64,18 +71,23 @@ namespace MathUtil
                     return fullCoverageFactor;
                 }
 
-                //TODO: JoinSimilarTerms();
-
                 var newTerms = SearchSpeculatively();
 
-                if (newTerms != null)
+                if (newTerms == null)
                 {
-                    _terms = newTerms;
-                    redo = true;
+                    break;
                 }
-            } while (redo);
+                else
+                {
+                    anyChanges = true;
+                    _terms = newTerms;
+                }
+            }
+            while (true);
 
-            return AddMathExpr.Create(_terms);
+            var result = AddMathExpr.Create(_terms);
+
+            return anyChanges ? result.Reduce(_optionsLight) : result;
         }
 
         private void MapFactors()
@@ -85,9 +97,8 @@ namespace MathUtil
             for (int termIndex = 0; termIndex < _terms.Count(); termIndex++)
             {
                 var term = _terms[termIndex];
-                var additiveTerm = term.AsAdditiveTerm();
 
-                var multTerms = (additiveTerm.Expr is MultMathExpr multExpr) ? multExpr.Terms : new[] { additiveTerm.Expr };
+                var multTerms = (term is MultMathExpr multExpr) ? multExpr.Terms : new[] { term };
                 var powerTerms = multTerms.Select(expr => (expr is PowerMathExpr powerExpr) ?
                                                   powerExpr : new PowerMathExpr(expr, GlobalMathDefs.ONE));
 
@@ -120,6 +131,7 @@ namespace MathUtil
 
         private MathExpr TryGetFullCoverageFactor()
         {
+            //TODO: this does not cover e.g. e^x since it looks for an integer value
             if (_factors.Count == 0 || !_factors.All(factor => factor.Value.Powers.Count == _terms.Count()))
             {
                 return null;
@@ -153,11 +165,14 @@ namespace MathUtil
                     continue;
                 }
 
-                var innerTerms = (innerExpr is AddMathExpr innerAddExpr) ? innerAddExpr.Terms : new[] { innerExpr };
-                
-                var newTerms = innerTerms.Select(term => (factorPowerExpr * term).Reduce(_optionsLight)).ToList();
+                var newTerms = _terms.Where((_, termIndex) => !factor.Value.Powers.ContainsKey(termIndex)).ToList();
 
-                newTerms.AddRange(_terms.Where((_, termIndex) => !factor.Value.Powers.ContainsKey(termIndex)));
+                if (!MathEvalUtil.IsZero(innerExpr))
+                {
+                    var innerTerms = (innerExpr is AddMathExpr innerAddExpr) ? innerAddExpr.Terms : new []{ innerExpr };
+
+                    newTerms.AddRange(innerTerms.Select(term => (factorPowerExpr * term).Reduce(_optionsLight)));
+                }
 
                 return newTerms;
             }

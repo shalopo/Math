@@ -19,7 +19,7 @@ namespace MathUtil
 
         public override string ToString() => Name;
 
-        internal override double Weight => 1;
+        internal override double Weight => 1.5;
         internal override bool RequiresPowScoping => false;
 
         internal override MathExpr Visit(IMathExprTransformer transformer) => transformer.Transform(this);

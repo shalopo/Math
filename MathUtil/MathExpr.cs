@@ -56,12 +56,7 @@ namespace MathUtil
             return complex.Real;
         }
 
-        internal char ToStringInner()
-        {
-            throw new NotImplementedException();
-        }
-
-        internal virtual AdditiveTerm AsAdditiveTerm() => new(this, ONE);
+        internal virtual NumericalConstMathExpr Coefficient => ONE;
         internal virtual PowerMathExpr AsPowerExpr() => new(this, ONE);
 
         internal abstract MathExpr Visit(IMathExprTransformer transformer);
@@ -79,7 +74,7 @@ namespace MathUtil
 
         internal static readonly MathExpr[] EMPTY_ARRAY = new MathExpr[0];
 
-        private bool IsReduced { get; set; } = false;
+        protected bool IsReduced { get; set; } = false;
     }
 
 }

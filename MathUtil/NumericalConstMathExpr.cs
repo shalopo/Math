@@ -11,9 +11,8 @@ namespace MathUtil
     {
         public static implicit operator NumericalConstMathExpr(double value) => new ExactConstMathExpr(value);
 
-        internal override AdditiveTerm AsAdditiveTerm() => new(ONE, this);
-
-        public abstract bool IsPositive { get; }
+        internal override NumericalConstMathExpr Coefficient => this;
+        public abstract bool IsNegative { get; }
 
         public abstract double ToDouble();
 

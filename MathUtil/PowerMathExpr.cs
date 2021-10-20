@@ -45,7 +45,7 @@ namespace MathUtil
         public PowerMathExpr(MathExpr @base, MathExpr exponent) => (Base, Exponent) = (@base, exponent);
         public static MathExpr Create(MathExpr @base, MathExpr exponent) => IsOne(exponent) ? @base : new PowerMathExpr(@base, exponent);
 
-        internal override bool RequiresPowScoping => true;
+        internal override bool RequiresPowScoping => false;
 
         public MathExpr Base { get; }
         public MathExpr Exponent { get; }
@@ -104,13 +104,13 @@ namespace MathUtil
 
             if (IsZero(baseReduced) && exponentReduced is NumericalConstMathExpr numericalExponent)
             {
-                if (numericalExponent.IsPositive)
+                if (numericalExponent.IsNegative)
                 {
-                    return ZERO;
+                    throw new UndefinedMathBehavior($"Divide by zero, exponent:{numericalExponent}");
                 }
                 else
                 {
-                    throw new UndefinedMathBehavior($"Divide by zero, exponent:{numericalExponent}");
+                    return ZERO;
                 }
             }
 
@@ -133,9 +133,7 @@ namespace MathUtil
                     }
                 }
 
-                var term = baseReduced.AsAdditiveTerm();
-
-                if (!term.Coefficient.IsPositive)
+                if (baseReduced.Coefficient.IsNegative)
                 {
                     if (IsEven(exponentExact.Value))
                     {
@@ -162,7 +160,7 @@ namespace MathUtil
 
             if (baseReduced is ConstFractionMathExpr base_fraction)
             {
-                if (exponentReduced is NumericalConstMathExpr expNumerical && !expNumerical.IsPositive)
+                if (exponentReduced is NumericalConstMathExpr expNumerical && expNumerical.IsNegative)
                 {
                     return Create(base_fraction.Reciprocate(), expNumerical.Negate());
                 }

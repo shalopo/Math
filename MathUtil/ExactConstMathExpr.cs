@@ -20,9 +20,10 @@ namespace MathUtil
         public long? AsWholeNumber => IsWholeNumber ? Convert.ToInt64(Value) : (long?)null;
 
         internal override double Weight => MathEvalUtil.IsWholeNumber(Value) ? 1 : 2;
+        internal override bool RequiresMultScoping => (Value < 0);
         internal override bool RequiresPowScoping => (Value < 0);
 
-        public override bool IsPositive => (Value > 0);
+        public override bool IsNegative => (Value < 0);
 
         public override double ToDouble() => Value;
 

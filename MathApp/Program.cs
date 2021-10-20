@@ -59,6 +59,8 @@ namespace MathTest
 
                 try
                 {
+                    Console.WriteLine(expr);
+
                     expr = expr.Reduce(ReduceOptions.DEFAULT);
 
                     if (variables.Count() == 1)
@@ -303,7 +305,7 @@ namespace MathTest
         }
 
         private static void ExpandTaylor(ExpandableMathFunctionDef f, MathExpr eval_at = null, MathExpr base_input = null, 
-            int max_derivatives = 20, int max_seconds = 2)
+            int max_derivatives = 15, int max_seconds = 2)
         {
             base_input ??= ZERO;
             eval_at ??= ONE;

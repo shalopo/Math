@@ -11,25 +11,25 @@ namespace MathUtil
     {
         public MathIdentity(MathExpr expr)
         {
+            expr = expr.Reduce(ReduceOptions.LIGHT);
+
             if (expr is not AddMathExpr addExpr)
             {
                 throw new NotImplementedException("Expression not supported");
             }
 
             AddExpr = addExpr;
-
-            AdditiveTerms = AddExpr.Select(term => term.AsAdditiveTerm()).ToArray();
         }
 
         public override string ToString()
         {
-            return $"{Expr} = 0";
+            return $"{AddMathExpr.Create(Terms)} = 0";
         }
 
-        internal AddMathExpr AddExpr { get; }
-        internal AdditiveTerm[] AdditiveTerms { get; }
-
+        internal IReadOnlyList<MathExpr> Terms => AddExpr.Terms;
         public MathExpr Expr => AddExpr;
+
+        internal AddMathExpr AddExpr { get; private set; }
     }
 
     public static class MathIdentityManager

@@ -29,15 +29,9 @@ namespace MathUtil
             for (int term = 1; term <= max_derivatives && !MathEvalUtil.IsZero(derivative) && DateTime.UtcNow < maxEndTime; term++)
             {
                 factor *= term;
-                derivative = DerivativeUtil.Derive(derivative, v);
+                derivative = DerivativeUtil.Derive(derivative, v).Reduce(ReduceOptions.DEFAULT);
 
-                if (term < max_derivatives)
-                {
-                    // it is not necessary to reduce the last derivative
-                    derivative = derivative.Reduce(ReduceOptions.DEFAULT);
-                }
-
-                Console.WriteLine($"d^{term}{f.Name}/d{f.Arg}^{term} = {derivative}");
+                Console.WriteLine($"  d^{term}{f.Name}/d{f.Arg}^{term} = {derivative}");
 
                 var expr = MathEvalUtil.Transform(derivative, var_with_input) * (v - base_input).Pow(term) / factor;
 

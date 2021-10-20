@@ -26,6 +26,7 @@ namespace MathUtil
 
         internal override double Weight => 2;
         internal override bool RequiresPowScoping => true;
+        internal override bool RequiresMultScoping => Top < 0;
 
         public override double ToDouble() => Top / ((double)Bottom);
 
@@ -36,7 +37,7 @@ namespace MathUtil
         public string TopAsString => $"{Top:n0}";
         public string BottomAsString => $"{Bottom:n0}";
 
-        public override bool IsPositive => (Math.Sign(Top) * Math.Sign(Bottom) > 0);
+        public override bool IsNegative => (Math.Sign(Top) * Math.Sign(Bottom) < 0);
 
         public override bool Equals(object obj)
         {

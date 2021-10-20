@@ -23,12 +23,17 @@ namespace MathUtil
                 return ZERO;
             }
 
-            if (!IsPositive(input))
+            if (!input.IsConst)
+            {
+                return null;
+            }
+
+            if (input.Coefficient.IsNegative)
             {
                 return (-SIN(-input)).Reduce(options);
             }
 
-            if (input.IsConst && (FOUR * input / PI).Reduce(options) is ExactConstMathExpr exact && IsWholeNumber(exact))
+            if ((FOUR * input / PI).Reduce(options) is ExactConstMathExpr exact && IsWholeNumber(exact))
             {
                 switch (Convert.ToInt64(exact.Value) % 8)
                 {
@@ -62,7 +67,7 @@ namespace MathUtil
                 return ONE;
             }
 
-            if (!IsPositive(input))
+            if (input.Coefficient.IsNegative)
             {
                 return COS(-input).Reduce(options);
             }
@@ -115,7 +120,7 @@ namespace MathUtil
                 return QUARTER * PI;
             }
 
-            if (!IsPositive(input))
+            if (input.Coefficient.IsNegative)
             {
                 return (-ARCTAN(-input)).Reduce(options);
             }
@@ -147,24 +152,24 @@ namespace MathUtil
                             return ZERO;
                         }
 
-                        return z.Real.IsPositive ? (MathExpr)ZERO : PI;
+                        return z.Real.IsNegative ? PI : (MathExpr)ZERO;
                     }
 
                     if (!z.HasRealPart)
                     {
-                        return z.Imag.IsPositive ? (PI / 2) : (3 * PI / 2);
+                        return z.Imag.IsNegative ? (3 * PI / 2) : (PI / 2);
                     }
 
                     if (z.Real.Equals(z.Imag))
                     {
-                        return z.Real.IsPositive ? (PI / 4) : (5 * PI / 4);
+                        return z.Real.IsNegative ? (5 * PI / 4) : (PI / 4);
                     }
                     else if (z.Real.Equals(z.Imag.Negate()))
                     {
-                        return z.Real.IsPositive ? (3 * PI / 4) : (- PI / 4);
+                        return z.Real.IsNegative ? (- PI / 4) : (3 * PI / 4);
                     }
 
-                    if (!z.Imag.IsPositive)
+                    if (z.Imag.IsNegative)
                     {
                         return TryReduce(z.Conjugate(), options) ?? -ARCTAN2(z.Conjugate());
                     }
@@ -202,7 +207,7 @@ namespace MathUtil
                 return HALF * PI;
             }
 
-            if (!IsPositive(input))
+            if (input.Coefficient.IsNegative)
             {
                 return (-ARCSIN(-input)).Reduce(options);
             }

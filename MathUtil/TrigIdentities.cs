@@ -21,10 +21,7 @@ namespace MathUtil
                 new MathIdentity(SIN(TWO * x) - TWO * SIN(x) * COS(x)),
                 new MathIdentity(COS(TWO * x) + TWO * SIN(x).Pow(TWO) - ONE),
                 new MathIdentity(COS(TWO * x) - TWO * COS(x).Pow(TWO) + ONE),
-                new MathIdentity(COS(TWO * x) - TWO * COS(x).Pow(TWO) + SIN(x).Pow(2)),
-
-                //    ONE - TWO * SIN(x).Pow(TWO),
-                //    COS(x).Pow(TWO) - SIN(x).Pow(TWO) }),
+                new MathIdentity(COS(TWO * x) - COS(x).Pow(TWO) + SIN(x).Pow(2)),
 
                 //new MathIdentity((x, y) => new MathExpr[]{ SIN(x + y), SIN(x) * COS(y) + COS(x) * SIN(y) }),
                 //new MathIdentity(x => new MathExpr[]{ E.Pow(I * x + y), E.Pow(y) * (COS(x) + I * SIN(x)) }),

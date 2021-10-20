@@ -14,28 +14,21 @@ namespace MathUtil
 
             terms = terms.SelectMany(expr => (expr is AddMathExpr addExpr) ? addExpr.Terms : new[] { expr });
 
-            terms = CollectConsts(terms);
-
-            if (terms.Count() <= 1)
-            {
-                return AddMathExpr.Create(terms);
-            }
-
             terms = DistributeMultTerms(terms, options);
 
-            var reducedExpr = AddMathExpr.Create(terms);
-
-            if (options.AllowCommonFactorSearch && reducedExpr is AddMathExpr addExpr)
+            if (options.AllowCommonFactorSearch)
             {
-                reducedExpr = CommonFactorReducer.Reduce(addExpr.Terms, options);
+                terms = CommonFactorReducer.Reduce(terms, options);
             }
 
             if (options.AllowSearchIdentities)
             {
-                reducedExpr = MathIdentityMatcher.Reduce(reducedExpr, options);
+                terms = MathIdentityMatcher.Reduce(terms, options);
             }
 
-            return reducedExpr;
+            terms = CollectConsts(terms);
+
+            return AddMathExpr.Create(terms);
         }
 
         private static IEnumerable<MathExpr> CollectConsts(IEnumerable<MathExpr> terms)

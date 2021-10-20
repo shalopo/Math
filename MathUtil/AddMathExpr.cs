@@ -29,11 +29,36 @@ namespace MathUtil
 
         public override string ToString()
         {
-            var sb = new StringBuilder(Terms[0].AsAdditiveTerm().ToString());
+            var terms = Terms.ToList();
 
-            foreach (var expr in Terms.Skip(1))
+            // If the expression is not reduced, keep the order as given
+            if (IsReduced)
             {
-                sb.Append(" ").Append(expr.AsAdditiveTerm().ToAddedString());
+                terms.Sort((term1, term2) => term1.Weight.CompareTo(term2.Weight));
+            }
+
+            return ToStringInner(terms);
+        }
+
+        private static string ToStringInner(IReadOnlyList<MathExpr> terms)
+        {
+            var sb = new StringBuilder(terms[0].ToString());
+
+            foreach (var term in terms.Skip(1))
+            {
+                sb.Append(" ");
+
+                var termString = term.ToString();
+
+                if (termString[0] == '-')
+                {
+                    // insert space
+                    sb.Append($"- {termString.Substring(1)}");
+                }
+                else
+                {
+                    sb.Append($"+ {termString}");
+                }
             }
 
             return sb.ToString();
