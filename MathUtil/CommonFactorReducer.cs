@@ -148,9 +148,7 @@ namespace MathUtil
 
         private IReadOnlyList<MathExpr> SearchSpeculatively()
         {
-            //TODO: in descending order
-
-            foreach (var factor in _factors)
+            foreach (var factor in _factors.OrderByDescending(f => f.Key.Weight))
             {
                 var factorPowerExpr = PowerMathExpr.Create(factor.Key, factor.Value.MaxCommonExponent);
                 
