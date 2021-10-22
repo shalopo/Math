@@ -45,8 +45,8 @@ namespace MathUtil
 
         private static string ToStringInner(IReadOnlyList<MathExpr> terms)
         {
-            var positivePowers = terms.Where(term => term is not PowerMathExpr).ToList();
-            positivePowers.AddRange(terms.OfType<PowerMathExpr>().Where(term => !term.Exponent.Coefficient.IsNegative));
+            var positivePowers = terms.Where(term => term is not PowerMathExpr).
+                Concat(terms.OfType<PowerMathExpr>().Where(term => !term.Exponent.Coefficient.IsNegative));
 
             var negativePowers = terms.OfType<PowerMathExpr>().Where(term => term.Exponent.Coefficient.IsNegative);
 

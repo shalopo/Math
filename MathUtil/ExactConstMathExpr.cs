@@ -16,6 +16,7 @@ namespace MathUtil
 
         public double Value { get; }
 
+        //TODO: whole number does not mean that it's exact!
         public bool IsWholeNumber => MathEvalUtil.IsWholeNumber(Value);
         public long? AsWholeNumber => IsWholeNumber ? Convert.ToInt64(Value) : (long?)null;
 

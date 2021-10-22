@@ -22,7 +22,7 @@ namespace Test
             MathParseContext context = new(variables);
             var parsed_expr = MathParser.Parse(input, context);
 
-            Assert.Equal(expected_expr, parsed_expr, EqualityComparer<MathExpr>.Default);
+            TestUtils.AssertEqual(expected_expr, parsed_expr);
         }
 
         static void AssertParseError(string input)

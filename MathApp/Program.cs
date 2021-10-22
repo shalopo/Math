@@ -59,9 +59,11 @@ namespace MathTest
 
                 try
                 {
-                    Console.WriteLine(expr);
+                    Console.WriteLine($"Canonical form: {expr} , weight = {GetWeight(expr)}");
 
                     expr = expr.Reduce(ReduceOptions.DEFAULT);
+
+                    Console.WriteLine($"Reduced form:   {expr} , weight = {GetWeight(expr)}");
 
                     if (variables.Count() == 1)
                     {
@@ -71,8 +73,6 @@ namespace MathTest
                     }
                     else
                     {
-                        Console.WriteLine(expr);
-
                         if (variables.Any())
                         {
                             Console.WriteLine("Too many variables");

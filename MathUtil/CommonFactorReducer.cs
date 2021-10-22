@@ -165,16 +165,16 @@ namespace MathUtil
                     continue;
                 }
 
-                var newTerms = _terms.Where((_, termIndex) => !factor.Value.Powers.ContainsKey(termIndex)).ToList();
+                var newTerms = _terms.Where((_, termIndex) => !factor.Value.Powers.ContainsKey(termIndex));
 
                 if (!MathEvalUtil.IsZero(innerExpr))
                 {
-                    var innerTerms = (innerExpr is AddMathExpr innerAddExpr) ? innerAddExpr.Terms : new []{ innerExpr };
+                    var innerTerms = ((innerExpr is AddMathExpr innerAddExpr) ? innerAddExpr.Terms : new []{ innerExpr });
 
-                    newTerms.AddRange(innerTerms.Select(term => (factorPowerExpr * term).Reduce(_optionsLight)));
+                    newTerms = newTerms.Concat(innerTerms.Select(term => (factorPowerExpr * term).Reduce(_optionsLight)));
                 }
 
-                return newTerms;
+                return newTerms.ToList();
             }
 
             return null;

@@ -37,6 +37,9 @@ namespace MathUtil
                 else
                 {
                     terms = reducedExpr is AddMathExpr addExpr ? addExpr.Terms : new []{ reducedExpr };
+
+                    //TODO: collect constants could be important.
+                    // eaxmple: cos(2x) is better than 2cos(x)^2 - 1 ,   but 2cos(x)^2 could be better than cos(2x) + 1
                 }
             }
             while (true);

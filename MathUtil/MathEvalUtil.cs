@@ -24,6 +24,8 @@ namespace MathUtil
         public static bool IsZero(MathExpr expr) => expr.Equals(GlobalMathDefs.ZERO);
         public static bool IsOne(MathExpr expr) => expr.Equals(GlobalMathDefs.ONE);
 
+        public static double GetWeight(MathExpr expr) => expr.Weight;
+
         public static bool IsWholeNumber(double value) => Math.Abs(value % 1) <= (double.Epsilon * 100) && IsConvertibleToLong(value);
         public static bool IsWholeNumber(MathExpr expr) => expr is ExactConstMathExpr exact && IsWholeNumber(exact.Value);
 
