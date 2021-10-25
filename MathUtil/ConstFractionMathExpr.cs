@@ -31,7 +31,10 @@ namespace MathUtil
         public override double ToDouble() => Top / ((double)Bottom);
 
         public override NumericalConstMathExpr Negate() => new ConstFractionMathExpr(-Top, Bottom);
-        public override NumericalConstMathExpr Reciprocate() => new ConstFractionMathExpr(Bottom, Top);
+        public override NumericalConstMathExpr Reciprocate() =>
+            Top == 1 ? Bottom :
+            Top == -1 ? -Bottom :
+            new ConstFractionMathExpr(Bottom, Top);
 
         public override string ToString() => $"{TopAsString}/{BottomAsString}";
         public string TopAsString => $"{Top:n0}";

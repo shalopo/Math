@@ -25,6 +25,7 @@ namespace MathUtil
         public static bool IsOne(MathExpr expr) => expr.Equals(GlobalMathDefs.ONE);
 
         public static double GetWeight(MathExpr expr) => expr.Weight;
+        public static double SumWeights(IEnumerable<MathExpr> terms) => terms.Aggregate(0.0, (agg, expr) => agg + expr.Weight);
 
         public static bool IsWholeNumber(double value) => Math.Abs(value % 1) <= (double.Epsilon * 100) && IsConvertibleToLong(value);
         public static bool IsWholeNumber(MathExpr expr) => expr is ExactConstMathExpr exact && IsWholeNumber(exact.Value);
@@ -66,9 +67,14 @@ namespace MathUtil
         public static double CalcDistanceSquared(double dx, double dy) => dx * dx + dy * dy;
         public static double CalcDistance(double dx, double dy) => Math.Sqrt(CalcDistanceSquared(dx, dy));
 
+        public static MathExpr Transform(MathExpr expr, IMathExprTransformer transformation)
+        {
+            return expr.Visit(transformation);
+        }
+
         public static MathExpr Transform(MathExpr expr, params (MathVariable v, MathExpr value)[] values)
         {
-            return expr.Visit(new VariablesEvalTransformation(values)); 
+            return Transform(expr, new VariablesEvalTransformation(values)); 
         }
 
         public static MathExpr NumericalEvalWith(MathExpr expr, params (MathVariable v, MathExpr value)[] values)

@@ -12,15 +12,18 @@ namespace MathUtil
         {
             AllowSearchIdentities = false,
             AllowCommonFactorSearch = false,
+            AllowDistributeTerms = false,
         };
 
         public static ReduceOptions DEFAULT = new()
         {
             AllowSearchIdentities = true,
             AllowCommonFactorSearch = true,
+            AllowDistributeTerms = true,
         };
 
-        public ReduceOptions With(bool? allowSearchIdentities = null, bool? allowCommonFactorSearch = null)
+        public ReduceOptions With(bool? allowSearchIdentities = null, bool? allowCommonFactorSearch = null,
+            bool? allowDistributeTerms = null)
         {
             ReduceOptions newOptions = this;
 
@@ -34,10 +37,16 @@ namespace MathUtil
                 newOptions.AllowCommonFactorSearch = allowCommonFactorSearch.Value;
             }
 
+            if (allowDistributeTerms.HasValue)
+            {
+                newOptions.AllowDistributeTerms = allowDistributeTerms.Value;
+            }
+
             return newOptions;
         }
 
         public bool AllowSearchIdentities { get; private set; }
         public bool AllowCommonFactorSearch { get; private set; }
+        public bool AllowDistributeTerms { get; private set; }
     }
 }

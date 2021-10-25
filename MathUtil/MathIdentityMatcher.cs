@@ -55,6 +55,11 @@ namespace MathUtil
 
                 for (int idTermIndex = 0; idTermIndex < maxIndex; idTermIndex++)
                 {
+                    if (terms.Count() < identity.Terms.Count - 1)
+                    {
+                        continue;
+                    }
+
                     var reducedExpr = TryReduceByIdentity(terms, identity, idTermIndex);
 
                     if (reducedExpr != null)
@@ -71,7 +76,7 @@ namespace MathUtil
         {
             var identityTerm = identity.Terms[identityTermIndex];
 
-            if (terms.Count() < identity.Terms.Count - 1)
+            if (identityTerm.IsConst)
             {
                 return null;
             }
@@ -85,17 +90,17 @@ namespace MathUtil
 
                 var match = identityTerm.Match(term);
 
-                if (match == null)
+                if (match == null || match.IsTrivial)
                 {
                     continue;
                 }
 
                 var identityExprWithCoefficient = GetIdentityWithCoefficient(identity, identityTerm, term);
 
-                var transformedIdentity = identityExprWithCoefficient.Visit(match.Transformation);
+                var transformedIdentity = match.Transform(identityExprWithCoefficient);
 
                 var expr = AddMathExpr.Create(terms);
-                var adjustedExpr = (expr - transformedIdentity).Reduce(_options);
+                var adjustedExpr = (expr - transformedIdentity).Reduce(_options.With(allowDistributeTerms: true));
 
                 if (adjustedExpr.Weight < expr.Weight)
                 {

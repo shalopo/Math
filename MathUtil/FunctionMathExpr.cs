@@ -92,7 +92,7 @@ namespace MathUtil
 
         protected override MathExpr TryReduceImpl(MathExpr input, ReduceOptions options)
         {
-            return PreferNonExpandedForm ? null : EvalCall(input);
+            return PreferNonExpandedForm && !input.IsConst ? null : EvalCall(input);
         }
     }
 

@@ -80,6 +80,8 @@ namespace MathUtil
             Create(NumericalConstMathExpr.Add(NumericalConstMathExpr.Mult(a.Real, b.Real), NumericalConstMathExpr.Mult(a.Imag, b.Imag).Negate()),
                    NumericalConstMathExpr.Add(NumericalConstMathExpr.Mult(a.Real, b.Imag), NumericalConstMathExpr.Mult(a.Imag, b.Real)));
 
+        //TODO: reduce to exact if no imaginary part
+
         public ConstComplexMathExpr EvalPow(ConstComplexMathExpr exponent)
         {
             var size_sqr = SizeSquared;

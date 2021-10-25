@@ -285,22 +285,9 @@ namespace MathTest
         {
             var x = ExpandableMathFunctionDef.x1;
 
-            ExpandTaylor(new ExpandableMathFunctionDef("f", 
-            //SIN(-x + 1).Pow(2) * SIN(x + 1)
-            //4 * ARCTAN(-x)
-            //E.Pow(x)
-            //E.Pow(2 * x * I)    
-            //SIN(x).Pow(2)
-            E.Pow(7 * x) //TODO: some serious error here
-            //1/(1-I)
-            //1/(1-x/4)
-            //(-1+2*I).Pow(3-5*I)
-            //COS(PI / 2)
-            //(2 * (x - 3) + 6) / (x + 1)
-            //(SQRT(2) / 2 + I * SQRT(2) / 2).Pow(2)
-            //E.Pow(I * x) / (COS(x) + I * SIN(x))
-            //SIN(2 * x) / 2 * SIN(x) * COS(x)
-            //(27 + x).Pow(ONE / 3)
+            ExpandTaylor(new ExpandableMathFunctionDef("f",
+            (x + 1)*(x - 1)*(x + 3)*(x + 5) / (x - 2)  //TODO: errors and weird reuctions
+            //(SQRT(2) / 2 + I * SQRT(2) / 2).Pow(2)   //TODO: Weird printing on complex eval
             , x));
         }
 
@@ -330,8 +317,17 @@ namespace MathTest
             var direct_exact_eval = ComplexEvalWith(f.Definition, (arg, eval_at));
             Console.WriteLine($"{f.Name}({eval_at}) via direct = {direct_exact_eval}");
 
-            var err = ComplexEval(taylor_exact_evaled - direct_exact_eval).Size;
-            Console.WriteLine($"err = {err}");
+            var error = ComplexEval(taylor_exact_evaled - direct_exact_eval).Size;
+
+            if (direct_exact_eval.Size == 0)
+            {
+                Console.WriteLine($"error = {error}");
+            }
+            else
+            {
+                var errorRatio = error / direct_exact_eval.Size;
+                Console.WriteLine($"error ratio = {errorRatio}");
+            }
         }
     }
 }

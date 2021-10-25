@@ -16,12 +16,12 @@ namespace Test
         [MemberData(nameof(CompoundTestData))]
         [MemberData(nameof(CollectAddTestData))]
         [MemberData(nameof(CollectMultTestData))]
-        [MemberData(nameof(DistributionTestData))]
+        [MemberData(nameof(DistributionAddTestData))]
         [MemberData(nameof(MinusDistributionTestData))]
         [MemberData(nameof(PowersTestData))]
         [MemberData(nameof(TrigKnownValuesTestData))]
         [MemberData(nameof(FractionsTestData))]
-        [MemberData(nameof(DistributePowersTestData))]
+        [MemberData(nameof(DistributeMultTestData))]
         [MemberData(nameof(TrigIdentitiesTestData))]
         [MemberData(nameof(RepetitiveReductionTest))]
         public void AssertReducedEqual(string expected_str, string actual_str)
@@ -52,6 +52,9 @@ namespace Test
             ("-24", "-3*8"),
             ("-24", "3*(-8)"),
             ("24", "(-3)*(-8)"),
+            ("1", "0.1/0.1"),
+            ("1", "(-0.1)/(-0.1)"),
+            ("-1", "-(0.1)^2000000/(-0.1)^2000000"),
         });
 
         public static IEnumerable<object[]> CompoundTestData() => GetTheoryData(new[] {
@@ -73,9 +76,10 @@ namespace Test
 
             //TODO: e^x as common factor
             //("2e^x", "e^x+e^x"),
+            //("e^x*(y+1)", "e^x + y*e^x"),
+            //("e^x*(e+1)", "e^x+e^(x+1)"),
             //("3e^pi", "e^pi+2e^pi"),
             //("xe^x", "xe^x+2xe^x"),
-            //("e^x*(y+1)", "e^x + y*e^x"),
         });
 
         public static IEnumerable<object[]> CollectMultTestData() => GetTheoryData(new[] {
@@ -85,7 +89,7 @@ namespace Test
             ("ln(x)^4*cos(x)^2", "cos(x) * ln(x)^2 * ln(x)^3 / ln(x) * cos x"),
         });
 
-        public static IEnumerable<object[]> DistributionTestData() => GetTheoryData(new[] {
+        public static IEnumerable<object[]> DistributionAddTestData() => GetTheoryData(new[] {
             ("x+2", "2(x+1)-x"),
             ("2x", "2(x+1)-2"),
             ("x", "x(x + 1) - x^2"),
@@ -124,9 +128,10 @@ namespace Test
             ("2", "2x/(x + y) + 2y/(x + y)"),
         });
 
-        // DistributePowersTestData
-        public static IEnumerable<object[]> DistributePowersTestData() => GetTheoryData(new[] {
+        //TODO: DistributeMultTestData
+        public static IEnumerable<object[]> DistributeMultTestData() => GetTheoryData(new[] {
             ("0", "(sqrt(x)/x)^(-2) - sqr(x)/x"),
+            //("sin(x) - cos(x)", "-(cos(x) - sin(x))")
             //("x^2+y^2", "y^2*(1 + x^2/y^2)"),
             //("x^2+y^2", "y^2*(1 + (x/y)^2)"),
             //("1/y^2", "(1 + x^2/y^2)/(x^2 + y^2)"),
@@ -152,6 +157,21 @@ namespace Test
         public static IEnumerable<object[]> RepetitiveReductionTest() => GetTheoryData(new[] {
             ("x^2", "x^2*sin(y)^2 + x^2*cos(y)^2"),
             ("x^2", "x^2sin(y)^2sin(z)^2 + x^2sin(y)^2cos(z)^2 + x^2cos(y)^2"),
+            ("x^2", "x * (1 - 1 + x*sin(x)^2 + x*cos(x)^2)"),
+            ("2", "2*(1 - x/2) + x*sin(x)^2 + x*cos(x)^2"),
+
+            // Identity matching multiple times:
+            ("2", "sin(y)^2 + cos(y)^2 + sin(z)^2 + cos(z)^2"),
+            
+            // Numerics should be collected during repetitive identity matching:
+            ("-cos(x)^2", "sin(z)^2 + cos(z)^2 - 2sin(y)^2 - 2cos(y)^2  + sin(x)^2"),
+
+            // Identity matching should be reconsidered after a first match is done:
+            //("cos(2x)", "cos(2x)"),   ("2cos(x)^2", "sin(y)^2 + cos(y)^2 + cos(2x)"),      
+
+            //TODO: Identity matching and finding common factors should be executed alternately
+            //  ("2cos(x)^2", "sin(y)^2 + cos(y)^2 + sin(z)^2 + cos(z)^2 - 2sin(x)^2"),
+            //  ("x", "(1-x^2)*(1-sin(x)^2) + (2x^2-1)*cos(x)^2 + x*sin(x)^2")
 
             //("1", "cos(2x)^2/(cot(2x) * sin(2x))^2"),
             //("1/cos(x)^2", "1 + sin(x)^2/cos(x)^2"),

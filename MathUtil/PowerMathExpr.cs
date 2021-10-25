@@ -146,6 +146,7 @@ namespace MathUtil
                 }
             }
 
+            //TODO: any negative exponent
             if (exponentReduced.Equals(MINUS_ONE))
             {
                 if (baseReduced is MultMathExpr multBase)
@@ -233,14 +234,19 @@ namespace MathUtil
 
             var match = Base.Match(powerExpr.Base);
             
-            if (match != null)
+            if (match != null && match.IsConsistent(this, expr))
             {
                 return match;
             }
             
             match = Exponent.Match(powerExpr.Exponent);
-            
-            return match;
+
+            if (match != null && match.IsConsistent(this, expr))
+            {
+                return match;
+            }
+
+            return null;
         }
     }
 }

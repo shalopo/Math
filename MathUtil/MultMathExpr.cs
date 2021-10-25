@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,23 +33,23 @@ namespace MathUtil
 
         public override string ToString()
         {
-            var terms = Terms.ToList();
+            static void SortByWeight(List<MathExpr> exprs) => exprs.Sort((term1, term2) => term1.Weight.CompareTo(term2.Weight));
 
-            // If the expression is not reduced, keep the order as given
+            var fractions = Terms.OfType<ConstFractionMathExpr>();
+
+            var positivePowers = Terms.Where(term => term is not PowerMathExpr && term is not ConstFractionMathExpr).
+                Concat(Terms.OfType<PowerMathExpr>().Where(term => !term.Exponent.Coefficient.IsNegative)).
+                Concat(fractions.Where(f => f.Top != 1).Select(f => new ExactConstMathExpr(f.Top))).ToList();
+
+            var negativePowers = Terms.
+                OfType<PowerMathExpr>().Where(term => term.Exponent.Coefficient.IsNegative).Select(term => term.Reciprocate()).
+                Concat(fractions.Select(f => new ExactConstMathExpr(f.Bottom))).ToList();
+
             if (IsReduced)
-            { 
-                terms.Sort((term1, term2) => term1.Weight.CompareTo(term2.Weight));
+            {
+                SortByWeight(positivePowers);
+                SortByWeight(negativePowers);
             }
-
-            return ToStringInner(terms);
-        }
-
-        private static string ToStringInner(IReadOnlyList<MathExpr> terms)
-        {
-            var positivePowers = terms.Where(term => term is not PowerMathExpr).
-                Concat(terms.OfType<PowerMathExpr>().Where(term => !term.Exponent.Coefficient.IsNegative));
-
-            var negativePowers = terms.OfType<PowerMathExpr>().Where(term => term.Exponent.Coefficient.IsNegative);
 
             var sb = new StringBuilder();
 
@@ -70,7 +71,7 @@ namespace MathUtil
                     sb.Append("(");
                 }
 
-                sb.Append(JoinNegativePowers(negativePowers.Select(term => term.Reciprocate())));
+                sb.Append(JoinNegativePowers(negativePowers));
 
                 if (wrap)
                 {

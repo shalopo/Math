@@ -16,8 +16,7 @@ namespace MathUtil
 
         internal override MathExprMatch Match(MathExpr expr)
         {
-            return Equals(expr) ? MathExprMatch.IDENTICAL : null;
-            //return new MathExprMatch((ConstMathExpr)((this / constExpr).Reduce()), VariablesTransformation.TRIVIAL);
+            return Equals(expr) ? MathExprMatch.TRIVIAL : null;
         }
     }
 

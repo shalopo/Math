@@ -10,11 +10,15 @@ namespace MathUtil
     {
         public static MathExpr Reduce(IEnumerable<MathExpr> terms, ReduceOptions options)
         {
+            terms = Flatten(terms);
             terms = ReduceTerms(terms, options);
 
-            terms = terms.SelectMany(expr => (expr is AddMathExpr addExpr) ? addExpr.Terms : new[] { expr });
+            if (options.AllowDistributeTerms)
+            {
+                terms = DistributeMultTerms(terms, options);
+            }
 
-            terms = DistributeMultTerms(terms, options);
+            terms = CollectConsts(terms);
 
             if (options.AllowCommonFactorSearch)
             {
@@ -25,10 +29,16 @@ namespace MathUtil
             {
                 terms = MathIdentityMatcher.Reduce(terms, options);
             }
-
+            
             terms = CollectConsts(terms);
 
             return AddMathExpr.Create(terms);
+        }
+
+        private static IEnumerable<MathExpr> Flatten(IEnumerable<MathExpr> terms)
+        {
+            //TODO: Make this more efficient and only as needed, as it is rarely required
+            return terms.SelectMany(expr => (expr is AddMathExpr addExpr) ? Flatten(addExpr.Terms) : new[] { expr });
         }
 
         private static IEnumerable<MathExpr> CollectConsts(IEnumerable<MathExpr> terms)
@@ -81,11 +91,11 @@ namespace MathUtil
 
         private static IEnumerable<MathExpr> ReduceTerms(IEnumerable<MathExpr> terms, ReduceOptions options)
         {
-            return (from expr in terms
-                     let exprReduced = expr.Reduce(options)
-                     where !MathEvalUtil.IsZero(exprReduced)
-                     select exprReduced is AddMathExpr addExpr ? addExpr.Terms : new[] { exprReduced }
-            ).SelectMany(s => s);
+            // It is possible that reduction of terms requires reflattening
+            return Flatten(from expr in terms
+                let exprReduced = expr.Reduce(options)
+                where !MathEvalUtil.IsZero(exprReduced)
+                select exprReduced);
         }
 
         private static IEnumerable<MathExpr> DistributeMultTerms(IEnumerable<MathExpr> terms, ReduceOptions options)

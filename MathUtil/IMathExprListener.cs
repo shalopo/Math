@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MathUtil
 {
-    interface IMathExprTransformer
+    public interface IMathExprTransformer
     {
         MathExpr Transform(MathExpr expr);
     }

@@ -10,13 +10,13 @@ namespace MathUtil
     {
         class ExprPowers
         {
-            public Dictionary<int, long> Powers { get; } = new(); // by originating term index
+            public Dictionary<int, double> Powers { get; } = new(); // by originating term index
 
             //TODO: This is like finding the greatest common "factor" but in an additive way:
             // A*e^(x+2) + B*e^(2x+1)  => e^(x+1)*(A*e + B*e^x)
-            public long MaxCommonExponent => Powers.Values.Min();
+            public double MaxCommonExponent => Powers.Values.Min();
 
-            public void Add(int originatingTermIndex, long exponent)
+            public void Add(int originatingTermIndex, double exponent)
             {
                 if (Powers.ContainsKey(originatingTermIndex))
                 {
@@ -33,6 +33,7 @@ namespace MathUtil
         IReadOnlyList<MathExpr> _terms;
         Dictionary<MathExpr, ExprPowers> _factors;
         readonly ReduceOptions _options;
+        readonly ReduceOptions _optionsSpeculative;
         readonly ReduceOptions _optionsLight;
 
         CommonFactorReducer(IEnumerable<MathExpr> terms, ReduceOptions options)
@@ -40,6 +41,7 @@ namespace MathUtil
             _terms = terms.ToList();
 
             _options = options;
+            _optionsSpeculative = _options.With(allowDistributeTerms: false);
             _optionsLight = _options.With(allowCommonFactorSearch: false, allowSearchIdentities: false);
         }
 
@@ -70,6 +72,8 @@ namespace MathUtil
                 {
                     return fullCoverageFactor;
                 }
+
+                //TODO: Performance? Join similar powers - factor out whatever comes together: 2xy + 2xz => 2x(y+z)
 
                 var newTerms = SearchSpeculatively();
 
@@ -104,8 +108,7 @@ namespace MathUtil
 
                 foreach (var powerTerm in powerTerms)
                 {
-                    if (powerTerm.Exponent is ExactConstMathExpr exactExponent &&
-                        exactExponent.IsWholeNumber)
+                    if (powerTerm.Exponent is ExactConstMathExpr exactExponent)
                     {
                         if (!_factors.TryGetValue(powerTerm.Base, out ExprPowers powers))
                         {
@@ -113,7 +116,7 @@ namespace MathUtil
                             _factors[powerTerm.Base] = powers;
                         }
 
-                        powers.Add(termIndex, exactExponent.AsWholeNumber.Value);
+                        powers.Add(termIndex, exactExponent.ToDouble());
                     }
                 }
             }
@@ -151,12 +154,12 @@ namespace MathUtil
             foreach (var factor in _factors.OrderByDescending(f => f.Key.Weight))
             {
                 var factorPowerExpr = PowerMathExpr.Create(factor.Key, factor.Value.MaxCommonExponent);
-                
+
                 var dividedTerms = factor.Value.Powers.Keys.
                     Select(termIndex => (_terms[termIndex] / factorPowerExpr).Reduce(_optionsLight));
                 
                 var preReducedInnerExpr = AddMathExpr.Create(dividedTerms);
-                var innerExpr = preReducedInnerExpr.Reduce(_options);
+                var innerExpr = preReducedInnerExpr.Reduce(_optionsSpeculative);
 
                 if (innerExpr.Weight >= preReducedInnerExpr.Weight)
                 {

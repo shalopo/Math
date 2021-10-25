@@ -13,9 +13,21 @@ namespace MathUtil
             Transformation = transformation;
         }
 
-        public static readonly MathExprMatch IDENTICAL = new(VariablesTransformation.TRIVIAL);
+        public bool IsTrivial => Transformation.IsTrivial;
 
-        public VariablesTransformation Transformation { get; private set; }
+        public MathExpr Transform(MathExpr expr)
+        {
+            return expr.Visit(Transformation);
+        }
+
+        public bool IsConsistent(MathExpr source, MathExpr target)
+        {
+            return Transform(source).Equals(target);
+        }
+
+        public static readonly MathExprMatch TRIVIAL = new(VariablesTransformation.TRIVIAL);
+
+        private VariablesTransformation Transformation { get; set; }
     }
 
 }

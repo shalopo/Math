@@ -34,7 +34,7 @@ namespace MathUtil
             // If the expression is not reduced, keep the order as given
             if (IsReduced)
             {
-                terms.Sort((term1, term2) => term1.Weight.CompareTo(term2.Weight));
+                terms.Sort((term1, term2) => term2.Weight.CompareTo(term1.Weight));
             }
 
             return ToStringInner(terms);
@@ -68,7 +68,7 @@ namespace MathUtil
 
         protected override MathExpr ReduceImpl(ReduceOptions options) => AddReducer.Reduce(Terms, options);
 
-        internal override double Weight => Terms.Aggregate(0.0, (agg, expr) => agg + expr.Weight);
+        internal override double Weight => Terms.Aggregate(2.0, (agg, expr) => agg + expr.Weight);
         internal override bool IsConst => Terms.All(expr => expr.IsConst);
         internal override ConstComplexMathExpr ComplexEval() => ConstComplexMathExpr.Add(Terms.Select(expr => expr.ComplexEval()));
 
