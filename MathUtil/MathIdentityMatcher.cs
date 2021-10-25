@@ -10,13 +10,13 @@ namespace MathUtil
     {
         private const int MAX_IDENTITY_TERMS_TO_CHECK = 2;
 
-        ReduceOptions _options;
-
-        public MathIdentityMatcher(ReduceOptions options) => _options = options.With(allowSearchIdentities: false);
-
-        public static IEnumerable<MathExpr> Reduce(IEnumerable<MathExpr> terms, ReduceOptions options)
+        public MathIdentityMatcher()
         {
-            return new MathIdentityMatcher(options).DoReduce(terms);
+        }
+
+        public static IEnumerable<MathExpr> Reduce(IEnumerable<MathExpr> terms)
+        {
+            return new MathIdentityMatcher().DoReduce(terms);
         }
 
         private IEnumerable<MathExpr> DoReduce(IEnumerable<MathExpr> terms)
@@ -100,7 +100,7 @@ namespace MathUtil
                 var transformedIdentity = match.Transform(identityExprWithCoefficient);
 
                 var expr = AddMathExpr.Create(terms);
-                var adjustedExpr = (expr - transformedIdentity).Reduce(_options.With(allowDistributeTerms: true));
+                var adjustedExpr = (expr - transformedIdentity).Reduce(ReduceOptions.DEFAULT.With(allowSearchIdentities: false));
 
                 if (adjustedExpr.Weight < expr.Weight)
                 {
@@ -118,10 +118,10 @@ namespace MathUtil
                 return identity.AddExpr;
             }
 
-            var coefficient = (term.Coefficient / identityTerm.Coefficient).Reduce(_options);
+            var coefficient = (term.Coefficient / identityTerm.Coefficient).Reduce(ReduceOptions.LIGHT);
 
             var identityExprWithCoefficient = (AddMathExpr)AddMathExpr.Create(
-                identity.Terms.Select(t => (-coefficient * t).Reduce(_options)));
+                identity.Terms.Select(t => (-coefficient * t).Reduce(ReduceOptions.LIGHT)));
             return identityExprWithCoefficient;
         }
     }

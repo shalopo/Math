@@ -32,22 +32,15 @@ namespace MathUtil
 
         IReadOnlyList<MathExpr> _terms;
         Dictionary<MathExpr, ExprPowers> _factors;
-        readonly ReduceOptions _options;
-        readonly ReduceOptions _optionsSpeculative;
-        readonly ReduceOptions _optionsLight;
 
-        CommonFactorReducer(IEnumerable<MathExpr> terms, ReduceOptions options)
+        CommonFactorReducer(IEnumerable<MathExpr> terms)
         {
             _terms = terms.ToList();
-
-            _options = options;
-            _optionsSpeculative = _options.With(allowDistributeTerms: false);
-            _optionsLight = _options.With(allowCommonFactorSearch: false, allowSearchIdentities: false);
         }
 
-        public static IEnumerable<MathExpr> Reduce(IEnumerable<MathExpr> terms, ReduceOptions options)
+        public static IEnumerable<MathExpr> Reduce(IEnumerable<MathExpr> terms)
         {
-            var result = new CommonFactorReducer(terms, options).DoReduce();
+            var result = new CommonFactorReducer(terms).DoReduce();
 
             return result is AddMathExpr addExpr ? addExpr.Terms : new[] { result };
         }
@@ -91,7 +84,7 @@ namespace MathUtil
 
             var result = AddMathExpr.Create(_terms);
 
-            return anyChanges ? result.Reduce(_optionsLight) : result;
+            return anyChanges ? result.Reduce(ReduceOptions.LIGHT) : result;
         }
 
         private void MapFactors()
@@ -143,10 +136,10 @@ namespace MathUtil
             var commonFactor = MultMathExpr.Create(_factors.Select(factor => 
                                                    PowerMathExpr.Create(factor.Key, factor.Value.MaxCommonExponent)));
 
-            var dividedTerms = _terms.Select(term => (term / commonFactor).Reduce(_optionsLight));
-            var innerExpr = AddMathExpr.Create(dividedTerms).Reduce(_options);
+            var dividedTerms = _terms.Select(term => (term / commonFactor).Reduce(ReduceOptions.LIGHT));
+            var innerExpr = AddMathExpr.Create(dividedTerms).Reduce(ReduceOptions.DEFAULT);
 
-            return (commonFactor * innerExpr).Reduce(_optionsLight);
+            return (commonFactor * innerExpr).Reduce(ReduceOptions.LIGHT);
         }
 
         private IReadOnlyList<MathExpr> SearchSpeculatively()
@@ -156,10 +149,13 @@ namespace MathUtil
                 var factorPowerExpr = PowerMathExpr.Create(factor.Key, factor.Value.MaxCommonExponent);
 
                 var dividedTerms = factor.Value.Powers.Keys.
-                    Select(termIndex => (_terms[termIndex] / factorPowerExpr).Reduce(_optionsLight));
+                    Select(termIndex => (_terms[termIndex] / factorPowerExpr).Reduce(ReduceOptions.LIGHT));
                 
                 var preReducedInnerExpr = AddMathExpr.Create(dividedTerms);
-                var innerExpr = preReducedInnerExpr.Reduce(_optionsSpeculative);
+
+                // Avoid distribution that may cause weight gain, potentially resulting in an infinite loop;
+                var reduceOptions = ReduceOptions.DEFAULT.With(allowDistributeTerms: false);
+                var innerExpr = preReducedInnerExpr.Reduce(reduceOptions);
 
                 if (innerExpr.Weight >= preReducedInnerExpr.Weight)
                 {
@@ -172,7 +168,7 @@ namespace MathUtil
                 {
                     var innerTerms = ((innerExpr is AddMathExpr innerAddExpr) ? innerAddExpr.Terms : new []{ innerExpr });
 
-                    newTerms = newTerms.Concat(innerTerms.Select(term => (factorPowerExpr * term).Reduce(_optionsLight)));
+                    newTerms = newTerms.Concat(innerTerms.Select(term => (factorPowerExpr * term).Reduce(ReduceOptions.LIGHT)));
                 }
 
                 return newTerms.ToList();

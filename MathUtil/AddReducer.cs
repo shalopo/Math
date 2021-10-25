@@ -15,19 +15,19 @@ namespace MathUtil
 
             if (options.AllowDistributeTerms)
             {
-                terms = DistributeMultTerms(terms, options);
+                terms = DistributeMultTerms(terms);
             }
 
             terms = CollectConsts(terms);
 
             if (options.AllowCommonFactorSearch)
             {
-                terms = CommonFactorReducer.Reduce(terms, options);
+                terms = CommonFactorReducer.Reduce(terms);
             }
 
             if (options.AllowSearchIdentities)
             {
-                terms = MathIdentityMatcher.Reduce(terms, options);
+                terms = MathIdentityMatcher.Reduce(terms);
             }
             
             terms = CollectConsts(terms);
@@ -98,15 +98,13 @@ namespace MathUtil
                 select exprReduced);
         }
 
-        private static IEnumerable<MathExpr> DistributeMultTerms(IEnumerable<MathExpr> terms, ReduceOptions options)
+        private static IEnumerable<MathExpr> DistributeMultTerms(IEnumerable<MathExpr> terms)
         {
-            return terms.Select(expr => (expr is MultMathExpr multExpr) ? 
-                                TryDistribute(multExpr, options) : 
-                                new[] { expr })
+            return terms.Select(expr => (expr is MultMathExpr multExpr) ?  TryDistribute(multExpr) :  new[] { expr })
                 .SelectMany(s => s);
         }
 
-        private static IEnumerable<MathExpr> TryDistribute(MultMathExpr expr, ReduceOptions options)
+        private static IEnumerable<MathExpr> TryDistribute(MultMathExpr expr)
         {
             var addTerms = expr.Terms.OfType<AddMathExpr>();
 
@@ -118,7 +116,7 @@ namespace MathUtil
             var addTerm = addTerms.First();
             var restOfTerms = MultMathExpr.Create(expr.Terms.Where(term => term != addTerm));
 
-            return addTerm.Select(term => (term * restOfTerms).Reduce(options));
+            return addTerm.Select(term => (term * restOfTerms).Reduce(ReduceOptions.LIGHT));
         }
 
     }

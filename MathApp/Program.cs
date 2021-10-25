@@ -286,13 +286,15 @@ namespace MathTest
             var x = ExpandableMathFunctionDef.x1;
 
             ExpandTaylor(new ExpandableMathFunctionDef("f",
-            (x + 1)*(x - 1)*(x + 3)*(x + 5) / (x - 2)  //TODO: errors and weird reuctions
+            (x + 1)*(x - 1)*(x + 3)  //TODO: derivative has unexpected non distributed terms
+            //TODO: causes stack overflow arctan(x*2^(1/2)/2)
+            //TODO: ARCCOS and ARCCOS(x)
             //(SQRT(2) / 2 + I * SQRT(2) / 2).Pow(2)   //TODO: Weird printing on complex eval
             , x));
         }
 
         private static void ExpandTaylor(ExpandableMathFunctionDef f, MathExpr eval_at = null, MathExpr base_input = null, 
-            int max_derivatives = 15, int max_seconds = 2)
+            int max_derivatives = 20, int max_seconds = 2)
         {
             base_input ??= ZERO;
             eval_at ??= ONE;

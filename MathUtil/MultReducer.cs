@@ -22,8 +22,8 @@ namespace MathUtil
 
             terms = (from item in powers
                      let @base = item.Key
-                     let exponent = AddMathExpr.Create(item.Value).Reduce(options)
-                     select PowerMathExpr.Create(@base, exponent).Reduce(options));
+                     let exponent = AddMathExpr.Create(item.Value).Reduce(ReduceOptions.DEFAULT)
+                     select PowerMathExpr.Create(@base, exponent).Reduce(ReduceOptions.DEFAULT));
 
             terms = (from expr in terms select expr is MultMathExpr mult_expr ? mult_expr.Terms : new MathExpr[] { expr }
                 ).SelectMany(s => s).ToList();
