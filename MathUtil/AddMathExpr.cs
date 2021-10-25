@@ -68,7 +68,7 @@ namespace MathUtil
 
         protected override MathExpr ReduceImpl(ReduceOptions options) => AddReducer.Reduce(Terms, options);
 
-        internal override double Weight => Terms.Aggregate(2.0, (agg, expr) => agg + expr.Weight);
+        internal override double WeightImpl => Terms.Aggregate(2.0, (agg, expr) => agg + expr.Weight);
         internal override bool IsConst => Terms.All(expr => expr.IsConst);
         internal override ConstComplexMathExpr ComplexEval() => ConstComplexMathExpr.Add(Terms.Select(expr => expr.ComplexEval()));
 

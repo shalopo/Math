@@ -14,7 +14,7 @@ namespace MathUtil
         private ExactConstMathExpr Exact { get; }
         public double Value { get => Exact.Value; }
 
-        internal override double Weight => 1.25;
+        internal override double WeightImpl => 1.25;
         internal override bool RequiresPowScoping => false;
 
         internal override ConstComplexMathExpr ComplexEval() => ConstComplexMathExpr.Create(Exact, GlobalMathDefs.ZERO);

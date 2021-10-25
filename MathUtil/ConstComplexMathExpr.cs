@@ -36,7 +36,7 @@ namespace MathUtil
         public bool HasImagPart => !(IsZero(Imag));
         public bool HasRealPart => !(IsZero(Real));
 
-        internal override double Weight => ReducedAddExpr.Weight;
+        internal override double WeightImpl => ReducedAddExpr.Weight;
         internal override bool RequiresMultScoping => ReducedAddExpr.RequiresMultScoping;
         internal override bool RequiresPowScoping => ReducedAddExpr.RequiresPowScoping;
         public override string ToString() => ReducedAddExpr.ToString();

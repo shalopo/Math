@@ -38,7 +38,22 @@ namespace MathUtil
             return this;
         }
 
-        internal abstract double Weight { get; }
+        internal abstract double WeightImpl { get; }
+        private double? _weightLazy;
+
+        internal double Weight
+        {
+            get
+            {
+                if (!_weightLazy.HasValue)
+                {
+                    _weightLazy = WeightImpl;
+                }
+
+                return _weightLazy.Value;
+            }
+        }
+
         internal abstract bool IsConst { get; }
 
         // TODO: extend this to eval into anything (e.g. consider matrices)

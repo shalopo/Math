@@ -139,7 +139,7 @@ namespace MathUtil
             return Func.TryReduce(input_reduced, options) ?? new FunctionCallMathExpr(Func, input_reduced);
         }
 
-        internal override double Weight => Input.Weight + 1;
+        internal override double WeightImpl => Input.Weight + 1;
         internal override bool IsConst => Input.IsConst;
         internal override ConstComplexMathExpr ComplexEval() => Func.ComplexEval(Input.ComplexEval());
 

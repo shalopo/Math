@@ -20,7 +20,7 @@ namespace MathUtil
         public bool IsWholeNumber => MathEvalUtil.IsWholeNumber(Value);
         public long? AsWholeNumber => IsWholeNumber ? Convert.ToInt64(Value) : (long?)null;
 
-        internal override double Weight => Value == 0 ? 0 : 
+        internal override double WeightImpl => Value == 0 ? 0 : 
             MathEvalUtil.IsWholeNumber(Value) ? 1 : 2;
 
         internal override bool RequiresMultScoping => (Value < 0);

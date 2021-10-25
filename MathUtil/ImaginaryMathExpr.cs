@@ -15,7 +15,7 @@ namespace MathUtil
 
         public static ImaginaryMathExpr Instance = new();
 
-        internal override double Weight => 1;
+        internal override double WeightImpl => 1;
 
         public override string ToString() => "i";
 

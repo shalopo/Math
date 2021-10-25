@@ -24,7 +24,7 @@ namespace MathUtil
         public long Top { get; }
         public long Bottom { get; }
 
-        internal override double Weight => 2;
+        internal override double WeightImpl => 2;
         internal override bool RequiresPowScoping => true;
         internal override bool RequiresMultScoping => Top < 0;
 
