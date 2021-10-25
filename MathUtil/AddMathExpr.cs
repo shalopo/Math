@@ -75,7 +75,19 @@ namespace MathUtil
         internal override MathExpr Visit(IMathExprTransformer transformer) => AddMathExpr.Create(Terms.Select(expr => expr.Visit(transformer)));
 
         public override bool Equals(object other) => (other is AddMathExpr other_add) && EqualityUtil.Equals(Terms, other_add.Terms);
-        public override int GetHashCode() => EqualityUtil.GetHashCode(Terms, 982734678);
+
+
+        private int? m_hashCodeLazy;
+
+        public override int GetHashCode()
+        {
+            if (!m_hashCodeLazy.HasValue)
+            {
+                m_hashCodeLazy = EqualityUtil.GetHashCode(Terms, 982734678);
+            }
+
+            return m_hashCodeLazy.Value;
+        }
 
         internal override MathExprMatch Match(MathExpr expr)
         {

@@ -40,6 +40,7 @@ namespace MathUtil
         internal override bool RequiresMultScoping => ReducedAddExpr.RequiresMultScoping;
         internal override bool RequiresPowScoping => ReducedAddExpr.RequiresPowScoping;
         public override string ToString() => ReducedAddExpr.ToString();
+        public override int GetHashCode() => ReducedAddExpr.GetHashCode();
 
         internal override ConstComplexMathExpr ComplexEval() => this;
 
@@ -49,14 +50,6 @@ namespace MathUtil
         {
             return (obj is ConstComplexMathExpr expr && Real.Equals(expr.Real) && Imag.Equals(expr.Imag)) || 
                    (IsZero(Imag) &&  obj is ExactConstMathExpr exact &&  exact.Equals(Real));
-        }
-
-        public override int GetHashCode()
-        {
-            var hashCode = -1656204448;
-            hashCode = hashCode * -1521134295 + Real.GetHashCode();
-            hashCode = hashCode * -1521134295 + Imag.GetHashCode();
-            return hashCode;
         }
 
         public double SizeSquared => CalcDistanceSquared(Real.ToDouble(), Imag.ToDouble());

@@ -149,8 +149,20 @@ namespace MathUtil
 
         internal override NumericalConstMathExpr Coefficient => _coefficient;
 
-        public override bool Equals(object other) => (other is MultMathExpr other_mult) && EqualityUtil.Equals(Terms, other_mult.Terms);
-        public override int GetHashCode() => EqualityUtil.GetHashCode(Terms, 407977119);
+        public override bool Equals(object other) => (other is MultMathExpr other_mult) && 
+            EqualityUtil.Equals(Terms, other_mult.Terms);
+
+        private int? m_hashCodeLazy;
+
+        public override int GetHashCode()
+        {
+            if (!m_hashCodeLazy.HasValue)
+            {
+                m_hashCodeLazy = EqualityUtil.GetHashCode(Terms, 407977119);
+            }
+
+            return m_hashCodeLazy.Value;
+        }
 
         internal override MathExprMatch Match(MathExpr expr)
         {
