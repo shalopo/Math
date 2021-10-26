@@ -127,6 +127,8 @@ namespace Test
             ("1", "x/(x + y) + y/(x + y)"),
             ("2/x", "1/(x - x/2)"),
             ("2", "2x/(x + y) + 2y/(x + y)"),
+            ("1", "-4cos(x)sin(x)/(-4cos(x)sin(x))"),
+            ("x^2/y", "x^3/(xy)"),
         });
 
         //TODO: DistributeMultTestData

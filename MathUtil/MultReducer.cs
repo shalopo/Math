@@ -81,7 +81,10 @@ namespace MathUtil
             static IEnumerable<MathExpr> FlattenInner(IReadOnlyList<MathExpr> terms)
             {
                 return terms.SelectMany(term => 
-                    (term is MultMathExpr multExpr) ? FlattenInner(multExpr.Terms) : term.AsSingleExprEnumerable()
+                    (term is MultMathExpr multExpr) ? FlattenInner(multExpr.Terms) : 
+                    (term is PowerMathExpr powerExpr && powerExpr.Base is MultMathExpr baseMultExpr) ?
+                        baseMultExpr.Terms.Select(b => PowerMathExpr.Create(b, powerExpr.Exponent))
+                    : term.AsSingleExprEnumerable()
                 ).ToList();
             }
         }
@@ -101,6 +104,7 @@ namespace MathUtil
             foreach (var expr in terms)
             {
                 var pow = expr.AsPowerExpr();
+
                 if (powers.ContainsKey(pow.Base))
                 {
                     //TODO: input range validity: x/x is 1 for x!=0

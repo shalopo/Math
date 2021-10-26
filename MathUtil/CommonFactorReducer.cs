@@ -20,12 +20,10 @@ namespace MathUtil
             {
                 if (Powers.ContainsKey(originatingTermIndex))
                 {
-                    Powers[originatingTermIndex] += exponent;
+                    throw new NotImplementedException("Unexpected flow, term is not properly reduced");
                 }
-                else
-                {
-                    Powers[originatingTermIndex] = exponent;
-                }
+
+                Powers[originatingTermIndex] = exponent;
             }
         }
 
