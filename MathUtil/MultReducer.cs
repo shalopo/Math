@@ -8,7 +8,7 @@ namespace MathUtil
 {
     class MultReducer
     {
-        public static MathExpr Reduce(IEnumerable<MathExpr> terms, ReduceOptions options)
+        public static MathExpr Reduce(IReadOnlyList<MathExpr> terms, ReduceOptions options)
         {
             terms = Flatten(terms);
             terms = ReduceTerms(terms, options);
@@ -20,13 +20,10 @@ namespace MathUtil
 
             Dictionary<MathExpr, List<MathExpr>> powers = MapPowers(terms);
 
-            terms = (from item in powers
-                     let @base = item.Key
-                     let exponent = AddMathExpr.Create(item.Value).Reduce(ReduceOptions.DEFAULT)
-                     select PowerMathExpr.Create(@base, exponent).Reduce(ReduceOptions.DEFAULT));
-
-            terms = (from expr in terms select expr is MultMathExpr mult_expr ? mult_expr.Terms : new MathExpr[] { expr }
-                ).SelectMany(s => s).ToList();
+            terms = powers.Select(item => PowerMathExpr.Create(item.Key,
+                                                               AddMathExpr.Create(item.Value).Reduce(ReduceOptions.DEFAULT)).
+                                  Reduce(ReduceOptions.DEFAULT)
+                ).SelectMany(term => term.AsMultTerms()).ToList();
 
             var coefficient = NumericalConstMathExpr.Mult(terms.OfType<NumericalConstMathExpr>());
 
@@ -35,7 +32,7 @@ namespace MathUtil
                 return GlobalMathDefs.ZERO;
             }
 
-            terms = terms.Where(expr => !(expr is NumericalConstMathExpr));
+            terms = terms.Where(expr => !(expr is NumericalConstMathExpr)).ToList();
 
             //slupu: const * i => ConstComplex
 
@@ -46,53 +43,61 @@ namespace MathUtil
 
             if (!MathEvalUtil.IsOne(coefficient))
             {
-                terms = terms.Prepend(coefficient);
+                terms = new []{ coefficient }.Concat(terms).ToList();
             }
 
             return MultMathExpr.Create(terms);
         }
 
-        private static (IEnumerable<MathExpr>, int) GetUnsignedTerms(IEnumerable<MathExpr> terms)
+        private static (IReadOnlyList<MathExpr>, int) GetUnsignedTerms(IReadOnlyList<MathExpr> terms)
         {
             // Avoid missed equalities due to signs. In cases such as (-0.1)/(-0.1),  the 1/(-0.1) is reduced to -1/0.1,
             // thus -0.1*(-1)/0.1 hides that 0.1 and -0.1 are essentially the same
 
             int sign = 1;
 
-            var newTerms = terms.Select(term =>
+            List<MathExpr> newTerms = new(terms.Count);
+
+            foreach (var term in terms)
             {
                 if (term is ExactConstMathExpr numeric && numeric.IsNegative)
                 {
                     sign = -sign;
-                    return numeric.Negate();
+                    newTerms.Add(numeric.Negate());
                 }
                 else
                 {
-                    return term;
+                    newTerms.Add(term);
                 }
-            }).ToList(); // force it to run so the sign is updated
+            }
 
             return (newTerms, sign);
         }
 
-        private static IEnumerable<MathExpr> Flatten(IEnumerable<MathExpr> terms)
+        private static IReadOnlyList<MathExpr> Flatten(IReadOnlyList<MathExpr> terms)
         {
-            return terms.SelectMany(expr => (expr is MultMathExpr multExpr) ? Flatten(multExpr.Terms) : new[] { expr });
+            return FlattenInner(terms).ToList();
+
+            static IEnumerable<MathExpr> FlattenInner(IReadOnlyList<MathExpr> terms)
+            {
+                return terms.SelectMany(term => 
+                    (term is MultMathExpr multExpr) ? FlattenInner(multExpr.Terms) : term.AsSingleExprEnumerable()
+                ).ToList();
+            }
         }
 
-        private static IEnumerable<MathExpr> ReduceTerms(IEnumerable<MathExpr> terms, ReduceOptions options)
+        private static IReadOnlyList<MathExpr> ReduceTerms(IReadOnlyList<MathExpr> terms, ReduceOptions options)
         {
             // It is possible that reduction of terms requires reflattening
             return Flatten(
-                from expr in terms
-                let exprReduced = expr.Reduce(options)
-                where !MathEvalUtil.IsOne(exprReduced)
-                select exprReduced);
+                terms.Select(term => term.Reduce(options)).
+                Where(term => !MathEvalUtil.IsOne(term)).ToList());
         }
 
-        private static Dictionary<MathExpr, List<MathExpr>> MapPowers(IEnumerable<MathExpr> terms)
+        private static Dictionary<MathExpr, List<MathExpr>> MapPowers(IReadOnlyList<MathExpr> terms)
         {
             var powers = new Dictionary<MathExpr, List<MathExpr>>();
+
             foreach (var expr in terms)
             {
                 var pow = expr.AsPowerExpr();

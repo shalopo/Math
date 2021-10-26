@@ -6,28 +6,31 @@ using System.Text;
 
 namespace MathUtil
 {
-    class MultMathExpr : MathExpr, IEnumerable<MathExpr>
+    sealed class MultMathExpr : MathExpr, IEnumerable<MathExpr>
     {
-        private MultMathExpr(IEnumerable<MathExpr> terms)
+        private MultMathExpr(IReadOnlyList<MathExpr> terms)
         {
-            Terms = terms.ToList();
+            Terms = terms;
             _coefficient = NumericalConstMathExpr.Mult(Terms.OfType<NumericalConstMathExpr>());
         }
 
         public IReadOnlyList<MathExpr> Terms { get; }
         private readonly NumericalConstMathExpr _coefficient;
 
-        public static MathExpr Create(params MathExpr[] terms) => Create(terms.AsEnumerable());
+        public static MathExpr Create(params MathExpr[] terms) => Create(terms.ToList());
+        public static MathExpr Create(IEnumerable<MathExpr> terms) => Create(terms.ToList());
 
-        public static MathExpr Create(IEnumerable<MathExpr> terms)
+        public static MathExpr Create(IReadOnlyList<MathExpr> terms)
         {
-            return (terms.Count()) switch
+            return (terms.Count) switch
             {
                 0 => GlobalMathDefs.ONE,
-                1 => terms.First(),
+                1 => terms[0],
                 _ => new MultMathExpr(terms)
             };
         }
+
+        internal override IEnumerable<MathExpr> AsMultTerms() => Terms;
 
         internal override bool RequiresPowScoping => true;
 
@@ -64,7 +67,7 @@ namespace MathUtil
 
                 sb.Append("/");
 
-                bool wrap = negativePowers.Count() > 1;
+                bool wrap = negativePowers.Count > 1;
 
                 if (wrap)
                 {

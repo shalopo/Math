@@ -31,18 +31,21 @@ namespace MathUtil
 
 
         IReadOnlyList<MathExpr> _terms;
+        readonly bool _allowFullCoverageFactor;
         Dictionary<MathExpr, ExprPowers> _factors;
 
-        CommonFactorReducer(IEnumerable<MathExpr> terms)
+        CommonFactorReducer(IReadOnlyList<MathExpr> terms, bool allowFullCoverageFactor)
         {
             _terms = terms.ToList();
+            _allowFullCoverageFactor = allowFullCoverageFactor;
         }
 
-        public static IEnumerable<MathExpr> Reduce(IEnumerable<MathExpr> terms)
+        public static IReadOnlyList<MathExpr> Reduce(IReadOnlyList<MathExpr> terms, bool allowFullCoverageFactor)
         {
-            var result = new CommonFactorReducer(terms).DoReduce();
-
-            return result is AddMathExpr addExpr ? addExpr.Terms : new[] { result };
+            return new CommonFactorReducer(terms, allowFullCoverageFactor).
+                DoReduce().
+                AsAdditiveTerms().
+                ToList();
         }
 
         private MathExpr DoReduce()
@@ -51,7 +54,7 @@ namespace MathUtil
 
             do
             {
-                if (_terms.All(term => term.IsConst))
+                if (_terms.Count <= 1 || _terms.All(term => term.IsConst))
                 {
                     break;
                 }
@@ -60,10 +63,13 @@ namespace MathUtil
 
                 RemoveNonCommonFactors();
 
-                var fullCoverageFactor = TryGetFullCoverageFactor();
-                if (fullCoverageFactor != null)
+                if (_allowFullCoverageFactor)
                 {
-                    return fullCoverageFactor;
+                    var fullCoverageFactor = TryGetFullCoverageFactor();
+                    if (fullCoverageFactor != null)
+                    {
+                        return fullCoverageFactor;
+                    }
                 }
 
                 //TODO: Performance? Join similar powers - factor out whatever comes together: 2xy + 2xz => 2x(y+z)
@@ -91,7 +97,7 @@ namespace MathUtil
         {
             _factors = new Dictionary<MathExpr, ExprPowers>();
 
-            for (int termIndex = 0; termIndex < _terms.Count(); termIndex++)
+            for (int termIndex = 0; termIndex < _terms.Count; termIndex++)
             {
                 var term = _terms[termIndex];
 
@@ -128,7 +134,7 @@ namespace MathUtil
         private MathExpr TryGetFullCoverageFactor()
         {
             //TODO: this does not cover e.g. e^x since it looks for an integer value
-            if (_factors.Count == 0 || !_factors.All(factor => factor.Value.Powers.Count == _terms.Count()))
+            if (_factors.Count == 0 || !_factors.All(factor => factor.Value.Powers.Count == _terms.Count))
             {
                 return null;
             }
@@ -151,27 +157,27 @@ namespace MathUtil
                 var dividedTerms = factor.Value.Powers.Keys.
                     Select(termIndex => (_terms[termIndex] / factorPowerExpr).Reduce(ReduceOptions.LIGHT));
                 
-                var preReducedInnerExpr = AddMathExpr.Create(dividedTerms);
+                var innerExpr = AddMathExpr.Create(dividedTerms);
 
-                // Avoid distribution that may cause weight gain, potentially resulting in an infinite loop;
+                // Avoid distribution that may cause weight gain, potentially resulting in an infinite loop
                 var reduceOptions = ReduceOptions.DEFAULT.With(allowDistributeTerms: false);
-                var innerExpr = preReducedInnerExpr.Reduce(reduceOptions);
+                var reducedInnerExpr = innerExpr.Reduce(reduceOptions);
 
-                if (innerExpr.Weight >= preReducedInnerExpr.Weight)
+                if (reducedInnerExpr.Weight >= innerExpr.Weight)
                 {
                     continue;
                 }
 
-                var newTerms = _terms.Where((_, termIndex) => !factor.Value.Powers.ContainsKey(termIndex));
+                var newTerms = _terms.Where((_, termIndex) => !factor.Value.Powers.ContainsKey(termIndex)).ToList();
 
-                if (!MathEvalUtil.IsZero(innerExpr))
+                if (!MathEvalUtil.IsZero(reducedInnerExpr))
                 {
-                    var innerTerms = ((innerExpr is AddMathExpr innerAddExpr) ? innerAddExpr.Terms : new []{ innerExpr });
+                    var innerTerms = AddMathExpr.Create(reducedInnerExpr.AsAdditiveTerms().Select(term => (factorPowerExpr * term)));
 
-                    newTerms = newTerms.Concat(innerTerms.Select(term => (factorPowerExpr * term).Reduce(ReduceOptions.LIGHT)));
+                    newTerms.AddRange(innerTerms.Reduce(ReduceOptions.LIGHT).AsAdditiveTerms());
                 }
 
-                return newTerms.ToList();
+                return newTerms;
             }
 
             return null;

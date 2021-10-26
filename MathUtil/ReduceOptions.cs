@@ -12,6 +12,7 @@ namespace MathUtil
         {
             AllowSearchIdentities = false,
             AllowCommonFactorSearch = false,
+            AllowFullCoverageFactor = false,
             AllowDistributeTerms = false,
         };
 
@@ -19,34 +20,25 @@ namespace MathUtil
         {
             AllowSearchIdentities = true,
             AllowCommonFactorSearch = true,
+            AllowFullCoverageFactor = true,
             AllowDistributeTerms = true,
         };
 
         public ReduceOptions With(bool? allowSearchIdentities = null, bool? allowCommonFactorSearch = null,
-            bool? allowDistributeTerms = null)
+            bool? allowFullCoverageFactor = null, bool? allowDistributeTerms = null)
         {
-            ReduceOptions newOptions = this;
-
-            if (allowSearchIdentities.HasValue)
+            return new ReduceOptions
             {
-                newOptions.AllowSearchIdentities = allowSearchIdentities.Value;
-            }
-
-            if (allowCommonFactorSearch.HasValue)
-            {
-                newOptions.AllowCommonFactorSearch = allowCommonFactorSearch.Value;
-            }
-
-            if (allowDistributeTerms.HasValue)
-            {
-                newOptions.AllowDistributeTerms = allowDistributeTerms.Value;
-            }
-
-            return newOptions;
+                AllowSearchIdentities = allowSearchIdentities ?? AllowSearchIdentities,
+                AllowCommonFactorSearch = allowCommonFactorSearch ?? AllowCommonFactorSearch,
+                AllowFullCoverageFactor = allowFullCoverageFactor ?? AllowFullCoverageFactor,
+                AllowDistributeTerms = allowDistributeTerms ?? AllowDistributeTerms,
+            };
         }
 
         public bool AllowSearchIdentities { get; private set; }
         public bool AllowCommonFactorSearch { get; private set; }
+        public bool AllowFullCoverageFactor { get; private set; }
         public bool AllowDistributeTerms { get; private set; }
     }
 }

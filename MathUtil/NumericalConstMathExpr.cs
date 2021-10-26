@@ -31,24 +31,28 @@ namespace MathUtil
 
             checked
             {
-                var fractions = terms.OfType<ConstFractionMathExpr>();
-                var exacts = terms.OfType<ExactConstMathExpr>();
+                var fractions = terms.OfType<ConstFractionMathExpr>().ToList();
 
-                if (fractions.Any() && exacts.All(exact => MathEvalUtil.IsWholeNumber(exact.Value)))
+                if (fractions.Any())
                 {
-                    try
-                    {
-                        checked
-                        {
-                            long top = exacts.Aggregate(1L, (agg, exact) => agg * exact.AsWholeNumber.Value) *
-                                        fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Top);
-                            long bottom = fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Bottom);
+                    var exacts = terms.OfType<ExactConstMathExpr>().ToList();
 
-                            return ConstFractionMathExpr.Create(top, bottom).NumericalReduce();
-                        }
-                    }
-                    catch (OverflowException)
+                    if (exacts.All(exact => MathEvalUtil.IsWholeNumber(exact.Value)))
                     {
+                        try
+                        {
+                            checked
+                            {
+                                long top = exacts.Aggregate(1L, (agg, exact) => agg * exact.AsWholeNumber.Value) *
+                                            fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Top);
+                                long bottom = fractions.Aggregate(1L, (agg, fraction) => agg * fraction.Bottom);
+
+                                return ConstFractionMathExpr.Create(top, bottom).NumericalReduce();
+                            }
+                        }
+                        catch (OverflowException)
+                        {
+                        }
                     }
                 }
 

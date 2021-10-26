@@ -135,6 +135,7 @@ namespace Test
             //("x^2+y^2", "y^2*(1 + x^2/y^2)"),
             //("x^2+y^2", "y^2*(1 + (x/y)^2)"),
             //("1/y^2", "(1 + x^2/y^2)/(x^2 + y^2)"),
+            //("2", "(4x+6)/(2x+3)",) //TODO: requires breaking numbers into primes
         });
 
         //TODO: test trig identities
@@ -144,6 +145,7 @@ namespace Test
             //("sin(x)cos(x)", "sin(x) - sin(x)cos(x)"),
             //("cos(2x)", "1 - 2sin(x)^2"),
             //("cos(2x)", "2cos(x)^2 - 1"),
+            //("2cos(2x)", "4cos(x)^2 - 2"),  //TODO: this requires changing how common factors are mapped and checked
             //("sin(x)", "tan(x)cos(x)"),
             //("cost(x)", "cot(x)sin(x)"),
             //("1", "tan(x)cot(x)"),
@@ -155,6 +157,7 @@ namespace Test
 
         //TODO: RepetitiveReductionTest
         public static IEnumerable<object[]> RepetitiveReductionTest() => GetTheoryData(new[] {
+            ("2(x + 3)(x + 5)", "(1 - x)(x + 3)(x + 5) + (x + 3)(x + 5)(x + 1)"),
             ("x^2", "x^2*sin(y)^2 + x^2*cos(y)^2"),
             ("x^2", "x^2sin(y)^2sin(z)^2 + x^2sin(y)^2cos(z)^2 + x^2cos(y)^2"),
             ("x^2", "x * (1 - 1 + x*sin(x)^2 + x*cos(x)^2)"),

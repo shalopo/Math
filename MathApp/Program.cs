@@ -286,9 +286,8 @@ namespace MathTest
             var x = ExpandableMathFunctionDef.x1;
 
             ExpandTaylor(new ExpandableMathFunctionDef("f",
-            (x + 1)*(x - 1)*(x + 3)  //TODO: derivative has unexpected non distributed terms
-            //TODO: causes stack overflow arctan(x*2^(1/2)/2)
-            //TODO: ARCCOS and ARCCOS(x)
+                ARCTAN(x * TWO.Pow(HALF) / 2) //TODO: causes stack overflow
+            //TODO: ARCCOS(x) and ARCCOS(x)
             //(SQRT(2) / 2 + I * SQRT(2) / 2).Pow(2)   //TODO: Weird printing on complex eval
             , x));
         }

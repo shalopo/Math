@@ -8,13 +8,15 @@ namespace MathUtil
 {
     class AddReducer
     {
-        public static MathExpr Reduce(IEnumerable<MathExpr> terms, ReduceOptions options)
+        public static MathExpr Reduce(IReadOnlyList<MathExpr> terms, ReduceOptions options)
         {
             terms = Flatten(terms);
             terms = ReduceTerms(terms, options);
 
             if (options.AllowDistributeTerms)
             {
+                //TODO: undo it if we end up adding weight (after perfoming the next reductions as well)
+                //TODO: We may want to limit this or only distribute some of the terms / do this iteratively
                 terms = DistributeMultTerms(terms);
             }
 
@@ -22,7 +24,7 @@ namespace MathUtil
 
             if (options.AllowCommonFactorSearch)
             {
-                terms = CommonFactorReducer.Reduce(terms);
+                terms = CommonFactorReducer.Reduce(terms, options.AllowFullCoverageFactor);
             }
 
             if (options.AllowSearchIdentities)
@@ -35,13 +37,19 @@ namespace MathUtil
             return AddMathExpr.Create(terms);
         }
 
-        private static IEnumerable<MathExpr> Flatten(IEnumerable<MathExpr> terms)
+        private static IReadOnlyList<MathExpr> Flatten(IReadOnlyList<MathExpr> terms)
         {
-            //TODO: Make this more efficient and only as needed, as it is rarely required
-            return terms.SelectMany(expr => (expr is AddMathExpr addExpr) ? Flatten(addExpr.Terms) : new[] { expr });
+            return FlattenInner(terms).ToList();
+
+            static IEnumerable<MathExpr> FlattenInner(IReadOnlyList<MathExpr> terms)
+            {
+                return terms.SelectMany(expr =>
+                    (expr is AddMathExpr addExpr) ? FlattenInner(addExpr.Terms) : expr.AsSingleExprEnumerable()
+                ).ToList();
+            }
         }
 
-        private static IEnumerable<MathExpr> CollectConsts(IEnumerable<MathExpr> terms)
+        private static IReadOnlyList<MathExpr> CollectConsts(IReadOnlyList<MathExpr> terms)
         {
             var leftoverTerms = new List<MathExpr>();
 
@@ -89,31 +97,30 @@ namespace MathUtil
             return leftoverTerms;
         }
 
-        private static IEnumerable<MathExpr> ReduceTerms(IEnumerable<MathExpr> terms, ReduceOptions options)
+        private static IReadOnlyList<MathExpr> ReduceTerms(IReadOnlyList<MathExpr> terms, ReduceOptions options)
         {
             // It is possible that reduction of terms requires reflattening
-            return Flatten(from expr in terms
-                let exprReduced = expr.Reduce(options)
-                where !MathEvalUtil.IsZero(exprReduced)
-                select exprReduced);
+            return Flatten(
+                terms.Select(term => term.Reduce(options)).
+                Where(term => !MathEvalUtil.IsZero(term)).ToList());
         }
 
-        private static IEnumerable<MathExpr> DistributeMultTerms(IEnumerable<MathExpr> terms)
+        private static IReadOnlyList<MathExpr> DistributeMultTerms(IReadOnlyList<MathExpr> terms)
         {
-            return terms.Select(expr => (expr is MultMathExpr multExpr) ?  TryDistribute(multExpr) :  new[] { expr })
-                .SelectMany(s => s);
+            return terms.SelectMany(expr =>
+                (expr is MultMathExpr multExpr) ? TryDistribute(multExpr) : expr.AsSingleExprEnumerable()).ToList();
         }
 
         private static IEnumerable<MathExpr> TryDistribute(MultMathExpr expr)
         {
-            var addTerms = expr.Terms.OfType<AddMathExpr>();
+            var addTerms = expr.Terms.OfType<AddMathExpr>().ToList();
 
-            if (addTerms.Count() != 1)
+            if (addTerms.Count != 1)
             {
-                return new[] { expr };
+                return expr.AsSingleExprEnumerable();
             }
 
-            var addTerm = addTerms.First();
+            var addTerm = addTerms[0];
             var restOfTerms = MultMathExpr.Create(expr.Terms.Where(term => term != addTerm));
 
             return addTerm.Select(term => (term * restOfTerms).Reduce(ReduceOptions.LIGHT));

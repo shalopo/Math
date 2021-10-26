@@ -1,5 +1,6 @@
 ﻿using MathUtil.Parsing;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
@@ -90,6 +91,21 @@ namespace MathUtil
         internal static readonly MathExpr[] EMPTY_ARRAY = new MathExpr[0];
 
         protected bool IsReduced { get; set; } = false;
+
+        private MathExpr[] _singleExprArrayLazy;
+
+        internal IEnumerable<MathExpr> AsSingleExprEnumerable()
+        {
+            if (_singleExprArrayLazy == null)
+            {
+                _singleExprArrayLazy = new MathExpr[] { this };
+            }
+
+            return _singleExprArrayLazy;
+        }
+
+        internal virtual IEnumerable<MathExpr> AsAdditiveTerms() => AsSingleExprEnumerable();
+        internal virtual IEnumerable<MathExpr> AsMultTerms() => AsSingleExprEnumerable();
     }
 
 }

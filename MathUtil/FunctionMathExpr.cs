@@ -125,12 +125,19 @@ namespace MathUtil
                    Input.Equals(expr.Input);
         }
 
+        private int? m_hashCodeLazy;
+
         public override int GetHashCode()
         {
-            var hashCode = 1879674458;
-            hashCode = hashCode * -1521134295 + Func.GetHashCode();
-            hashCode = hashCode * -1521134295 + Input.GetHashCode();
-            return hashCode;
+            if (!m_hashCodeLazy.HasValue)
+            {
+                var hashCode = 1879674458;
+                hashCode = hashCode * -1521134295 + Func.GetHashCode();
+                hashCode = hashCode * -1521134295 + Input.GetHashCode();
+                m_hashCodeLazy = hashCode;
+            }
+
+            return m_hashCodeLazy.Value;
         }
 
         protected override MathExpr ReduceImpl(ReduceOptions options)

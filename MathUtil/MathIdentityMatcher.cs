@@ -14,12 +14,12 @@ namespace MathUtil
         {
         }
 
-        public static IEnumerable<MathExpr> Reduce(IEnumerable<MathExpr> terms)
+        public static IReadOnlyList<MathExpr> Reduce(IReadOnlyList<MathExpr> terms)
         {
             return new MathIdentityMatcher().DoReduce(terms);
         }
 
-        private IEnumerable<MathExpr> DoReduce(IEnumerable<MathExpr> terms)
+        private IReadOnlyList<MathExpr> DoReduce(IReadOnlyList<MathExpr> terms)
         {
             do
             {
@@ -47,7 +47,7 @@ namespace MathUtil
             return terms;
         }
 
-        private MathExpr TryReduce(IEnumerable<MathExpr> terms)
+        private MathExpr TryReduce(IReadOnlyList<MathExpr> terms)
         {
             foreach (var identity in MathIdentityManager.Identities)
             {
@@ -55,7 +55,7 @@ namespace MathUtil
 
                 for (int idTermIndex = 0; idTermIndex < maxIndex; idTermIndex++)
                 {
-                    if (terms.Count() < identity.Terms.Count - 1)
+                    if (terms.Count < identity.Terms.Count - 1)
                     {
                         continue;
                     }
@@ -72,7 +72,7 @@ namespace MathUtil
             return null;
         }
 
-        private MathExpr TryReduceByIdentity(IEnumerable<MathExpr> terms, MathIdentity identity, int identityTermIndex)
+        private MathExpr TryReduceByIdentity(IReadOnlyList<MathExpr> terms, MathIdentity identity, int identityTermIndex)
         {
             var identityTerm = identity.Terms[identityTermIndex];
 
