@@ -107,23 +107,50 @@ namespace MathUtil
 
         private static IReadOnlyList<MathExpr> DistributeMultTerms(IReadOnlyList<MathExpr> terms)
         {
-            return terms.SelectMany(expr =>
-                (expr is MultMathExpr multExpr) ? TryDistribute(multExpr) : expr.AsSingleExprEnumerable()).ToList();
+            return terms.SelectMany(expr => 
+                                    ((expr is MultMathExpr multExpr) ? TryDistribute(multExpr) : null) 
+                                    ?? expr.AsSingleExprEnumerable()).ToList();
         }
 
         private static IEnumerable<MathExpr> TryDistribute(MultMathExpr expr)
         {
             var addTerms = expr.Terms.OfType<AddMathExpr>().ToList();
 
-            if (addTerms.Count != 1)
+            if (addTerms.Count == 1)
             {
-                return expr.AsSingleExprEnumerable();
+                var addTerm = addTerms[0];
+                var restOfTerms = MultMathExpr.Create(expr.Terms.Where(term => term != addTerm));
+
+                return addTerm.Select(term => (term * restOfTerms).Reduce(ReduceOptions.LIGHT));
             }
+            else if (addTerms.Count == 2)
+            {
+                var termCount = addTerms.Aggregate(1, (acc, addTerm) => acc * addTerm.Terms.Count);
+                
+                if (termCount > 9)
+                {
+                    return null;
+                }
 
-            var addTerm = addTerms[0];
-            var restOfTerms = MultMathExpr.Create(expr.Terms.Where(term => term != addTerm));
+                var result = new List<MathExpr>(termCount);
 
-            return addTerm.Select(term => (term * restOfTerms).Reduce(ReduceOptions.LIGHT));
+                var restOfTerms = MultMathExpr.Create(expr.Terms.Where(term => term is not AddMathExpr));
+
+                foreach (var termA in addTerms[0])
+                {
+                    foreach (var termB in addTerms[1])
+                    {
+                        result.Add(MultMathExpr.Create(new List<MathExpr> { termA * termB * restOfTerms }).
+                            Reduce(ReduceOptions.LIGHT));
+                    }
+                }
+
+                return result;
+            }
+            else
+            {
+                return null;
+            }
         }
 
     }
