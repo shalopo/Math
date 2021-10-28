@@ -8,17 +8,19 @@ namespace MathUtil
 {
     public static class MathEvalUtil
     {
-        private static bool IsConvertibleToLong(double value)
+        public static long? AsWholeNumber(double value)
         {
-            try
+            // Beyond this value (positive or negative), doubles lose the precision of whole numbers
+            const double MAX_VALUE = 1E15;
+
+            if (Math.Abs(value) >= MAX_VALUE)
             {
-                Convert.ToInt64(value);
-                return true;
+                return null;
             }
-            catch (OverflowException)
-            {
-                return false;
-            }
+
+            long converted = Convert.ToInt64(value);
+
+            return (Math.Abs(value - converted) <= (double.Epsilon * 100)) ? converted : null;
         }
 
         public static bool IsZero(MathExpr expr) => expr.Equals(GlobalMathDefs.ZERO);
@@ -27,7 +29,7 @@ namespace MathUtil
         public static double GetWeight(MathExpr expr) => expr.Weight;
         public static double SumWeights(IEnumerable<MathExpr> terms) => terms.Aggregate(0.0, (agg, expr) => agg + expr.Weight);
 
-        public static bool IsWholeNumber(double value) => Math.Abs(value % 1) <= (double.Epsilon * 100) && IsConvertibleToLong(value);
+        public static bool IsWholeNumber(double value) => AsWholeNumber(value).HasValue;
         public static bool IsWholeNumber(MathExpr expr) => expr is ExactConstMathExpr exact && IsWholeNumber(exact.Value);
 
         public static bool IsEven(double value)

@@ -16,9 +16,8 @@ namespace MathUtil
 
         public double Value { get; }
 
-        //TODO: whole number does not mean that it's exact!
         public bool IsWholeNumber => MathEvalUtil.IsWholeNumber(Value);
-        public long? AsWholeNumber => IsWholeNumber ? Convert.ToInt64(Value) : (long?)null;
+        public long? AsWholeNumber => MathEvalUtil.AsWholeNumber(Value);
 
         internal override double WeightImpl => Value == 0 ? 0 : 
             MathEvalUtil.IsWholeNumber(Value) ? 1 : 2;
