@@ -20,7 +20,7 @@ namespace MathUtil
         {
             AllowSearchIdentities = true,
             AllowCommonFactorSearch = true,
-            AllowFullCoverageFactor = true,
+            AllowFullCoverageFactor = false,
             AllowDistributeTerms = true,
         };
 

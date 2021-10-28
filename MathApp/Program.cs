@@ -61,7 +61,7 @@ namespace MathTest
                 {
                     Console.WriteLine($"Canonical form: {expr} , weight = {GetWeight(expr)}");
 
-                    expr = expr.Reduce(ReduceOptions.DEFAULT);
+                    expr =  Reduce(expr);
 
                     Console.WriteLine($"Reduced form:   {expr} , weight = {GetWeight(expr)}");
 

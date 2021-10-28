@@ -20,7 +20,7 @@ namespace MathUtil
 
         internal abstract MathExpr Derive(MathVariable v);
 
-        public MathExpr Reduce(ReduceOptions options)
+        internal MathExpr Reduce(ReduceOptions options)
         {
             if (IsReduced)
             {

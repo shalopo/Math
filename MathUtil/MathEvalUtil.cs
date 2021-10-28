@@ -93,5 +93,11 @@ namespace MathUtil
             var evaled = Transform(expr, values);
             return ComplexEval(evaled);
         }
+
+        public static MathExpr Reduce(MathExpr expr)
+        {
+            return expr.Reduce(ReduceOptions.DEFAULT.With(allowFullCoverageFactor: true));
+        }
+
     }
 }

@@ -26,12 +26,10 @@ namespace Test
         [MemberData(nameof(RepetitiveReductionTest))]
         public void AssertReducedEqual(string expected_str, string actual_str)
         {
-            var reduceOptions = ReduceOptions.DEFAULT;
-
             MathParseContext context = new();
 
-            var actual = MathParser.Parse(actual_str, context).Reduce(reduceOptions);
-            var expected = MathParser.Parse(expected_str, context).Reduce(reduceOptions);
+            var actual = MathEvalUtil.Reduce(MathParser.Parse(actual_str, context));
+            var expected = MathEvalUtil.Reduce(MathParser.Parse(expected_str, context));
 
             TestUtils.AssertEqual(expected, actual);
         }

@@ -11,7 +11,7 @@ namespace MathUtil
         public static MathExpr Reduce(IReadOnlyList<MathExpr> terms, ReduceOptions options)
         {
             terms = Flatten(terms);
-            terms = ReduceTerms(terms, options);
+            terms = ReduceTerms(terms, options.With(allowFullCoverageFactor: true));
 
             int sign;
             (terms, sign) = GetUnsignedTerms(terms);
